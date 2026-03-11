@@ -31,6 +31,63 @@ Currently covers **8 government schemes** including PM-KISAN, PMJDY, PM-SVANidhi
 | **Framework** | FastAPI + uvicorn | Async webhook server |
 | **Package Manager** | uv | Fast Python dependency management |
 
+### Why Both Sarvam AI and Gemini?
+
+Sarvam AI and Gemini serve **completely different roles** — they are complementary, not redundant:
+
+| Task | Service | Why This One? |
+|------|---------|---------------|
+| Voice → text (STT) | **Sarvam AI** (Saaras v3) | Purpose-built for Indian languages — best ASR accuracy for Hindi, Tamil, Telugu, etc. |
+| Language detection + translation | **Sarvam AI** (Mayura) | Native support for 10+ Indian languages with auto-detection |
+| Understanding queries, reasoning, tool-calling, answer generation | **Gemini 2.5 Flash** | General-purpose LLM with function calling — Sarvam does not offer a reasoning LLM |
+
+**Sarvam AI** handles the **multilingual I/O layer** (speech and translation), while **Gemini** handles the **intelligence layer** (reading retrieved chunks, deciding which tool to call, generating cited answers). Sarvam doesn't have a general-purpose LLM that can do RAG-based Q&A or tool orchestration — that's exactly what Gemini provides.
+
+---
+
+## Sample Retrieval Outputs (Multi-Language)
+
+Tested with queries in 8 Indian languages against the 68 ingested scheme vectors:
+
+```
+[English] "pension for elderly women"
+  → score=0.8574 | scheme_4.md | ₹5 lakh family floater cover, cashless hospitalization...
+  → score=0.8171 | scheme_2.md | PMJDY (Pradhan Mantri Jan-Dhan Yojana)...
+  → score=0.8156 | scheme_5.md | NSAP official portal (Eligibility + assistance)...
+
+[Hindi] "बुज़ुर्गों के लिए पेंशन योजना"
+  → score=0.8549 | scheme_1.md | All participating States/UTs...
+  → score=0.8216 | scheme_6.md | Early closure allowed only in specific conditions...
+  → score=0.8133 | scheme_6.md | Deposit rules, minimum yearly deposit requirement...
+
+[Tamil] "முதியோருக்கான ஓய்வூதியம்"
+  → score=0.9022 | scheme_8.md | at least 51% shareholding and control...
+  → score=0.8897 | scheme_7.md | PFRDA FAQ — Atal Pension Yojana...
+  → score=0.8478 | scheme_7.md | Checklist (Exact KYC may vary by bank)...
+
+[Telugu] "రైతులకు ఆర్థిక సహాయం"
+  → score=0.8708 | scheme_4.md | SECC 2011-based entitled families...
+  → score=0.8588 | scheme_6.md | Early closure allowed only in specific conditions...
+
+[Bengali] "গরীব পরিবারের জন্য সরকারি যোজনা"
+  → score=0.8575 | scheme_6.md | Early closure allowed only in specific conditions...
+  → score=0.8532 | scheme_2.md | Pan-India (available through participating banks)...
+
+[Marathi] "शेतकऱ्यांसाठी आर्थिक मदत"
+  → score=0.8264 | scheme_8.md | Stand-Up India scheme to facilitate bank loans...
+  → score=0.8182 | scheme_6.md | Deposit rules, minimum yearly deposit requirement...
+
+[Kannada] "ಬಡವರ ಕುಟುಂಬಗಳಿಗೆ ಆರೋಗ್ಯ ವಿಮೆ"
+  → score=0.8982 | scheme_2.md | PMJDY (Pradhan Mantri Jan-Dhan Yojana)...
+  → score=0.8820 | scheme_5.md | NSAP local verification details...
+
+[Malayalam] "ദരിദ്രരായ കുടുംബങ്ങള്‍ക്ക് സഹായം"
+  → score=0.8836 | scheme_6.md | One account per girl child, maximum two per family...
+  → score=0.8444 | scheme_2.md | DBT linkage / JAM pipeline...
+```
+
+> **Note:** Current v1 uses deterministic SHA-256 dummy embeddings (384-dim). Scores reflect cosine similarity between hash-based vectors — semantic accuracy will improve significantly once Sarvam embedding API is integrated in v2.
+
 ---
 
 ## Project Structure
@@ -186,14 +243,33 @@ User (WhatsApp) ──► Twilio Webhook ──► FastAPI
 
 ## Covered Schemes
 
-1. **PM-KISAN** — Direct income support for farmers
-2. **PMJDY** — Financial inclusion (bank accounts)
-3. **PM-SVANidhi** — Micro-loans for street vendors
-4. **Ayushman Bharat (PMJAY)** — Health insurance (₹5L cover)
-5. **NSAP** — Pensions for elderly, widows, disabled
-6. **MGNREGA** — Rural employment guarantee
-7. **PM Ujjwala Yojana** — Free LPG connections for BPL families
-8. **Atal Pension Yojana** — Pension for unorganized sector workers
+| # | Scheme | What It Does |
+|---|--------|-------------|
+| 1 | **PMAY-U 2.0** (Pradhan Mantri Awas Yojana – Urban) | Affordable housing assistance for urban EWS/LIG/MIG families |
+| 2 | **PMJDY** (Pradhan Mantri Jan-Dhan Yojana) | Zero-balance bank accounts + financial inclusion |
+| 3 | **PMUY** (Pradhan Mantri Ujjwala Yojana) | Free LPG connections for BPL households |
+| 4 | **Ayushman Bharat PM-JAY** | ₹5 lakh health insurance for eligible families |
+| 5 | **NSAP** (National Social Assistance Programme) | Pensions for elderly, widows, disabled |
+| 6 | **Sukanya Samriddhi Yojana (SSY)** | Savings scheme for girl child education/marriage |
+| 7 | **APY** (Atal Pension Yojana) | Guaranteed pension for unorganized sector workers |
+| 8 | **Stand-Up India** | ₹10L–₹1Cr bank loans for SC/ST/women entrepreneurs |
+
+### How Were the Data Cards Created?
+
+Each Markdown file in `data/seed_docs/` was **manually curated** by scraping official government portals and PDFs:
+
+| Source Portal | Schemes Covered |
+|---------------|----------------|
+| `pmay-urban.gov.in`, `pmaymis.gov.in` | PMAY-U 2.0 |
+| `pmjdy.gov.in` | PMJDY |
+| `pmuy.gov.in` | PMUY / Ujjwala 2.0 |
+| `nha.gov.in/PM-JAY`, `mohfw.gov.in` | Ayushman Bharat PM-JAY |
+| `nsap.gov.in`, `nsap.dord.gov.in` | NSAP |
+| `dea.gov.in`, `pib.gov.in` | Sukanya Samriddhi Yojana |
+| `pfrda.org.in`, `jansuraksha.gov.in` | Atal Pension Yojana |
+| `standupmitra.in`, `ncgtc.in` | Stand-Up India |
+
+Every card follows a **uniform structure** — `Overview → Eligibility → Official Sources → Checklist → Sections` — so the RAG chunker can split them consistently. The eligibility section is structured with State/Age/Income/Category fields to power the eligibility-check tool.
 
 ---
 
