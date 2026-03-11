@@ -1,5 +1,9 @@
-"""Test Qdrant retrieval with queries in multiple Indian languages."""
-import sys, os, hashlib
+"""Test Qdrant retrieval with queries in multiple Indian languages.
+Results saved to: sarvamai/scripts/results/multilang_retrieval.json
+"""
+import sys, os, hashlib, json
+from datetime import datetime
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from app.services.rag.qdrant_client import qdrant_client
 
@@ -25,6 +29,8 @@ print("=" * 70)
 print("Multi-language Qdrant Retrieval Test")
 print("=" * 70)
 
+results = []
+
 for lang, query in QUERIES:
     print(f"\n[{lang}] Query: {query}")
     response = qdrant_client.query_points(
@@ -32,13 +38,30 @@ for lang, query in QUERIES:
         query=dummy_embed(query),
         limit=3,
     )
+    hits = []
     for i, pt in enumerate(response.points, 1):
         src = pt.payload["source"]
         txt = pt.payload["text"][:80].replace("\n", " ")
         print(f"  {i}. score={pt.score:.4f} | {src} | {txt}...")
+        hits.append({"rank": i, "score": round(pt.score, 4), "source": src, "snippet": txt})
+    results.append({"language": lang, "query": query, "hits": hits})
 
 # Collection stats
 info = qdrant_client.get_collection("schemes")
-print(f"\nCollection 'schemes': {info.points_count} points")
+total_points = info.points_count
+print(f"\nCollection 'schemes': {total_points} points")
 print("=" * 70)
 print("All queries returned results — retrieval pipeline is working.")
+
+# Save results
+os.makedirs(os.path.join(os.path.dirname(__file__), "results"), exist_ok=True)
+out_path = os.path.join(os.path.dirname(__file__), "results", "multilang_retrieval.json")
+with open(out_path, "w", encoding="utf-8") as f:
+    json.dump({
+        "test": "multilang_retrieval",
+        "timestamp": datetime.now().isoformat(),
+        "collection_points": total_points,
+        "queries": len(QUERIES),
+        "results": results,
+    }, f, ensure_ascii=False, indent=2)
+print(f"Saved to: {out_path}")

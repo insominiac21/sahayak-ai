@@ -29,10 +29,17 @@ def route_tools(query, chunks, user_profile):
         config=config,
     )
     answer = response.text
-    # Step 4: Translate answer back to user language
-    translated = detect_and_translate(answer, target_lang=user_lang)
+    # Step 4: Translate answer back to user's language
+    from app.services.audio.translate_sarvam import SARVAM_LANG_CODES
+    if user_lang != "en-IN" and user_lang in SARVAM_LANG_CODES:
+        translated = detect_and_translate(answer, target_lang=user_lang)
+        final_answer = translated["translated_text"]
+    else:
+        final_answer = answer
+
     return {
-        "answer": translated["translated_text"],
+        "answer": final_answer,
+        "answer_en": answer,
         "citations": getattr(response, "citations", None),
         "user_lang": user_lang
     }

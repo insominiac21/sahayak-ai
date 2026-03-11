@@ -1,0 +1,23 @@
+{
+  "test": "retrieval_basic",
+  "timestamp": "2026-03-11T22:58:30.523423",
+  "query": "pension for elderly women",
+  "collection_points": 68,
+  "hits": [
+    {
+      "score": 0.8574,
+      "source": "scheme_4.md",
+      "snippet": "## Sections\n- Benefits & coverage\n  - ₹5 lakh family floater cover, cashless hospitalization, portability across India\n "
+    },
+    {
+      "score": 0.8171,
+      "source": "scheme_2.md",
+      "snippet": "# Scheme 2 — PMJDY (Pradhan Mantri Jan-Dhan Yojana)"
+    },
+    {
+      "score": 0.8156,
+      "source": "scheme_5.md",
+      "snippet": "## Official Sources\n- [NSAP official portal (Eligibility + assistance amounts summary)](https://nsap.gov.in/)\n- [NSAP FA"
+    }
+  ]
+}

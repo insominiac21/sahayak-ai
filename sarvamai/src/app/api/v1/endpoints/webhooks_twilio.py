@@ -17,10 +17,8 @@ async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
 def process_message(request: Request):
     import asyncio
     from app.services.audio.stt_sarvam import transcribe_audio
-    from app.services.audio.translate_sarvam import detect_and_translate
     from app.services.rag.retrieve import retrieve_chunks
     from app.services.agent.orchestrator import route_tools
-    from app.core.config import settings
     # Parse incoming WhatsApp message
     data = asyncio.run(request.json())
     user_number = data.get("From")
@@ -29,17 +27,10 @@ def process_message(request: Request):
     # Step 1: If media, transcribe audio
     if media_url:
         text = asyncio.run(transcribe_audio(media_url))
-    # Step 2: Detect language and translate to English
-    detected = detect_and_translate(text, target_lang="en-IN")
-    english_query = detected["translated_text"]
-    user_lang = detected["source_language_code"]
-    # Step 3: Retrieve chunks for RAG
-    chunks = retrieve_chunks(english_query, language="en-IN")
-    # Step 4: Route to tools (Gemini function calling)
-    result = route_tools(english_query, chunks, user_profile={"whatsapp": user_number})
-    # Step 5: Send answer back via WhatsApp (implementation omitted)
-    # answer = result["answer"]
-    # citations = result["citations"]
-    # user_lang = result["user_lang"]
+    # Step 2: Orchestrator handles: detect lang → translate → retrieve → Gemini → translate back
+    chunks = retrieve_chunks(text)
+    result = route_tools(text, chunks, user_profile={"whatsapp": user_number})
+    # result["answer"] is already in the user's original language
+    # Step 3: Send answer back via WhatsApp
     # TODO: Implement Twilio send message logic
     return

@@ -1,0 +1,200 @@
+{
+  "test": "multilang_retrieval",
+  "timestamp": "2026-03-11T22:58:44.166485",
+  "collection_points": 68,
+  "queries": 8,
+  "results": [
+    {
+      "language": "English",
+      "query": "pension for elderly women",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8574,
+          "source": "scheme_4.md",
+          "snippet": "## Sections - Benefits & coverage   - ₹5 lakh family floater cover, cashless hos"
+        },
+        {
+          "rank": 2,
+          "score": 0.8171,
+          "source": "scheme_2.md",
+          "snippet": "# Scheme 2 — PMJDY (Pradhan Mantri Jan-Dhan Yojana)"
+        },
+        {
+          "rank": 3,
+          "score": 0.8156,
+          "source": "scheme_5.md",
+          "snippet": "## Official Sources - [NSAP official portal (Eligibility + assistance amounts su"
+        }
+      ]
+    },
+    {
+      "language": "Hindi",
+      "query": "बुज़ुर्गों के लिए पेंशन योजना",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8549,
+          "source": "scheme_1.md",
+          "snippet": "## Eligibility - State:   - All participating **States/UTs** (implementation is "
+        },
+        {
+          "rank": 2,
+          "score": 0.8216,
+          "source": "scheme_6.md",
+          "snippet": "from opening   - Early closure allowed only in specific conditions (e.g., marria"
+        },
+        {
+          "rank": 3,
+          "score": 0.8133,
+          "source": "scheme_6.md",
+          "snippet": "## Sections - Deposit rules   - Minimum yearly deposit requirement (to keep acco"
+        }
+      ]
+    },
+    {
+      "language": "Tamil",
+      "query": "முதியோருக்கான ஓய்வூதியம்",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.9022,
+          "source": "scheme_8.md",
+          "snippet": " enterprises (company/LLP/partnership)**: **at least 51% shareholding and contro"
+        },
+        {
+          "rank": 2,
+          "score": 0.8897,
+          "source": "scheme_7.md",
+          "snippet": "## Official Sources - [PFRDA FAQ — Atal Pension Yojana](https://www.pfrda.org.in"
+        },
+        {
+          "rank": 3,
+          "score": 0.8478,
+          "source": "scheme_7.md",
+          "snippet": "## Checklist (Exact KYC may vary by bank/post office; these are the common minim"
+        }
+      ]
+    },
+    {
+      "language": "Telugu",
+      "query": "రైతులకు ఆర్థిక సహాయం",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8708,
+          "source": "scheme_4.md",
+          "snippet": "on. - Category:   - Primary identification: **SECC 2011**-based entitled familie"
+        },
+        {
+          "rank": 2,
+          "score": 0.8588,
+          "source": "scheme_6.md",
+          "snippet": "from opening   - Early closure allowed only in specific conditions (e.g., marria"
+        },
+        {
+          "rank": 3,
+          "score": 0.8587,
+          "source": "scheme_8.md",
+          "snippet": " enterprises (company/LLP/partnership)**: **at least 51% shareholding and contro"
+        }
+      ]
+    },
+    {
+      "language": "Bengali",
+      "query": "গরীব পরিবারের জন্য সরকারি যোজনা",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8575,
+          "source": "scheme_6.md",
+          "snippet": "from opening   - Early closure allowed only in specific conditions (e.g., marria"
+        },
+        {
+          "rank": 2,
+          "score": 0.8532,
+          "source": "scheme_2.md",
+          "snippet": "## Eligibility - State:   - Pan-India (available through participating banks/Ban"
+        },
+        {
+          "rank": 3,
+          "score": 0.8453,
+          "source": "scheme_7.md",
+          "snippet": "## Overview Atal Pension Yojana (APY) is a government-backed pension scheme for "
+        }
+      ]
+    },
+    {
+      "language": "Marathi",
+      "query": "शेतकऱ्यांसाठी आर्थिक मदत",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8264,
+          "source": "scheme_8.md",
+          "snippet": "## Overview Stand-Up India is a Government of India scheme to facilitate **bank "
+        },
+        {
+          "rank": 2,
+          "score": 0.8182,
+          "source": "scheme_6.md",
+          "snippet": "## Sections - Deposit rules   - Minimum yearly deposit requirement (to keep acco"
+        },
+        {
+          "rank": 3,
+          "score": 0.8142,
+          "source": "scheme_7.md",
+          "snippet": "## Eligibility - State:   - Pan-India (via banks and India Post / post office sa"
+        }
+      ]
+    },
+    {
+      "language": "Kannada",
+      "query": "ಬಡವರ ಕುಟುಂಬಗಳಿಗೆ ಆರೋಗ್ಯ ವಿಮೆ",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8982,
+          "source": "scheme_2.md",
+          "snippet": "# Scheme 2 — PMJDY (Pradhan Mantri Jan-Dhan Yojana)"
+        },
+        {
+          "rank": 2,
+          "score": 0.882,
+          "source": "scheme_5.md",
+          "snippet": "ocal verification details (for NFBS) - Residence details (often required by Stat"
+        },
+        {
+          "rank": 3,
+          "score": 0.8764,
+          "source": "scheme_4.md",
+          "snippet": "on. - Category:   - Primary identification: **SECC 2011**-based entitled familie"
+        }
+      ]
+    },
+    {
+      "language": "Malayalam",
+      "query": "ദരിദ്രരായ കുടുംബങ്ങള്‍ക്ക് സഹായം",
+      "hits": [
+        {
+          "rank": 1,
+          "score": 0.8836,
+          "source": "scheme_6.md",
+          "snippet": "Only **one account per girl child**.   - A family can open accounts for **maximu"
+        },
+        {
+          "rank": 2,
+          "score": 0.8444,
+          "source": "scheme_2.md",
+          "snippet": "utlet - DBT linkage / JAM pipeline:   - Used as a channel to receive government "
+        },
+        {
+          "rank": 3,
+          "score": 0.8409,
+          "source": "scheme_1.md",
+          "snippet": "# Scheme 1 — PMAY-U 2.0 (Pradhan Mantri Awas Yojana – Urban 2.0)"
+        }
+      ]
+    }
+  ]
+}
