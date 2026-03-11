@@ -191,6 +191,8 @@ Real output from `test_e2e_pipeline.py` — realistic helpline-style queries sho
 ```
 
 > Retrieval uses Google `gemini-embedding-001` (3072-dim) for both ingestion and query-time embedding, with Qdrant cosine similarity. Gemini generates a cited answer from the retrieved context before back-translation to the user's language.
+>
+> Full JSON outputs with scores, retrieved chunks, and raw translations are in [`sarvamai/scripts/results/`](sarvamai/scripts/results/).
 
 ---
 
@@ -204,7 +206,12 @@ sahayak-ai/
 │   ├── scripts/
 │   │   ├── ingest.py           # Chunk + embed docs → Qdrant
 │   │   ├── eval.py             # Offline evaluation harness
-│   │   └── ping_test.py        # Health-check all API keys
+│   │   ├── ping_test.py        # Health-check all API keys
+│   │   └── results/            # Detailed JSON test outputs
+│   │       ├── e2e_pipeline.json
+│   │       ├── multilang_retrieval.json
+│   │       ├── retrieval_basic.json
+│   │       └── sarvam_translation.json
 │   └── src/app/
 │       ├── main.py             # FastAPI entrypoint
 │       ├── api/v1/endpoints/
@@ -219,6 +226,7 @@ sahayak-ai/
 │       │   │   └── translate_sarvam.py # Translation (Sarvam Mayura)
 │       │   ├── rag/
 │       │   │   ├── qdrant_client.py    # Qdrant connection singleton
+│       │   │   ├── embeddings.py        # Gemini embedding-001 (3072-dim)
 │       │   │   ├── ingest.py           # RAG ingestion pipeline class
 │       │   │   └── retrieve.py         # Semantic retrieval
 │       │   └── agent/
