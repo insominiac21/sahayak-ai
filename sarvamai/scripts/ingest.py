@@ -1,16 +1,17 @@
 import os
+import re
 import sys
-import hashlib
 from typing import List
 
 # Ensure src is importable
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from app.services.rag.qdrant_client import qdrant_client
+from app.services.rag.embeddings import embed_batch, EMBEDDING_DIM
 from app.core.config import settings
 
 from qdrant_client.models import PointStruct, VectorParams, Distance
 
-VECTOR_SIZE = 384
+VECTOR_SIZE = EMBEDDING_DIM
 COLLECTION_NAME = "schemes"
 
 
@@ -26,12 +27,20 @@ def chunk_text(text: str, chunk_size: int = 512) -> List[str]:
     return chunks
 
 
-def dummy_embed(text: str) -> List[float]:
-    """Deterministic 384-dim embedding from SHA-256 hash (replace with Sarvam embedding later)."""
-    h = hashlib.sha256(text.encode()).digest()
-    # Repeat hash bytes to fill 384 dims
-    extended = (h * (384 // len(h) + 1))[:384]
-    return [float(b) / 255.0 for b in extended]
+
+
+
+def extract_scheme_name(text: str, fname: str) -> str:
+    """Extract the human-readable scheme name from the first markdown heading."""
+    first_line = text.split('\n', 1)[0]
+    # Match: # Scheme N — Name
+    m = re.match(r'^#\s*Scheme\s*\d+\s*[—–-]\s*(.+)$', first_line)
+    if m:
+        return m.group(1).strip()
+    # Fallback: use heading text without '#'
+    if first_line.startswith('#'):
+        return first_line.lstrip('# ').strip()
+    return fname
 
 
 def ingest_docs():
@@ -54,20 +63,20 @@ def ingest_docs():
         path = os.path.join(seed_dir, fname)
         with open(path, "r", encoding="utf-8") as f:
             text = f.read()
+        scheme_name = extract_scheme_name(text, fname)
         chunks = chunk_text(text)
-        points = []
-        for chunk in chunks:
-            embedding = dummy_embed(chunk)
-            points.append(
-                PointStruct(
-                    id=point_id,
-                    vector=embedding,
-                    payload={"text": chunk, "source": fname},
-                )
+        embeddings = embed_batch(chunks)
+        points = [
+            PointStruct(
+                id=point_id + i,
+                vector=emb,
+                payload={"text": chunk, "source": scheme_name},
             )
-            point_id += 1
+            for i, (chunk, emb) in enumerate(zip(chunks, embeddings))
+        ]
+        point_id += len(chunks)
         qdrant_client.upsert(collection_name=COLLECTION_NAME, points=points)
-        print(f"  Ingested {len(chunks)} chunks from {fname}")
+        print(f"  Ingested {len(chunks)} chunks from {fname} ({scheme_name})")
 
     print(f"\nDone — {point_id} total points in '{COLLECTION_NAME}'")
 

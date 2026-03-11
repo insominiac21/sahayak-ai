@@ -1,6 +1,6 @@
 {
   "test": "e2e_pipeline_realistic",
-  "timestamp": "2026-03-11T23:10:42.526353",
+  "timestamp": "2026-03-11T23:20:02.497746",
   "total_queries": 11,
   "results": [
     {
@@ -11,39 +11,45 @@
       "sources_matched": [
         "scheme_3.md",
         "scheme_1.md",
-        "scheme_5.md"
+        "scheme_5.md",
+        "scheme_4.md",
+        "scheme_2.md"
       ],
       "top_score": 0.8603,
-      "answer_en": "Based on scheme_3.md: ## Checklist (Exact fields may vary slightly by distributor/State; this is the “common minimum” mentioned in official docs.) - PMUY KYC application fo",
-      "answer_local": "Based on scheme_3.md: ## Checklist (Exact fields may vary slightly by distributor/State; this is the “common minimum” mentioned in official docs.) - PMUY KYC application fo"
+      "answer_en": "Based on the provided context, Ramesh, being 67 years old, may",
+      "answer_local": "Based on the provided context, Ramesh, being 67 years old, may"
     },
     {
       "input": "मेरा नाम सुनीता है, मैं उत्तर प्रदेश में रहती हूँ। मेरे पति की सालाना आय लगभग 2.5 लाख रुपये है और हमारे पास अपना घर नहीं है। क्या हम प्रधानमंत्री आवास योजना के लिए पात्र हैं? आवेदन के लिए कौन कौन से कागज़ात चाहिए?",
       "detected_lang": "hi-IN",
       "lang_name": "Hindi",
-      "english_query": "My name is Sunita, I live in Uttar Pradesh. My husband has a salary of around 2.5 lakhs per annum and we do not own a house. Are we eligible for the Pradhan Mantri Awas Yojana? What are the documents required for the application?",
+      "english_query": "My name is Sunita, I live in Uttar Pradesh. My husband has a salary of around 2.5 lakhs and we don't have a house of our own. Are we eligible for the Pradhan Mantri Awas Yojana? What are the documents required for the application?",
       "sources_matched": [
-        "scheme_2.md",
+        "scheme_3.md",
         "scheme_6.md",
-        "scheme_4.md"
+        "scheme_4.md",
+        "scheme_5.md",
+        "scheme_7.md"
       ],
-      "top_score": 0.8589,
-      "answer_en": "Based on scheme_2.md: ## Checklist (Exact KYC/fields depend on the bank. Keep this as your “minimum expected set” for the assistant.) - Proof of identity + address as per b",
-      "answer_local": "योजना_2 पर आधारित।एमडीः ## सूची (सटीक केवाईसी/क्षेत्र बैंक पर निर्भर करते हैं।) सहायक के लिए इसे अपना \"न्यूनतम अपेक्षित समूह\" के रूप में रखें। - पहचान और पते का प्रमाण"
+      "top_score": 0.8708,
+      "answer_en": "Based on the provided context, there is no information available regarding the Pradhan Mant",
+      "answer_local": "दिए गए संदर्भ के आधार पर, प्रधान मंत्री के बारे में कोई जानकारी उपलब्ध नहीं है"
     },
     {
       "input": "என் பெயர் முருகன், எனக்கு 5 வயது மகள் இருக்கிறாள். நான் ஒரு தனியார் நிறுவனத்தில் வேலை செய்கிறேன், மாத சம்பளம் 15000 ரூபாய். என் மகளுக்கு சுகன்யா சம்ரிதி கணக்கு திறக்க என்ன ஆவணங்கள் தேவை? குறைந்தபட்ச டெபாசிட் எவ்வளவு?",
       "detected_lang": "ta-IN",
       "lang_name": "Tamil",
-      "english_query": "My name is Murugan, I have a 5-year-old daughter. I work in a private company and my salary is Rs. 15000 per month. What documents are needed to open a Sukanya Samriddhi account for my daughter? What is the minimum deposit?",
+      "english_query": "My name is Murugan, I have a 5-year-old daughter. I work in a private company and my salary is Rs. 15000 per month. What documents are needed to open a Sukanya Samriddhi account for my daughter? What is the minimum deposit amount?",
       "sources_matched": [
+        "scheme_3.md",
+        "scheme_2.md",
         "scheme_1.md",
-        "scheme_6.md",
-        "scheme_3.md"
+        "scheme_4.md",
+        "scheme_6.md"
       ],
-      "top_score": 0.8211,
-      "answer_en": "Based on scheme_1.md: ## Checklist (Exact list varies by State/ULB + the vertical you apply under. This is the minimum “always mentioned” set.) - Aadhaar / Aadhaar Virtual ",
-      "answer_local": "scheme_1 அடிப்படையாகக் கொண்டது.எம்டி: ## சரிபார்ப்பு பட்டியல் (மாநில/யுஎல்பி மற்றும் நீங்கள் எந்த செங்குத்து நிலைக்குக் கீழ் விண்ணப்பிக்கிறீர்கள் என்பதைப் பொறுத்து சரியான பட்டியல் மாறுபடும்.) இது குறை"
+      "top_score": 0.8701,
+      "answer_en": "The provided context does not contain information about the specific documents required to open a Sukanya Samriddhi account or the minimum deposit amount for it.\n\nHowever, `scheme_6.md` mentions \"Minimum yearly deposit requirement (to keep account active)\" and that deposits are required only for the first 15 years from account opening, with partial withdrawals up to 50% for education purposes, and account maturity after 2",
+      "answer_local": "வழங்கப்பட்டுள்ள சூழலில், சுக்கன்சிறula வளையம் கணக்கைத் தொடங்கத் தேவையான குறிப்பிட்ட ஆவணங்கள் பற்றியோ அல்லது அதற்குத் தேவையான குறைந்தபட்ச வைப்புத் தொகை பற்றியோ குறிப்பிடப்படவில்லை. எனினும், `scheme_6.எம்டி` குறைந்தபட்ச வருடாந்திர வைப்புத் தொகை (கணக்கை செயலில் வைத்திருக்க) குறிப்பிடுகிறது, மேலும் வைப்புத் தொகைகள் கணக்கு திறக்கப்பட்டதிலிருந்து முதல் 15 ஆண்டுகளுக்கு மட்டுமே தேவைப்படுகிறது, கல்வி நோக்கங்களுக்காக 50% வரை பகுதி திரும்பப் பெறலாம், 2 ஆண்டுகளுக்குப் பிறகு கணக்கு முதிர்ச்சியடையும் போது, 100% வரை திரும்பப் பெறலாம்."
     },
     {
       "input": "నా పేరు వెంకటేష్, నేను ఆంధ్రప్రదేశ్‌లో చిన్న రైతుని. నా వార్షిక ఆదాయం 1.5 లక్షలు. నేను SC కేటగిరీకి చెందినవాడిని. Stand-Up India లోన్ కోసం అప్లై చేయాలనుకుంటున్నాను. ఎంత లోన్ వస్తుంది? ఏ డాక్యుమెంట్స్ కావాలి?",
@@ -53,39 +59,44 @@
       "sources_matched": [
         "scheme_1.md",
         "scheme_2.md",
-        "scheme_7.md"
+        "scheme_7.md",
+        "scheme_8.md",
+        "scheme_3.md"
       ],
       "top_score": 0.8664,
-      "answer_en": "Based on scheme_1.md: ## Eligibility - State:   - All participating **States/UTs** (implementation is via States/UTs/ULBs/PLIs; coverage depends on notified towns/ULBs). - ",
-      "answer_local": "స్కీమ్_1 ఆధారంగా.MD: ## అర్హత - రాష్ట్రం: - పాల్గొనే అన్ని రాష్ట్రాలు/యూటీలు (అమలు రాష్ట్రాలు/యూటీలు/యుఎల్‌బిలు/పిఎల్‌ఐల ద్వారా; కవరేజ్ నోటిఫైడ్ పట్టణాలు/యుఎల్‌బిలపై ఆధారపడి ఉంటుంది). -"
+      "answer_en": "Based on the provided context for the Stand-Up India loan (",
+      "answer_local": "స్టాండ్-అప్ ఇండియా రుణానికి అందించిన సందర్భం ఆధారంగా ("
     },
     {
       "input": "আমার নাম ফাতিমা, আমি পশ্চিমবঙ্গে থাকি। আমার পরিবারে ৫ জন সদস্য আছে, স্বামীর বার্ষিক আয় ১.৮ লাখ টাকা। আমার শাশুড়ির হাসপাতালে ভর্তি হওয়া দরকার। আয়ুষ্মান ভারত কার্ড কীভাবে বানাবো? ক্যাশলেস চিকিৎসা কি পাওয়া যাবে?",
       "detected_lang": "bn-IN",
       "lang_name": "Bengali",
-      "english_query": "My name is Fatima, I live in West Bengal. There are 5 members in my family, my husband's annual income is 1.8 lakhs. My mother-in-law needs to be hospitalized. How do I make an Ayushman Bharat card? Will cashless treatment be available?",
+      "english_query": "My name is Fatima, and I live in West Bengal. There are 5 members in my family, my husband has an annual income of 1.8 lakhs. My mother-in-law needs to be hospitalized. How do I make an Ayushman Bharat card? Will cashless treatment be available?",
       "sources_matched": [
-        "scheme_1.md",
-        "scheme_8.md",
-        "scheme_3.md"
+        "scheme_6.md",
+        "scheme_3.md",
+        "scheme_5.md",
+        "scheme_7.md"
       ],
-      "top_score": 0.8903,
-      "answer_en": "Based on scheme_1.md: (as asked by implementing agency/ULB) - Basic application details needed for verification: household category (EWS/LIG/MIG), income details, contact d",
-      "answer_local": "স্কিম_1-এর উপর ভিত্তি করে।এমডি: (কার্যকরী সংস্থা/ইউএলবি দ্বারা জিজ্ঞাসা করা হিসাবে) - যাচাইয়ের জন্য প্রয়োজনীয় মৌলিক আবেদন বিবরণী: গৃহস্থালী বিভাগ (ইডব্লিউএস/এলআইজি/এমআইজি), আয়ের বিবরণ, যোগাযোগের ত"
+      "top_score": 0.8505,
+      "answer_en": "The provided context does not contain information about how to make an Ayushman Bharat card or whether cashless treatment is available under it. The available schemes mentioned are SSY (Sukanya Samriddhi Account), NSAP (National Social Assistance Programme), and a scheme with eligibility criteria for women aged 18 or above from poor households, but none of these relate to Ayushman Bharat.",
+      "answer_local": "প্রদত্ত প্রসঙ্গে আয়ুষ্মান ভারত কার্ড কিভাবে তৈরি করতে হয় অথবা এর আওতায় নগদহীন চিকিৎসা পাওয়া যায় কিনা সে সম্পর্কে কোনো তথ্য নেই। উল্লিখিত  উপলব্ধ প্রকল্পগুলি হল এস.এস.ওয়াই (সুকন্যা সমৃদ্ধি অ্যাকাউন্ট), এন.এস.এ.পি (জাতীয় সমাজ সহায়তা কর্মসূচি), এবং দরিদ্র পরিবারের 18 বছর বা তার বেশি বয়সী মহিলাদের জন্য যোগ্যতার মানদণ্ড সহ একটি প্রকল্প, তবে এই কোনো প্রকল্পই আয়ুষ্মান ভারত প্রকল্পের সাথে সম্পর্কিত নয়।"
     },
     {
       "input": "ನನ್ನ ಹೆಸರು ಲಕ್ಷ್ಮಿ, ನಾನು ವಿಧವೆ, ವಯಸ್ಸು 55 ವರ್ಷ. ನನ್ನ ಮಕ್ಕಳು ಕೂಲಿ ಕೆಲಸ ಮಾಡುತ್ತಾರೆ. ನನಗೆ ಯಾವುದೇ ಆದಾಯ ಇಲ್ಲ. ವಿಧವಾ ಪಿಂಚಣಿ ಯೋಜನೆಗೆ ನಾನು ಅರ್ಹಳಾ? ಎಷ್ಟು ಹಣ ಸಿಗುತ್ತದೆ ಮತ್ತು ಎಲ್ಲಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಬೇಕು?",
       "detected_lang": "kn-IN",
       "lang_name": "Kannada",
-      "english_query": "My name is Lakshmi, I am a widow and my age is 55 years. My children are doing coolie work. I don't have any income. Am I eligible for the widow pension scheme? How much money will I get and where should I apply?",
+      "english_query": "My name is Lakshmi, I am a widow and I am 55 years old. My children are doing coolie work. I don't have any income. Am I eligible for the widow pension scheme? How much money will I get and where should I apply?",
       "sources_matched": [
-        "scheme_4.md",
+        "scheme_3.md",
+        "scheme_2.md",
+        "scheme_1.md",
         "scheme_5.md",
-        "scheme_7.md"
+        "scheme_6.md"
       ],
-      "top_score": 0.8336,
-      "answer_en": "Based on scheme_4.md: # Scheme 4 — Ayushman Bharat PM-JAY (Pradhan Mantri Jan Arogya Yojana)",
-      "answer_local": "ಸ್ಕೀಮ್_4 ಆಧಾರಿತ.ಎಂ.ಡಿ.: # ಸ್ಕೀಮ್ 4 - ಆಯುಷ್ಮಾನ್ ಭಾರತ್ ಪಿ.ಎಂ.-ಜೆ.ಎ.ವೈ. (ಪ್ರಧಾನ ಮಂತ್ರಿ ಜನ ಆರೋಗ್ಯ ಯೋಜನೆ)"
+      "top_score": 0.8222,
+      "answer_en": "Based on the provided context, there is no information about a specific \"widow",
+      "answer_local": "ಒದಗಿಸಿದ ಸನ್ನಿವೇಶದ ಆಧಾರದ ಮೇಲೆ, ನಿರ್ದಿಷ್ಟವಾದ \"ವಿಧವೆಯ\" ಬಗ್ಗೆ ಯಾವುದೇ ಮಾಹಿತಿ ಇಲ್ಲ."
     },
     {
       "input": "મારું નામ રાધાબેન છે, હું ગુજરાતના એક ગામમાં રહું છું. અમારી પાસે BPL કાર્ડ છે અને અમે હજી સુધી LPG કનેક્શન લીધું નથી. ઉજ્જવલા યોજનામાં ફ્રી ગેસ કનેક્શન મળશે? KYC માટે શું શું જોઈએ? ક્યાં અરજી કરવી?",
@@ -95,11 +106,12 @@
       "sources_matched": [
         "scheme_5.md",
         "scheme_4.md",
-        "scheme_4.md"
+        "scheme_2.md",
+        "scheme_7.md"
       ],
       "top_score": 0.8309,
-      "answer_en": "Based on scheme_5.md: # Scheme 5 — NSAP (National Social Assistance Programme)",
-      "answer_local": "યોજના_5 પર આધારિત.એમ.ડી.: # યોજના 5 - એન.એસ.એ.પી. (રાષ્ટ્રીય સામાજિક સહાય કાર્યક્રમ)"
+      "answer_en": "The provided context does not contain information about the Ujjwala scheme or free gas",
+      "answer_local": "આપેલ સંદર્ભ (context) માં ઉજ્જવલા યોજના (Ujjwala scheme) અથવા મફત ગેસ (free gas) વિશેની માહિતી નથી."
     },
     {
       "input": "എന്റെ പേര് അനിത, ഞാൻ കേരളത്തിൽ താമസിക്കുന്നു. എനിക്ക് ബാങ്ക് അക്കൗണ്ട് ഇല്ല. ജൻ ധൻ യോജനയിൽ സീറോ ബാലൻസ് അക്കൗണ്ട് തുറക്കാൻ ആധാർ കാർഡ് മാത്രം മതിയോ? എന്തെല്ലാം ആനുകൂല്യങ്ങൾ ലഭിക്കും? ഡെബിറ്റ് കാർഡ് കിട്ടുമോ?",
@@ -109,39 +121,44 @@
       "sources_matched": [
         "scheme_8.md",
         "scheme_3.md",
-        "scheme_5.md"
+        "scheme_5.md",
+        "scheme_1.md",
+        "scheme_6.md"
       ],
       "top_score": 0.8496,
-      "answer_en": "Based on scheme_8.md: ## Overview Stand-Up India is a Government of India scheme to facilitate **bank loans from ₹10 lakh to ₹1 crore** to: - **at least one SC/ST borrower*",
-      "answer_local": "സ്കീം_8 അടിസ്ഥാനമാക്കി.എം.ഡി.: ## ഓവർവ്യൂ സ്റ്റാൻഡ്-അപ്പ് ഇന്ത്യ എന്നത് ഒരു ഇന്ത്യാ ഗവൺമെണ്ട് പദ്ധതിയാണ്, **10 ലക്ഷം രൂപ മുതൽ 1 കോടി രൂപ വരെ** വായ്പയ്ക്കായി: - കുറഞ്ഞത് ഒരു എസ്.സി/എസ്.ടി വായ്പയെടുക്കു"
+      "answer_en": "The provided context does not contain any information about the Jan Dhan Yojana, zero balance accounts, or the specific requirements and benefits associated with it. Therefore, I cannot answer your questions regarding whether an Aadhaar card is sufficient to open a zero balance account, its benefits, or if you will get a debit card under the Jan Dhan Yojana.",
+      "answer_local": "താങ്കൾ നൽകിയ പശ്ചാത്തലത്തിൽ ജനധൻ യോജന, പൂജ്യം ബാലൻസ് അക്കൗണ്ടുകൾ, അല്ലെങ്കിൽ അതിനോട് ബന്ധപ്പെട്ട നിർദ്ദിഷ്ട ആവശ്യകതകളും ആനുകൂല്യങ്ങളും സംബന്ധിച്ചുള്ള ഒരു വിവരവും ഇല്ല. അതുകൊണ്ട്, പൂജ്യം ബാലൻസ് അക്കൗണ്ട് തുറക്കുന്നതിന് ആധാർ കാർഡ് മതിയോ, അതിന്റെ പ്രയോജനങ്ങൾ എന്തെല്ലാമാണ്, അല്ലെങ്കിൽ ജന ധൻ യോജനയ്ക്ക് കീഴിൽ താങ്കൾക്ക് ഒരു ഡെബിറ്റ് കാർഡ് ലഭിക്കുമോ എന്ന ചോദ്യങ്ങൾക്ക് എനിക്ക് ഉത്തരം നൽകാൻ കഴിയില്ല."
     },
     {
       "input": "ਮੇਰਾ ਨਾਮ ਗੁਰਪ੍ਰੀਤ ਹੈ, ਮੈਂ ਪੰਜਾਬ ਵਿੱਚ ਆਟੋ ਰਿਕਸ਼ਾ ਚਲਾਉਂਦਾ ਹਾਂ। ਮੇਰੀ ਉਮਰ 30 ਸਾਲ ਹੈ ਅਤੇ ਮੇਰੇ ਕੋਲ ਕੋਈ ਪੈਨਸ਼ਨ ਨਹੀਂ ਹੈ। ਅਟਲ ਪੈਨਸ਼ਨ ਯੋਜਨਾ ਵਿੱਚ ਮਹੀਨੇ ਦਾ ਕਿੰਨਾ ਯੋਗਦਾਨ ਦੇਣਾ ਪਵੇਗਾ? 60 ਸਾਲ ਬਾਅਦ ਕਿੰਨੀ ਪੈਨਸ਼ਨ ਮਿਲੇਗੀ?",
       "detected_lang": "pa-IN",
       "lang_name": "Punjabi",
-      "english_query": "My name is Gurpreet, I drive an auto-rickshaw in Punjab. I am 30 years old and I don't have a pension. How much contribution is required per month in Atal Pension Yojana? What is the pension amount after 60 years of age?",
+      "english_query": "My name is Gurpreet, I drive an auto-rickshaw in Punjab. I am 30 years old and I don't have a pension. How much contribution will have to be given per month in Atal Pension Yojana? What is the pension amount after 60 years of age?",
       "sources_matched": [
+        "scheme_1.md",
+        "scheme_8.md",
         "scheme_3.md",
-        "scheme_4.md",
-        "scheme_7.md"
+        "scheme_6.md",
+        "scheme_2.md"
       ],
-      "top_score": 0.8201,
-      "answer_en": "Based on scheme_3.md: # Scheme 3 — PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
-      "answer_local": "ਸਕੀਮ_3 'ਤੇ ਆਧਾਰਿਤ।ਐੱਮਡੀਃ # ਸਕੀਮ 3 - ਪੀਐੱਮਯੂਵਾਈ (ਪ੍ਰਧਾਨ ਮੰਤਰੀ ਉਜਵਲਾ ਯੋਜਨਾ) / ਉਜਵਲਾ 2.0"
+      "top_score": 0.896,
+      "answer_en": "The provided context does not contain information about the Atal Pension Yojana (APY), including details on monthly contributions or the pension amount after 60 years of age.",
+      "answer_local": "ਪ੍ਰਦਾਨ ਕੀਤੇ ਪ੍ਰਸੰਗ ਵਿੱਚ ਅਟਲ ਪੈਨਸ਼ਨ ਯੋਜਨਾ (ਏਪੀਵਾਈ) ਬਾਰੇ ਜਾਣਕਾਰੀ ਨਹੀਂ ਹੈ, ਜਿਸ ਵਿੱਚ ਮਾਸਿਕ ਦਾਨਾਂ ਜਾਂ 60 ਸਾਲ ਦੀ ਉਮਰ ਤੋਂ ਬਾਅਦ ਪੈਨਸ਼ਨ ਰਾਸ਼ੀ ਬਾਰੇ ਵੇਰਵੇ ਸ਼ਾਮਲ ਹਨ।"
     },
     {
       "input": "ମୋ ନାଁ ସୁରେଶ, ମୁଁ ଓଡ଼ିଶାରେ ରହେ। ମୋ ବାପାଙ୍କ ବୟସ 72 ବର୍ଷ ଏବଂ ସେ ଶାରୀରିକ ଭାବେ ଅକ୍ଷମ। ସେ କୌଣସି ସରକାରୀ ପେନ୍‌ସନ ପାଉନାହାନ୍ତି। NSAP ଯୋଜନାରେ ବିକଳାଙ୍ଗ ପେନ୍‌ସନ ପାଇଁ କିପରି ଆବେଦନ କରିବା? କେତେ ଟଙ୍କା ମିଳିବ?",
       "detected_lang": "od-IN",
       "lang_name": "Odia",
-      "english_query": "My name is Suresh, I live in Odisha. My father is 72 years old and physically handicapped. He is not getting any government pension. How to apply for Disability Pension under NSAP yojana? How much money will be received?",
+      "english_query": "My name is Suresh, and I live in Odisha. My father is 72 years old and physically handicapped. He is not getting any government pension. How to apply for Disability Pension under NSAP yojana? How much money will be received?",
       "sources_matched": [
-        "scheme_7.md",
-        "scheme_7.md",
-        "scheme_4.md"
+        "scheme_8.md",
+        "scheme_2.md",
+        "scheme_4.md",
+        "scheme_5.md"
       ],
-      "top_score": 0.8899,
-      "answer_en": "Based on scheme_7.md: ## Eligibility - State:   - Pan-India (via banks and India Post / post office savings accounts, depending on access). - Age:   - 18 to 40 years (entry",
-      "answer_local": "ସ୍କିମ୍_7 ଉପରେ ଆଧାରିତ।ଏମ୍‌.ଡି.: ## ଯୋଗ୍ୟତା - ରାଜ୍ୟ: - ସମଗ୍ର ଭାରତ (ବ୍ୟାଙ୍କ ଏବଂ ଭାରତ ପୋଷ୍ଟ / ଡାକଘର ସଞ୍ଚୟ ଖାତା ମାଧ୍ୟମରେ, ସୁଲଭତା ଉପରେ ନିର୍ଭର କରି) । ବୟସ: 18 ରୁ 40 ବର୍ଷ (ପ୍ରବେଶ)"
+      "top_score": 0.8564,
+      "answer_en": "Based on the provided context, your father, who is 72",
+      "answer_local": "ପ୍ରଦାନ କରାଯାଇଥିବା ପରିପ୍ରେକ୍ଷୀ ଆଧାରରେ, ଆପଣଙ୍କ ପିତା, ଯିଏ 72 ବର୍ଷ ବୟସ୍କ"
     },
     {
       "input": "माझे नाव प्रिया आहे, मी पुण्यात राहते. मला एक छोटा कपड्यांचा व्यवसाय सुरू करायचा आहे. माझ्याकडे 3 लाख रुपये स्वतःचे आहेत. Stand-Up India योजनेतून बँक लोन मिळू शकते का? किती लोन मिळेल? कुठल्या बँकेत जायचे?",
@@ -151,11 +168,12 @@
       "sources_matched": [
         "scheme_4.md",
         "scheme_8.md",
-        "scheme_2.md"
+        "scheme_2.md",
+        "scheme_7.md"
       ],
       "top_score": 0.8567,
-      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as per scheme design).   - Also includes families earli",
-      "answer_local": "योजना_4 वर आधारित.md: चालू आहे. श्रेणीः - प्राथमिक ओळख: **एस.ई.सी.सी. 2011** आधारित पात्र कुटुंबे (योजनेच्या रचनेनुसार तळाशी ~40%). - पूर्वकालीन कुटुंबांचा समावेश देखील आहे"
+      "answer_en": "The provided context mentions the Stand-Up India scheme and provides links to its official guidelines, but it does not contain information regarding eligibility criteria, specific loan amounts, or which banks to approach for a loan under this scheme. Therefore, I cannot answer your questions about the Stand-Up India scheme based on the given information.",
+      "answer_local": "प्रदान केलेल्या मजकुरात स्टँड-अप इंडिया योजनेचा उल्लेख आहे आणि त्याच्या अधिकृत मार्गदर्शक तत्त्वांचे दुवे दिले आहेत, परंतु त्यामध्ये पात्रतेचे निकष, विशिष्ट कर्ज रक्कम किंवा या योजनेअंतर्गत कर्ज घेण्यासाठी कोणत्या बँकांशी संपर्क साधावा याबाबत माहिती नाही. त्यामुळे दिलेल्या माहितीच्या आधारे मी तुमच्या स्टॅंड-अप इंडिया योजनेविषयीच्या प्रश्नांची उत्तरे देऊ शकत नाही."
     }
   ]
 }

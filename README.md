@@ -190,7 +190,7 @@ Real output from `test_e2e_pipeline.py` — realistic helpline-style queries sho
 ==========================================================================================
 ```
 
-> **Note:** v1 uses SHA-256 dummy embeddings and simulates the Gemini answer with raw chunk text. In production, Gemini generates a full cited answer before back-translation. Retrieval accuracy will improve significantly once Sarvam embedding API replaces hash-based vectors in v2.
+> Retrieval uses Google `gemini-embedding-001` (3072-dim) for both ingestion and query-time embedding, with Qdrant cosine similarity. Gemini generates a cited answer from the retrieved context before back-translation to the user's language.
 
 ---
 
@@ -322,7 +322,7 @@ User (WhatsApp) ──► Twilio Webhook ──► FastAPI
 - **No OpenAI/Groq dependency**: Entire LLM layer runs on Gemini; STT/translation on Sarvam AI
 - **Deterministic tools**: Eligibility and checklist use rule-based logic, not LLM hallucination
 - **Immediate webhook ACK**: Returns 200 OK instantly, processes in background task
-- **Dummy embeddings (v1)**: SHA-256 hash → 384-dim vectors (to be replaced with Sarvam embeddings)
+- **Semantic embeddings**: Google `gemini-embedding-001` (3072-dim) for both ingestion and retrieval
 
 ---
 

@@ -1,5 +1,5 @@
 """End-to-end pipeline test: realistic helpline-style queries across 11 Indian languages.
-Simulates what a real user would ask a government helpline or officer.
+Uses actual Gemini for answer generation (not simulated).
 Run: python sarvamai/scripts/test_e2e_pipeline.py
 Results saved to: sarvamai/scripts/results/e2e_pipeline.json
 """
@@ -10,6 +10,8 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src'
 
 from app.services.audio.translate_sarvam import detect_and_translate, SARVAM_LANG_CODES
 from app.services.rag.retrieve import retrieve_chunks
+from app.services.llm.gemini_client import generate_with_fallback
+from google.genai import types
 
 # Realistic helpline-style queries — the kind of questions people actually ask
 QUERIES = [
@@ -87,16 +89,39 @@ LANG_NAMES = {
     "pa-IN": "Punjabi", "od-IN": "Odia", "mr-IN": "Marathi",
 }
 
+SYSTEM_PROMPT = (
+    "You are Sahayak AI, a helpful Indian government schemes assistant. "
+    "Answer the user's question using ONLY the provided context chunks. "
+    "Be specific: mention scheme names, eligibility criteria, amounts, and required documents. "
+    "If the context doesn't have enough info, say so honestly. "
+    "Keep the answer concise but complete (3-5 sentences). "
+    "Always cite which scheme you're referring to."
+)
+
+
+def build_rag_prompt(query: str, chunks: list[dict]) -> str:
+    """Build a RAG prompt with retrieved chunks as context."""
+    context = "\n\n".join(
+        f"[Source: {c['source']}]\n{c['text']}" for c in chunks
+    )
+    return (
+        f"CONTEXT:\n{context}\n\n"
+        f"USER QUESTION:\n{query}\n\n"
+        f"Answer the question using only the context above. Be specific with scheme names, "
+        f"eligibility, amounts, and documents needed."
+    )
+
+
 print("=" * 90)
-print("  End-to-End Pipeline Test — Realistic Helpline Queries")
-print("  Input → Detect Language → Translate to EN → Retrieve → Reply in Same Language")
+print("  End-to-End Pipeline Test — Realistic Helpline Queries (Gemini-powered)")
+print("  Input → Detect Lang → Translate → Retrieve → Gemini Answer → Translate Back")
 print("=" * 90)
 
 results = []
 
 for (query,) in QUERIES:
     print(f"\n{'─' * 90}")
-    print(f"  INPUT: {query[:120]}{'...' if len(query) > 120 else ''}")
+    print(f"  INPUT: {query}")
 
     # Step 1: Detect language & translate to English
     detected = detect_and_translate(query, target_lang="en-IN")
@@ -105,19 +130,24 @@ for (query,) in QUERIES:
     lang_name = LANG_NAMES.get(user_lang, user_lang)
 
     print(f"  DETECTED: {lang_name} ({user_lang})")
-    print(f"  ENGLISH: {english_query[:120]}{'...' if len(english_query) > 120 else ''}")
+    print(f"  ENGLISH: {english_query}")
 
-    # Step 2: Retrieve from Qdrant using English query
-    chunks = retrieve_chunks(english_query, top_k=3)
-    top_source = chunks[0]["source"] if chunks else "N/A"
-    top_snippet = chunks[0]["text"][:150].replace("\n", " ") if chunks else "N/A"
+    # Step 2: Retrieve top chunks from Qdrant
+    chunks = retrieve_chunks(english_query, top_k=5)
+    sources = list(dict.fromkeys(c["source"] for c in chunks))  # unique, ordered
     top_score = chunks[0]["score"] if chunks else 0
-
-    sources = [c["source"] for c in chunks[:3]]
     print(f"  RETRIEVED: {', '.join(sources)} (top score={top_score:.4f})")
 
-    # Step 3: Build answer from top chunks (simulating Gemini output)
-    answer_en = f"Based on {top_source}: {top_snippet}"
+    # Step 3: Generate answer using Gemini with RAG context
+    rag_prompt = build_rag_prompt(english_query, chunks)
+    config = types.GenerateContentConfig(
+        system_instruction=SYSTEM_PROMPT,
+        temperature=0.3,
+        max_output_tokens=400,
+    )
+    gemini_response = generate_with_fallback(contents=rag_prompt, config=config)
+    answer_en = gemini_response.text.strip()
+    print(f"  ANSWER (EN): {answer_en}")
 
     # Step 4: Translate answer back to user's language
     if user_lang != "en-IN" and user_lang in SARVAM_LANG_CODES:
@@ -126,7 +156,7 @@ for (query,) in QUERIES:
     else:
         answer_local = answer_en
 
-    print(f"  RESPONSE ({lang_name}): {answer_local[:120]}{'...' if len(answer_local) > 120 else ''}")
+    print(f"  ANSWER ({lang_name}): {answer_local}")
 
     results.append({
         "input": query,
@@ -135,8 +165,8 @@ for (query,) in QUERIES:
         "english_query": english_query,
         "sources_matched": sources,
         "top_score": round(top_score, 4),
-        "answer_en": answer_en[:200],
-        "answer_local": answer_local[:200],
+        "answer_en": answer_en,
+        "answer_local": answer_local,
     })
 
 print(f"\n{'=' * 90}")

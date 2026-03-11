@@ -80,15 +80,16 @@ the user's language — all within a single message round-trip.
 #### Offline Ingestion (`scripts/ingest.py`)
 1. Read 8 curated Markdown scheme docs from `data/seed_docs/`
 2. Chunk by paragraphs (max 512 chars per chunk)
-3. Generate embeddings (currently SHA-256 dummy, 384-dim; will switch to Sarvam embeddings)
-4. Create Qdrant collection with `VectorParams(size=384, distance=Cosine)`
-5. Upsert `PointStruct` objects with payload: `{text, source}`
+3. Generate embeddings via Google `gemini-embedding-001` (3072-dim)
+4. Create Qdrant collection with `VectorParams(size=3072, distance=Cosine)`
+5. Upsert `PointStruct` objects with payload: `{text, source}` (source = scheme name, e.g. "PMAY-U 2.0")
 6. Result: 68 vectors across 8 schemes
 
 #### Online Retrieval
 - **Method**: `qdrant_client.query_points(query=vector, limit=top_k)`
 - **SDK version**: qdrant-client v1.16.2 (uses `query_points`, not deprecated `search`)
-- **Returns**: Scored points with text chunk + source filename
+- **Embedding**: Same `gemini-embedding-001` model used at query time for consistency
+- **Returns**: Scored points with text chunk + scheme name
 
 ### 4. LLM Layer (Google Gemini)
 
@@ -122,7 +123,7 @@ the user's language — all within a single message round-trip.
 
 #### Qdrant Cloud (Vector DB)
 - Cluster: GCP europe-west3
-- Collection: `schemes` (384-dim, cosine distance)
+- Collection: `schemes` (3072-dim, cosine distance)
 - 68 points from 8 scheme documents
 - Used for semantic retrieval at query time
 
@@ -190,7 +191,6 @@ the user's language — all within a single message round-trip.
 
 ## Future (v2)
 
-- Replace dummy embeddings with Sarvam embedding API
 - Wire Twilio reply (send message back)
 - Add conversation memory (multi-turn)
 - Hybrid search (BM25 + embeddings + reranking)
