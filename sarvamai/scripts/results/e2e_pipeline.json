@@ -1,0 +1,117 @@
+{
+  "test": "e2e_pipeline",
+  "timestamp": "2026-03-11T23:03:23.695642",
+  "total_queries": 11,
+  "results": [
+    {
+      "input": "What pension schemes are available for elderly people?",
+      "detected_lang": "en-IN",
+      "lang_name": "English",
+      "english_query": "What pension schemes are available for elderly people?",
+      "top_source": "scheme_3.md",
+      "top_score": 0.8645,
+      "answer_en": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - ",
+      "answer_local": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - "
+    },
+    {
+      "input": "गरीब परिवारों के लिए कौन सी सरकारी योजनाएँ हैं?",
+      "detected_lang": "hi-IN",
+      "lang_name": "Hindi",
+      "english_query": "What are the government schemes for poor families?",
+      "top_source": "scheme_7.md",
+      "top_score": 0.8607,
+      "answer_en": "Based on scheme_7.md: ## Eligibility - State:   - Pan-India (via banks and India Post / post office savings accounts, depe",
+      "answer_local": "योजना_7 पर आधारित।एम.डी.: ## पात्रता - राज्य: - अखिल भारतीय (बैंकों और भारत पोस्ट / डाकघर बचत खातों के माध्यम से) -"
+    },
+    {
+      "input": "ஏழை குடும்பங்களுக்கு என்ன அரசுத் திட்டங்கள் உள்ளன?",
+      "detected_lang": "ta-IN",
+      "lang_name": "Tamil",
+      "english_query": "What government schemes are there for poor families?",
+      "top_source": "scheme_5.md",
+      "top_score": 0.8784,
+      "answer_en": "Based on scheme_5.md: ocal verification details (for NFBS) - Residence details (often required by State/UT for verificatio",
+      "answer_local": "scheme_5 அடிப்படையாகக் கொண்டது.எம்டி: ஓகால் சரிபார்ப்பு விவரங்கள் (என்எஃப்பிஎஸ்-க்கு) - வசிப்பிட விவரங்கள் (பெரும்பாலும் மாநில/யூனியன் பிரதேச அரசால் ச"
+    },
+    {
+      "input": "పేద కుటుంబాలకు ఏ ప్రభుత్వ పథకాలు అందుబాటులో ఉన్నాయి?",
+      "detected_lang": "te-IN",
+      "lang_name": "Telugu",
+      "english_query": "Which government schemes are available for poor families?",
+      "top_source": "scheme_3.md",
+      "top_score": 0.8599,
+      "answer_en": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - ",
+      "answer_local": "స్కీమ్_3 ఆధారంగా.md: ## అధికారిక వనరులు - [పీఎంయూవై అధికారిక పోర్టల్ (సాధారణ సమాచారం + పత్రాలు)](https://www.pmuy.gov.in/)"
+    },
+    {
+      "input": "দরিদ্র পরিবারের জন্য কোন সরকারি প্রকল্প আছে?",
+      "detected_lang": "bn-IN",
+      "lang_name": "Bengali",
+      "english_query": "Are there any government schemes for poor families?",
+      "top_source": "scheme_4.md",
+      "top_score": 0.8346,
+      "answer_en": "Based on scheme_4.md: ## Overview Ayushman Bharat PM-JAY is a government-funded health assurance scheme that provides **ca",
+      "answer_local": "স্কিম_4-এর উপর ভিত্তি করে।MD: ## সংক্ষিপ্ত বিবরণ আয়ুষ্মান ভারত পিএম-জেএওয়াই একটি সরকার-অর্থায়িত স্বাস্থ্য বীমা প্রকল্প যা প্রায়"
+    },
+    {
+      "input": "ಬಡ ಕುಟುಂಬಗಳಿಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಲಭ್ಯವಿವೆ?",
+      "detected_lang": "kn-IN",
+      "lang_name": "Kannada",
+      "english_query": "What government schemes are available for poor families?",
+      "top_source": "scheme_4.md",
+      "top_score": 0.8421,
+      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
+      "answer_local": "ಸ್ಕೀಮ್_4 ಆಧಾರಿತ.ಎಂ.ಡಿ.: ಆನ್. ವರ್ಗ: - ಪ್ರಾಥಮಿಕ ಗುರುತಿಸುವಿಕೆ: **ಎಸ್.ಇ.ಸಿ.ಸಿ. 2011** ಆಧಾರಿತ ಅರ್ಹ ಕುಟುಂಬಗಳು (ಶೇಕಡಾ ~ 40 ರಷ್ಟು ಕೆಳಗಿರುವಂತೆ ಬಿ)"
+    },
+    {
+      "input": "ગરીબ પરિવારો માટે કઈ સરકારી યોજનાઓ ઉપલબ્ધ છે?",
+      "detected_lang": "gu-IN",
+      "lang_name": "Gujarati",
+      "english_query": "What government schemes are available for poor families?",
+      "top_source": "scheme_4.md",
+      "top_score": 0.8421,
+      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
+      "answer_local": "યોજના_4 પર આધારિત.એમ.ડી.: ઓન. શ્રેણીઃ પ્રાથમિક ઓળખઃ **એસઈસીસી 2011** આધારિત હકદાર પરિવારો (પી તરીકે ~40% નીચે)"
+    },
+    {
+      "input": "പാവപ്പെട്ട കുടുംബങ്ങൾക്ക് എന്ത് സർക്കാർ പദ്ധതികൾ ലഭ്യമാണ്?",
+      "detected_lang": "ml-IN",
+      "lang_name": "Malayalam",
+      "english_query": "What government schemes are available for poor families?",
+      "top_source": "scheme_4.md",
+      "top_score": 0.8421,
+      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
+      "answer_local": "സ്കീം 4 അടിസ്ഥാനമാക്കി.എം.ഡി.: ഓൺ. വിഭാഗം: - പ്രാഥമിക തിരിച്ചറിയൽ: **എസ്.ഇ.സി.സി. 2011** അടിസ്ഥാനമാക്കിയുള്ള അവകാശവാദമുള്ള കുടുംബങ്ങൾ (ബി.ഒ.പി. ആയി ~4"
+    },
+    {
+      "input": "ਗ਼ਰੀਬ ਪਰਿਵਾਰਾਂ ਲਈ ਕਿਹੜੀਆਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਉਪਲਬਧ ਹਨ?",
+      "detected_lang": "pa-IN",
+      "lang_name": "Punjabi",
+      "english_query": "What government schemes are available for poor families?",
+      "top_source": "scheme_4.md",
+      "top_score": 0.8421,
+      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
+      "answer_local": "ਸਕੀਮ_4 'ਤੇ ਆਧਾਰਿਤ।ਆਨਲਾਈਨ। ਸ਼੍ਰੇਣੀ: - ਪ੍ਰਾਇਮਰੀ ਪਛਾਣ: **ਐੱਸ.ਈ.ਸੀ.ਸੀ. 2011**-ਅਧਾਰਿਤ ਹੱਕਦਾਰ ਪਰਿਵਾਰ (ਪੀ.ਈ. ਦੇ ਰੂਪ ਵਿੱਚ ਹੇਠਲੇ ~40% ਦੇ ਰੂਪ ਵਿੱਚ) - ਸੈਕੰਡਰੀ ਪਛ"
+    },
+    {
+      "input": "ଗରିବ ପରିବାରମାନଙ୍କ ପାଇଁ କେଉଁ ସରକାରୀ ଯୋଜନା ଉପଲବ୍ଧ?",
+      "detected_lang": "od-IN",
+      "lang_name": "Odia",
+      "english_query": "Which government schemes are available for poor families?",
+      "top_source": "scheme_3.md",
+      "top_score": 0.8599,
+      "answer_en": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - ",
+      "answer_local": "ସ୍କିମ୍_3 ଉପରେ ଆଧାରିତ।ଏମ୍‌.ଡି.: ## ସରକାରୀ ଉତ୍ସ - [ପି.ଏମ୍‌.ୟୁ.ୱାଇ. ଅଫିସିଆଲ୍ ପୋର୍ଟାଲ୍ (ସାଧାରଣ ସୂଚନା + ଦସ୍ତାବିଜ୍)](https://www.pmuy.gov.in/) -"
+    },
+    {
+      "input": "गरीब कुटुंबांसाठी कोणत्या सरकारी योजना उपलब्ध आहेत?",
+      "detected_lang": "mr-IN",
+      "lang_name": "Marathi",
+      "english_query": "What government schemes are available for poor families?",
+      "top_source": "scheme_4.md",
+      "top_score": 0.8421,
+      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
+      "answer_local": "योजना_4 वर आधारित.md: चालू आहे. श्रेणीः - प्राथमिक ओळख: **एस.ई.सी.सी. 2011** आधारित पात्र कुटुंबे (बीच ~40% पी म्हणून)"
+    }
+  ]
+}

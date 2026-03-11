@@ -45,48 +45,100 @@ Sarvam AI and Gemini serve **completely different roles** — they are complemen
 
 ---
 
-## Sample Retrieval Outputs (Multi-Language)
+## End-to-End Pipeline Output (11 Languages)
 
-Tested with queries in 8 Indian languages against the 68 ingested scheme vectors:
+Real output from `test_e2e_pipeline.py` — shows the full flow:  
+**User Input → Language Detected → Translated to English → RAG Retrieval → Response in Same Language**
 
 ```
-[English] "pension for elderly women"
-  → score=0.8574 | scheme_4.md | ₹5 lakh family floater cover, cashless hospitalization...
-  → score=0.8171 | scheme_2.md | PMJDY (Pradhan Mantri Jan-Dhan Yojana)...
-  → score=0.8156 | scheme_5.md | NSAP official portal (Eligibility + assistance)...
+===========================================================================
+  End-to-End Pipeline Test
+  Input → Detect Language → Translate to EN → Retrieve → Reply in Same Language
+===========================================================================
 
-[Hindi] "बुज़ुर्गों के लिए पेंशन योजना"
-  → score=0.8549 | scheme_1.md | All participating States/UTs...
-  → score=0.8216 | scheme_6.md | Early closure allowed only in specific conditions...
-  → score=0.8133 | scheme_6.md | Deposit rules, minimum yearly deposit requirement...
+[English]
+  INPUT   : What pension schemes are available for elderly people?
+  DETECTED: English (en-IN)
+  ENGLISH : What pension schemes are available for elderly people?
+  RETRIEVED: scheme_3.md (score=0.8645)
+  RESPONSE: Based on scheme_3.md: PMUY Official Portal...
 
-[Tamil] "முதியோருக்கான ஓய்வூதியம்"
-  → score=0.9022 | scheme_8.md | at least 51% shareholding and control...
-  → score=0.8897 | scheme_7.md | PFRDA FAQ — Atal Pension Yojana...
-  → score=0.8478 | scheme_7.md | Checklist (Exact KYC may vary by bank)...
+[Hindi]
+  INPUT   : गरीब परिवारों के लिए कौन सी सरकारी योजनाएँ हैं?
+  DETECTED: Hindi (hi-IN)
+  ENGLISH : What are the government schemes for poor families?
+  RETRIEVED: scheme_7.md (score=0.8607)
+  RESPONSE: योजना_7 पर आधारित। अखिल भारतीय (बैंकों और भारत पोस्ट / डाकघर बचत खातों...
 
-[Telugu] "రైతులకు ఆర్థిక సహాయం"
-  → score=0.8708 | scheme_4.md | SECC 2011-based entitled families...
-  → score=0.8588 | scheme_6.md | Early closure allowed only in specific conditions...
+[Tamil]
+  INPUT   : ஏழை குடும்பங்களுக்கு என்ன அரசுத் திட்டங்கள் உள்ளன?
+  DETECTED: Tamil (ta-IN)
+  ENGLISH : What government schemes are there for poor families?
+  RETRIEVED: scheme_5.md (score=0.8784)
+  RESPONSE: scheme_5 அடிப்படையாகக் கொண்டது — சரிபார்ப்பு விவரங்கள்...
 
-[Bengali] "গরীব পরিবারের জন্য সরকারি যোজনা"
-  → score=0.8575 | scheme_6.md | Early closure allowed only in specific conditions...
-  → score=0.8532 | scheme_2.md | Pan-India (available through participating banks)...
+[Telugu]
+  INPUT   : పేద కుటుంబాలకు ఏ ప్రభుత్వ పథకాలు అందుబాటులో ఉన్నాయి?
+  DETECTED: Telugu (te-IN)
+  ENGLISH : Which government schemes are available for poor families?
+  RETRIEVED: scheme_3.md (score=0.8599)
+  RESPONSE: స్కీమ్_3 ఆధారంగా — పీఎంయూవై అధికారిక పోర్టల్...
 
-[Marathi] "शेतकऱ्यांसाठी आर्थिक मदत"
-  → score=0.8264 | scheme_8.md | Stand-Up India scheme to facilitate bank loans...
-  → score=0.8182 | scheme_6.md | Deposit rules, minimum yearly deposit requirement...
+[Bengali]
+  INPUT   : দরিদ্র পরিবারের জন্য কোন সরকারি প্রকল্প আছে?
+  DETECTED: Bengali (bn-IN)
+  ENGLISH : Are there any government schemes for poor families?
+  RETRIEVED: scheme_4.md (score=0.8346)
+  RESPONSE: স্কিম_4-এর উপর ভিত্তি করে — আয়ুষ্মান ভারত পিএম-জেএওয়াই...
 
-[Kannada] "ಬಡವರ ಕುಟುಂಬಗಳಿಗೆ ಆರೋಗ್ಯ ವಿಮೆ"
-  → score=0.8982 | scheme_2.md | PMJDY (Pradhan Mantri Jan-Dhan Yojana)...
-  → score=0.8820 | scheme_5.md | NSAP local verification details...
+[Kannada]
+  INPUT   : ಬಡ ಕುಟುಂಬಗಳಿಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಲಭ್ಯವಿವೆ?
+  DETECTED: Kannada (kn-IN)
+  ENGLISH : What government schemes are available for poor families?
+  RETRIEVED: scheme_4.md (score=0.8421)
+  RESPONSE: ಸ್ಕೀಮ್_4 ಆಧಾರಿತ — SECC 2011 ಆಧಾರಿತ ಅರ್ಹ ಕುಟುಂಬ...
 
-[Malayalam] "ദരിദ്രരായ കുടുംബങ്ങള്‍ക്ക് സഹായം"
-  → score=0.8836 | scheme_6.md | One account per girl child, maximum two per family...
-  → score=0.8444 | scheme_2.md | DBT linkage / JAM pipeline...
+[Gujarati]
+  INPUT   : ગરીબ પરિવારો માટે કઈ સરકારી યોજનાઓ ઉપલબ્ધ છે?
+  DETECTED: Gujarati (gu-IN)
+  ENGLISH : What government schemes are available for poor families?
+  RETRIEVED: scheme_4.md (score=0.8421)
+  RESPONSE: યોજના_4 પર આધારિત — SECC 2011 આધારિત હકદાર પરિવારો...
+
+[Malayalam]
+  INPUT   : പാവപ്പെട്ട കുടുംബങ്ങൾക്ക് എന്ത് സർക്കാർ പദ്ധതികൾ ലഭ്യമാണ്?
+  DETECTED: Malayalam (ml-IN)
+  ENGLISH : What government schemes are available for poor families?
+  RETRIEVED: scheme_4.md (score=0.8421)
+  RESPONSE: സ്കീം 4 അടിസ്ഥാനമാക്കി — SECC 2011 അടിസ്ഥാനമാക്കിയ അർഹ കുടുംബങ്ങൾ...
+
+[Punjabi]
+  INPUT   : ਗ਼ਰੀਬ ਪਰਿਵਾਰਾਂ ਲਈ ਕਿਹੜੀਆਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਉਪਲਬਧ ਹਨ?
+  DETECTED: Punjabi (pa-IN)
+  ENGLISH : What government schemes are available for poor families?
+  RETRIEVED: scheme_4.md (score=0.8421)
+  RESPONSE: ਸਕੀਮ_4 'ਤੇ ਆਧਾਰਿਤ — SECC 2011 ਅਧਾਰਿਤ ਹੱਕਦਾਰ ਪਰਿਵਾਰ...
+
+[Odia]
+  INPUT   : ଗରିବ ପରିବାରମାନଙ୍କ ପାଇଁ କେଉଁ ସରକାରୀ ଯୋଜନା ଉପଲବ୍ଧ?
+  DETECTED: Odia (od-IN)
+  ENGLISH : Which government schemes are available for poor families?
+  RETRIEVED: scheme_3.md (score=0.8599)
+  RESPONSE: ସ୍କିମ୍_3 ଉପରେ ଆଧାରିତ — PMUY ଅଫିସିଆଲ୍ ପୋର୍ଟାଲ୍...
+
+[Marathi]
+  INPUT   : गरीब कुटुंबांसाठी कोणत्या सरकारी योजना उपलब्ध आहेत?
+  DETECTED: Marathi (mr-IN)
+  ENGLISH : What government schemes are available for poor families?
+  RETRIEVED: scheme_4.md (score=0.8421)
+  RESPONSE: योजना_4 वर आधारित — SECC 2011 आधारित पात्र कुटुंबे...
+
+===========================================================================
+  All 11 queries processed successfully!
+===========================================================================
 ```
 
-> **Note:** Current v1 uses deterministic SHA-256 dummy embeddings (384-dim). Scores reflect cosine similarity between hash-based vectors — semantic accuracy will improve significantly once Sarvam embedding API is integrated in v2.
+> **Note:** Current v1 uses SHA-256 dummy embeddings (384-dim) and simulates the Gemini answer with top chunk text. In production, Gemini generates a full cited answer before translation. Scores will improve once Sarvam embedding API replaces the hash-based vectors in v2.
 
 ---
 
