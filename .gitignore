@@ -1,0 +1,47 @@
+# ─── Python ───
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+wheels/
+*.whl
+
+# ─── Virtual environments ───
+.venv/
+venv/
+ENV/
+
+# ─── Environment variables (secrets) ───
+.env
+*.env
+!.env.example
+
+# ─── IDE / Editor ───
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ─── Testing / Coverage ───
+.pytest_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ─── uv / pip ───
+uv.lock
+
+# ─── Logs ───
+*.log
+
+# ─── OS ───
+desktop.ini
+ehthumbs.db
