@@ -1,6 +1,6 @@
 {
   "test": "multilang_retrieval",
-  "timestamp": "2026-03-11T22:58:44.166485",
+  "timestamp": "2026-03-12T00:04:58.882023",
   "collection_points": 68,
   "queries": 8,
   "results": [
@@ -10,21 +10,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8574,
-          "source": "scheme_4.md",
-          "snippet": "## Sections - Benefits & coverage   - ₹5 lakh family floater cover, cashless hos"
+          "score": 0.6857,
+          "source": "APY (Atal Pension Yojana)",
+          "snippet": "## Sections - Benefits   - Guaranteed minimum monthly pension: ₹1,000 / ₹2,000 /"
         },
         {
           "rank": 2,
-          "score": 0.8171,
-          "source": "scheme_2.md",
-          "snippet": "# Scheme 2 — PMJDY (Pradhan Mantri Jan-Dhan Yojana)"
+          "score": 0.6726,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Sections - Components & assistance amounts (central assistance)   - IGNOAPS: "
         },
         {
           "rank": 3,
-          "score": 0.8156,
-          "source": "scheme_5.md",
-          "snippet": "## Official Sources - [NSAP official portal (Eligibility + assistance amounts su"
+          "score": 0.6724,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Eligibility - State:   - Pan-India (implemented by States/UTs; application + "
         }
       ]
     },
@@ -34,21 +34,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8549,
-          "source": "scheme_1.md",
-          "snippet": "## Eligibility - State:   - All participating **States/UTs** (implementation is "
+          "score": 0.7077,
+          "source": "APY (Atal Pension Yojana)",
+          "snippet": "## Sections - Benefits   - Guaranteed minimum monthly pension: ₹1,000 / ₹2,000 /"
         },
         {
           "rank": 2,
-          "score": 0.8216,
-          "source": "scheme_6.md",
-          "snippet": "from opening   - Early closure allowed only in specific conditions (e.g., marria"
+          "score": 0.7047,
+          "source": "APY (Atal Pension Yojana)",
+          "snippet": "## Overview Atal Pension Yojana (APY) is a government-backed pension scheme for "
         },
         {
           "rank": 3,
-          "score": 0.8133,
-          "source": "scheme_6.md",
-          "snippet": "## Sections - Deposit rules   - Minimum yearly deposit requirement (to keep acco"
+          "score": 0.6937,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Sections - Components & assistance amounts (central assistance)   - IGNOAPS: "
         }
       ]
     },
@@ -58,21 +58,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.9022,
-          "source": "scheme_8.md",
-          "snippet": " enterprises (company/LLP/partnership)**: **at least 51% shareholding and contro"
+          "score": 0.6796,
+          "source": "APY (Atal Pension Yojana)",
+          "snippet": "## Sections - Benefits   - Guaranteed minimum monthly pension: ₹1,000 / ₹2,000 /"
         },
         {
           "rank": 2,
-          "score": 0.8897,
-          "source": "scheme_7.md",
-          "snippet": "## Official Sources - [PFRDA FAQ — Atal Pension Yojana](https://www.pfrda.org.in"
+          "score": 0.6733,
+          "source": "APY (Atal Pension Yojana)",
+          "snippet": "## Overview Atal Pension Yojana (APY) is a government-backed pension scheme for "
         },
         {
           "rank": 3,
-          "score": 0.8478,
-          "source": "scheme_7.md",
-          "snippet": "## Checklist (Exact KYC may vary by bank/post office; these are the common minim"
+          "score": 0.6573,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Sections - Components & assistance amounts (central assistance)   - IGNOAPS: "
         }
       ]
     },
@@ -82,21 +82,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8708,
-          "source": "scheme_4.md",
-          "snippet": "on. - Category:   - Primary identification: **SECC 2011**-based entitled familie"
+          "score": 0.6125,
+          "source": "PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
+          "snippet": "l beneficiary category lists (e.g., based on deprivation/identified poor househo"
         },
         {
           "rank": 2,
-          "score": 0.8588,
-          "source": "scheme_6.md",
-          "snippet": "from opening   - Early closure allowed only in specific conditions (e.g., marria"
+          "score": 0.6085,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Official Sources - [NSAP official portal (Eligibility + assistance amounts su"
         },
         {
           "rank": 3,
-          "score": 0.8587,
-          "source": "scheme_8.md",
-          "snippet": " enterprises (company/LLP/partnership)**: **at least 51% shareholding and contro"
+          "score": 0.6015,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Sections - Components & assistance amounts (central assistance)   - IGNOAPS: "
         }
       ]
     },
@@ -106,21 +106,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8575,
-          "source": "scheme_6.md",
-          "snippet": "from opening   - Early closure allowed only in specific conditions (e.g., marria"
+          "score": 0.6742,
+          "source": "PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
+          "snippet": "l beneficiary category lists (e.g., based on deprivation/identified poor househo"
         },
         {
           "rank": 2,
-          "score": 0.8532,
-          "source": "scheme_2.md",
-          "snippet": "## Eligibility - State:   - Pan-India (available through participating banks/Ban"
+          "score": 0.663,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "egory:   - BPL + specific condition by component:     - old age / widow / severe"
         },
         {
           "rank": 3,
-          "score": 0.8453,
-          "source": "scheme_7.md",
-          "snippet": "## Overview Atal Pension Yojana (APY) is a government-backed pension scheme for "
+          "score": 0.6564,
+          "source": "PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
+          "snippet": "## Eligibility - State:   - Pan-India via Oil Marketing Company (OMC) distributo"
         }
       ]
     },
@@ -130,21 +130,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8264,
-          "source": "scheme_8.md",
-          "snippet": "## Overview Stand-Up India is a Government of India scheme to facilitate **bank "
+          "score": 0.6467,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Official Sources - [NSAP official portal (Eligibility + assistance amounts su"
         },
         {
           "rank": 2,
-          "score": 0.8182,
-          "source": "scheme_6.md",
-          "snippet": "## Sections - Deposit rules   - Minimum yearly deposit requirement (to keep acco"
+          "score": 0.63,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Sections - Components & assistance amounts (central assistance)   - IGNOAPS: "
         },
         {
           "rank": 3,
-          "score": 0.8142,
-          "source": "scheme_7.md",
-          "snippet": "## Eligibility - State:   - Pan-India (via banks and India Post / post office sa"
+          "score": 0.624,
+          "source": "PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
+          "snippet": "l beneficiary category lists (e.g., based on deprivation/identified poor househo"
         }
       ]
     },
@@ -154,20 +154,20 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8982,
-          "source": "scheme_2.md",
-          "snippet": "# Scheme 2 — PMJDY (Pradhan Mantri Jan-Dhan Yojana)"
+          "score": 0.6961,
+          "source": "Ayushman Bharat PM-JAY (Pradhan Mantri Jan Arogya Yojana)",
+          "snippet": "## Eligibility - State:   - Implemented by States/UTs through State Health Agenc"
         },
         {
           "rank": 2,
-          "score": 0.882,
-          "source": "scheme_5.md",
-          "snippet": "ocal verification details (for NFBS) - Residence details (often required by Stat"
+          "score": 0.6858,
+          "source": "Ayushman Bharat PM-JAY (Pradhan Mantri Jan Arogya Yojana)",
+          "snippet": "## Overview Ayushman Bharat PM-JAY is a government-funded health assurance schem"
         },
         {
           "rank": 3,
-          "score": 0.8764,
-          "source": "scheme_4.md",
+          "score": 0.6814,
+          "source": "Ayushman Bharat PM-JAY (Pradhan Mantri Jan Arogya Yojana)",
           "snippet": "on. - Category:   - Primary identification: **SECC 2011**-based entitled familie"
         }
       ]
@@ -178,21 +178,21 @@
       "hits": [
         {
           "rank": 1,
-          "score": 0.8836,
-          "source": "scheme_6.md",
-          "snippet": "Only **one account per girl child**.   - A family can open accounts for **maximu"
+          "score": 0.6637,
+          "source": "PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
+          "snippet": "l beneficiary category lists (e.g., based on deprivation/identified poor househo"
         },
         {
           "rank": 2,
-          "score": 0.8444,
-          "source": "scheme_2.md",
-          "snippet": "utlet - DBT linkage / JAM pipeline:   - Used as a channel to receive government "
+          "score": 0.6424,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "egory:   - BPL + specific condition by component:     - old age / widow / severe"
         },
         {
           "rank": 3,
-          "score": 0.8409,
-          "source": "scheme_1.md",
-          "snippet": "# Scheme 1 — PMAY-U 2.0 (Pradhan Mantri Awas Yojana – Urban 2.0)"
+          "score": 0.6359,
+          "source": "NSAP (National Social Assistance Programme)",
+          "snippet": "## Eligibility - State:   - Pan-India (implemented by States/UTs; application + "
         }
       ]
     }

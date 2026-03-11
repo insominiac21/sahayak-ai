@@ -1,21 +1,17 @@
 """Basic Qdrant retrieval test — single English query.
 Results saved to: sarvamai/scripts/results/retrieval_basic.json
 """
-import sys, os, hashlib, json
+import sys, os, json
 from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 from app.services.rag.qdrant_client import qdrant_client
-
-def dummy_embed(text):
-    h = hashlib.sha256(text.encode()).digest()
-    extended = (h * (384 // len(h) + 1))[:384]
-    return [float(b) / 255.0 for b in extended]
+from app.services.rag.embeddings import embed_text
 
 query = "pension for elderly women"
 response = qdrant_client.query_points(
     collection_name="schemes",
-    query=dummy_embed(query),
+    query=embed_text(query),
     limit=3,
 )
 hits = []

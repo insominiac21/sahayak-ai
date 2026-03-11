@@ -143,7 +143,7 @@ for (query,) in QUERIES:
     config = types.GenerateContentConfig(
         system_instruction=SYSTEM_PROMPT,
         temperature=0.3,
-        max_output_tokens=400,
+        max_output_tokens=1024,
     )
     gemini_response = generate_with_fallback(contents=rag_prompt, config=config)
     answer_en = gemini_response.text.strip()

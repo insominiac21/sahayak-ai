@@ -1,23 +1,23 @@
 {
   "test": "retrieval_basic",
-  "timestamp": "2026-03-11T22:58:30.523423",
+  "timestamp": "2026-03-12T00:03:49.942979",
   "query": "pension for elderly women",
   "collection_points": 68,
   "hits": [
     {
-      "score": 0.8574,
-      "source": "scheme_4.md",
-      "snippet": "## Sections\n- Benefits & coverage\n  - ₹5 lakh family floater cover, cashless hospitalization, portability across India\n "
+      "score": 0.6857,
+      "source": "APY (Atal Pension Yojana)",
+      "snippet": "## Sections\n- Benefits\n  - Guaranteed minimum monthly pension: ₹1,000 / ₹2,000 / ₹3,000 / ₹4,000 / ₹5,000 after 60\n  - S"
     },
     {
-      "score": 0.8171,
-      "source": "scheme_2.md",
-      "snippet": "# Scheme 2 — PMJDY (Pradhan Mantri Jan-Dhan Yojana)"
+      "score": 0.6726,
+      "source": "NSAP (National Social Assistance Programme)",
+      "snippet": "## Sections\n- Components & assistance amounts (central assistance)\n  - IGNOAPS: ₹200 (60–79), ₹500 (80+)\n  - IGNWPS: ₹30"
     },
     {
-      "score": 0.8156,
-      "source": "scheme_5.md",
-      "snippet": "## Official Sources\n- [NSAP official portal (Eligibility + assistance amounts summary)](https://nsap.gov.in/)\n- [NSAP FA"
+      "score": 0.6724,
+      "source": "NSAP (National Social Assistance Programme)",
+      "snippet": "## Eligibility\n- State:\n  - Pan-India (implemented by States/UTs; application + payout processes can vary by State/UT).\n"
     }
   ]
 }
