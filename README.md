@@ -47,98 +47,150 @@ Sarvam AI and Gemini serve **completely different roles** — they are complemen
 
 ## End-to-End Pipeline Output (11 Languages)
 
-Real output from `test_e2e_pipeline.py` — shows the full flow:  
+Real output from `test_e2e_pipeline.py` — realistic helpline-style queries showing the full flow:  
 **User Input → Language Detected → Translated to English → RAG Retrieval → Response in Same Language**
 
 ```
-===========================================================================
-  End-to-End Pipeline Test
+==========================================================================================
+  End-to-End Pipeline Test — Realistic Helpline Queries
   Input → Detect Language → Translate to EN → Retrieve → Reply in Same Language
-===========================================================================
+==========================================================================================
 
-[English]
-  INPUT   : What pension schemes are available for elderly people?
+[English] — 67-year-old asking about pension eligibility
+  INPUT   : My name is Ramesh, I am 67 years old and my monthly income is around
+            4000 rupees. I live in Bihar and I don't have any pension right now.
+            Am I eligible for any government pension scheme? What documents do I need?
   DETECTED: English (en-IN)
-  ENGLISH : What pension schemes are available for elderly people?
-  RETRIEVED: scheme_3.md (score=0.8645)
-  RESPONSE: Based on scheme_3.md: PMUY Official Portal...
+  ENGLISH : (same as input)
+  RETRIEVED: scheme_3.md, scheme_1.md, scheme_5.md (top score=0.8603)
+  RESPONSE: Based on scheme_3.md: Checklist — exact fields may vary slightly by
+            distributor/State; this is the common minimum...
 
-[Hindi]
-  INPUT   : गरीब परिवारों के लिए कौन सी सरकारी योजनाएँ हैं?
+[Hindi] — Woman asking about housing scheme with family income
+  INPUT   : मेरा नाम सुनीता है, मैं उत्तर प्रदेश में रहती हूँ। मेरे पति की सालाना आय
+            लगभग 2.5 लाख रुपये है और हमारे पास अपना घर नहीं है। क्या हम प्रधानमंत्री
+            आवास योजना के लिए पात्र हैं? आवेदन के लिए कौन कौन से कागज़ात चाहिए?
   DETECTED: Hindi (hi-IN)
-  ENGLISH : What are the government schemes for poor families?
-  RETRIEVED: scheme_7.md (score=0.8607)
-  RESPONSE: योजना_7 पर आधारित। अखिल भारतीय (बैंकों और भारत पोस्ट / डाकघर बचत खातों...
+  ENGLISH : My name is Sunita, I live in Uttar Pradesh. My husband has a salary
+            of around 2.5 lakhs per annum and we do not own a house. Are we
+            eligible for PMAY? What documents are needed to apply?
+  RETRIEVED: scheme_2.md, scheme_6.md, scheme_4.md (top score=0.8589)
+  RESPONSE: योजना_2 पर आधारित — सूची: सटीक KYC/क्षेत्र बैंक पर निर्भर करते हैं,
+            सहायक के लिए इसे अपना न्यूनतम अपेक्षित...
 
-[Tamil]
-  INPUT   : ஏழை குடும்பங்களுக்கு என்ன அரசுத் திட்டங்கள் உள்ளன?
+[Tamil] — Father asking about Sukanya Samriddhi for daughter
+  INPUT   : என் பெயர் முருகன், எனக்கு 5 வயது மகள் இருக்கிறாள். நான் ஒரு தனியார்
+            நிறுவனத்தில் வேலை செய்கிறேன், மாத சம்பளம் 15000 ரூபாய். என் மகளுக்கு
+            சுகன்யா சம்ரிதி கணக்கு திறக்க என்ன ஆவணங்கள் தேவை? குறைந்தபட்ச டெபாசிட் எவ்வளவு?
   DETECTED: Tamil (ta-IN)
-  ENGLISH : What government schemes are there for poor families?
-  RETRIEVED: scheme_5.md (score=0.8784)
-  RESPONSE: scheme_5 அடிப்படையாகக் கொண்டது — சரிபார்ப்பு விவரங்கள்...
+  ENGLISH : My name is Murugan, I have a 5-year-old daughter. I work in a private
+            company, salary Rs 15000/month. What documents are needed to open a
+            Sukanya Samriddhi account? What is the minimum deposit?
+  RETRIEVED: scheme_1.md, scheme_6.md, scheme_3.md (top score=0.8211)
+  RESPONSE: scheme_1 அடிப்படையாகக் கொண்டது — சரிபார்ப்பு பட்டியல்:
+            மாநில/ULB மற்றும் நீங்கள் எந்த செங்குத்து நிலைக்குக்...
 
-[Telugu]
-  INPUT   : పేద కుటుంబాలకు ఏ ప్రభుత్వ పథకాలు అందుబాటులో ఉన్నాయి?
+[Telugu] — SC farmer asking about Stand-Up India loan
+  INPUT   : నా పేరు వెంకటేష్, నేను ఆంధ్రప్రదేశ్‌లో చిన్న రైతుని. నా వార్షిక ఆదాయం
+            1.5 లక్షలు. నేను SC కేటగిరీకి చెందినవాడిని. Stand-Up India లోన్ కోసం
+            అప్లై చేయాలనుకుంటున్నాను. ఎంత లోన్ వస్తుంది? ఏ డాక్యుమెంట్స్ కావాలి?
   DETECTED: Telugu (te-IN)
-  ENGLISH : Which government schemes are available for poor families?
-  RETRIEVED: scheme_3.md (score=0.8599)
-  RESPONSE: స్కీమ్_3 ఆధారంగా — పీఎంయూవై అధికారిక పోర్టల్...
+  ENGLISH : My name is Venkatesh, I am a small farmer from AP. Annual income 1.5L.
+            I belong to SC category. I want to apply for Stand-Up India loan.
+            How much loan can I get? What documents are needed?
+  RETRIEVED: scheme_1.md, scheme_2.md, scheme_7.md (top score=0.8664)
+  RESPONSE: స్కీమ్_1 ఆధారంగా — అర్హత: పాల్గొనే అన్ని రాష్ట్రాలు/యూటీలు
+            (అమలు రాష్ట్రాలు/యూటీలు/యుఎల్‌బిలు/పిఎల్‌ఐల ద్వారా)...
 
-[Bengali]
-  INPUT   : দরিদ্র পরিবারের জন্য কোন সরকারি প্রকল্প আছে?
+[Bengali] — Woman asking about Ayushman Bharat for mother-in-law's hospitalization
+  INPUT   : আমার নাম ফাতিমা, আমি পশ্চিমবঙ্গে থাকি। আমার পরিবারে ৫ জন সদস্য আছে,
+            স্বামীর বার্ষিক আয় ১.৮ লাখ টাকা। আমার শাশুড়ির হাসপাতালে ভর্তি হওয়া দরকার।
+            আয়ুষ্মান ভারত কার্ড কীভাবে বানাবো? ক্যাশলেস চিকিৎসা কি পাওয়া যাবে?
   DETECTED: Bengali (bn-IN)
-  ENGLISH : Are there any government schemes for poor families?
-  RETRIEVED: scheme_4.md (score=0.8346)
-  RESPONSE: স্কিম_4-এর উপর ভিত্তি করে — আয়ুষ্মান ভারত পিএম-জেএওয়াই...
+  ENGLISH : My name is Fatima, I live in West Bengal. 5 members in family, husband
+            earns 1.8L/year. Mother-in-law needs hospitalization. How to make
+            Ayushman Bharat card? Is cashless treatment available?
+  RETRIEVED: scheme_1.md, scheme_8.md, scheme_3.md (top score=0.8903)
+  RESPONSE: স্কিম_1-এর উপর ভিত্তি করে — কার্যকরী সংস্থা/ইউএলবি দ্বারা জিজ্ঞাসা
+            করা হিসাবে যাচাইয়ের জন্য প্রয়োজনীয় মৌলিক আবেদন...
 
-[Kannada]
-  INPUT   : ಬಡ ಕುಟುಂಬಗಳಿಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಲಭ್ಯವಿವೆ?
+[Kannada] — Widow asking about pension eligibility
+  INPUT   : ನನ್ನ ಹೆಸರು ಲಕ್ಷ್ಮಿ, ನಾನು ವಿಧವೆ, ವಯಸ್ಸು 55 ವರ್ಷ. ನನ್ನ ಮಕ್ಕಳು ಕೂಲಿ ಕೆಲಸ
+            ಮಾಡುತ್ತಾರೆ. ನನಗೆ ಯಾವುದೇ ಆದಾಯ ಇಲ್ಲ. ವಿಧವಾ ಪಿಂಚಣಿ ಯೋಜನೆಗೆ ನಾನು ಅರ್ಹಳಾ?
+            ಎಷ್ಟು ಹಣ ಸಿಗುತ್ತದೆ ಮತ್ತು ಎಲ್ಲಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಬೇಕು?
   DETECTED: Kannada (kn-IN)
-  ENGLISH : What government schemes are available for poor families?
-  RETRIEVED: scheme_4.md (score=0.8421)
-  RESPONSE: ಸ್ಕೀಮ್_4 ಆಧಾರಿತ — SECC 2011 ಆಧಾರಿತ ಅರ್ಹ ಕುಟುಂಬ...
+  ENGLISH : My name is Lakshmi, I am a widow, age 55. My children do coolie work.
+            I don't have any income. Am I eligible for widow pension scheme?
+            How much money will I get and where to apply?
+  RETRIEVED: scheme_4.md, scheme_5.md, scheme_7.md (top score=0.8336)
+  RESPONSE: ಸ್ಕೀಮ್_4 ಆಧಾರಿತ — ಆಯುಷ್ಮಾನ್ ಭಾರತ್ ಪಿ.ಎಂ.-ಜೆ.ಎ.ವೈ.
+            (ಪ್ರಧಾನ ಮಂತ್ರಿ ಜನ ಆರೋಗ್ಯ ಯೋಜನೆ)...
 
-[Gujarati]
-  INPUT   : ગરીબ પરિવારો માટે કઈ સરકારી યોજનાઓ ઉપલબ્ધ છે?
+[Gujarati] — BPL family asking about Ujjwala LPG scheme
+  INPUT   : મારું નામ રાધાબેન છે, હું ગુજરાતના એક ગામમાં રહું છું. અમારી પાસે BPL
+            કાર્ડ છે અને અમે હજી સુધી LPG કનેક્શન લીધું નથી. ઉજ્જવલા યોજનામાં ફ્રી
+            ગેસ કનેક્શન મળશે? KYC માટે શું શું જોઈએ? ક્યાં અરજી કરવી?
   DETECTED: Gujarati (gu-IN)
-  ENGLISH : What government schemes are available for poor families?
-  RETRIEVED: scheme_4.md (score=0.8421)
-  RESPONSE: યોજના_4 પર આધારિત — SECC 2011 આધારિત હકદાર પરિવારો...
+  ENGLISH : My name is Radhaben, I live in a village in Gujarat. We have a BPL card
+            and haven't taken LPG connection yet. Will we get free gas under Ujjwala?
+            What KYC documents needed? Where to apply?
+  RETRIEVED: scheme_5.md, scheme_4.md (top score=0.8309)
+  RESPONSE: યોજના_5 પર આધારિત — NSAP (રાષ્ટ્રીય સામાજિક સહાય કાર્યક્રમ)...
 
-[Malayalam]
-  INPUT   : പാവപ്പെട്ട കുടുംബങ്ങൾക്ക് എന്ത് സർക്കാർ പദ്ധതികൾ ലഭ്യമാണ്?
+[Malayalam] — Asking about Jan Dhan zero-balance account
+  INPUT   : എന്റെ പേര് അനിത, ഞാൻ കേരളത്തിൽ താമസിക്കുന്നു. എനിക്ക് ബാങ്ക് അക്കൗണ്ട്
+            ഇല്ല. ജൻ ധൻ യോജനയിൽ സീറോ ബാലൻസ് അക്കൗണ്ട് തുറക്കാൻ ആധാർ കാർഡ് മാത്രം
+            മതിയോ? എന്തെല്ലാം ആനുകൂല്യങ്ങൾ ലഭിക്കും? ഡെബിറ്റ് കാർഡ് കിട്ടുമോ?
   DETECTED: Malayalam (ml-IN)
-  ENGLISH : What government schemes are available for poor families?
-  RETRIEVED: scheme_4.md (score=0.8421)
-  RESPONSE: സ്കീം 4 അടിസ്ഥാനമാക്കി — SECC 2011 അടിസ്ഥാനമാക്കിയ അർഹ കുടുംബങ്ങൾ...
+  ENGLISH : I am Anitha, from Kerala. I don't have a bank account. Is Aadhaar card
+            enough to open a zero balance account under Jan Dhan Yojana? What
+            benefits will I get? Will I get a debit card?
+  RETRIEVED: scheme_8.md, scheme_3.md, scheme_5.md (top score=0.8496)
+  RESPONSE: സ്കീം_8 അടിസ്ഥാനമാക്കി — സ്റ്റാൻഡ്-അപ്പ് ഇന്ത്യ: ₹10 ലക്ഷം
+            മുതൽ ₹1 കോടി വരെ ബാങ്ക് വായ്പ...
 
-[Punjabi]
-  INPUT   : ਗ਼ਰੀਬ ਪਰਿਵਾਰਾਂ ਲਈ ਕਿਹੜੀਆਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਉਪਲਬਧ ਹਨ?
+[Punjabi] — Auto-rickshaw driver asking about Atal Pension
+  INPUT   : ਮੇਰਾ ਨਾਮ ਗੁਰਪ੍ਰੀਤ ਹੈ, ਮੈਂ ਪੰਜਾਬ ਵਿੱਚ ਆਟੋ ਰਿਕਸ਼ਾ ਚਲਾਉਂਦਾ ਹਾਂ। ਮੇਰੀ ਉਮਰ
+            30 ਸਾਲ ਹੈ ਅਤੇ ਮੇਰੇ ਕੋਲ ਕੋਈ ਪੈਨਸ਼ਨ ਨਹੀਂ ਹੈ। ਅਟਲ ਪੈਨਸ਼ਨ ਯੋਜਨਾ ਵਿੱਚ ਮਹੀਨੇ
+            ਦਾ ਕਿੰਨਾ ਯੋਗਦਾਨ ਦੇਣਾ ਪਵੇਗਾ? 60 ਸਾਲ ਬਾਅਦ ਕਿੰਨੀ ਪੈਨਸ਼ਨ ਮਿਲੇਗੀ?
   DETECTED: Punjabi (pa-IN)
-  ENGLISH : What government schemes are available for poor families?
-  RETRIEVED: scheme_4.md (score=0.8421)
-  RESPONSE: ਸਕੀਮ_4 'ਤੇ ਆਧਾਰਿਤ — SECC 2011 ਅਧਾਰਿਤ ਹੱਕਦਾਰ ਪਰਿਵਾਰ...
+  ENGLISH : My name is Gurpreet, I drive an auto-rickshaw in Punjab. I am 30 years
+            old and don't have a pension. How much monthly contribution for Atal
+            Pension Yojana? How much pension after 60?
+  RETRIEVED: scheme_3.md, scheme_4.md, scheme_7.md (top score=0.8201)
+  RESPONSE: ਸਕੀਮ_3 'ਤੇ ਆਧਾਰਿਤ — ਪੀਐੱਮਯੂਵਾਈ (ਪ੍ਰਧਾਨ ਮੰਤਰੀ ਉਜਵਲਾ ਯੋਜਨਾ) /
+            ਉਜਵਲਾ 2.0...
 
-[Odia]
-  INPUT   : ଗରିବ ପରିବାରମାନଙ୍କ ପାଇଁ କେଉଁ ସରକାରୀ ଯୋଜନା ଉପଲବ୍ଧ?
+[Odia] — Son asking about disability pension for father
+  INPUT   : ମୋ ନାଁ ସୁରେଶ, ମୁଁ ଓଡ଼ିଶାରେ ରହେ। ମୋ ବାପାଙ୍କ ବୟସ 72 ବର୍ଷ ଏବଂ ସେ ଶାରୀରିକ
+            ଭାବେ ଅକ୍ଷମ। ସେ କୌଣସି ସରକାରୀ ପେନ୍‌ସନ ପାଉନାହାନ୍ତି। NSAP ଯୋଜନାରେ ବିକଳାଙ୍ଗ
+            ପେନ୍‌ସନ ପାଇଁ କିପରି ଆବେଦନ କରିବା? କେତେ ଟଙ୍କା ମିଳିବ?
   DETECTED: Odia (od-IN)
-  ENGLISH : Which government schemes are available for poor families?
-  RETRIEVED: scheme_3.md (score=0.8599)
-  RESPONSE: ସ୍କିମ୍_3 ଉପରେ ଆଧାରିତ — PMUY ଅଫିସିଆଲ୍ ପୋର୍ଟାଲ୍...
+  ENGLISH : My name is Suresh, I live in Odisha. My father is 72 years old and
+            physically handicapped. He doesn't get any government pension. How to
+            apply for disability pension under NSAP? How much money will he get?
+  RETRIEVED: scheme_7.md, scheme_4.md (top score=0.8899)
+  RESPONSE: ସ୍କିମ୍_7 ଉପରେ ଆଧାରିତ — ଯୋଗ୍ୟତା: ସମଗ୍ର ଭାରତ (ବ୍ୟାଙ୍କ ଏବଂ ଭାରତ
+            ପୋଷ୍ଟ / ଡାକଘର ସଞ୍ଚୟ ଖାତା ମାଧ୍ୟମରେ)...
 
-[Marathi]
-  INPUT   : गरीब कुटुंबांसाठी कोणत्या सरकारी योजना उपलब्ध आहेत?
+[Marathi] — Woman entrepreneur asking about Stand-Up India loan
+  INPUT   : माझे नाव प्रिया आहे, मी पुण्यात राहते. मला एक छोटा कपड्यांचा व्यवसाय
+            सुरू करायचा आहे. माझ्याकडे 3 लाख रुपये स्वतःचे आहेत. Stand-Up India
+            योजनेतून बँक लोन मिळू शकते का? किती लोन मिळेल? कुठल्या बँकेत जायचे?
   DETECTED: Marathi (mr-IN)
-  ENGLISH : What government schemes are available for poor families?
-  RETRIEVED: scheme_4.md (score=0.8421)
-  RESPONSE: योजना_4 वर आधारित — SECC 2011 आधारित पात्र कुटुंबे...
+  ENGLISH : My name is Priya, I live in Pune. I want to start a small clothing
+            business. I have Rs 3 lakhs of my own. Can I get a bank loan through
+            Stand-Up India? How much loan? Which bank to go to?
+  RETRIEVED: scheme_4.md, scheme_8.md, scheme_2.md (top score=0.8567)
+  RESPONSE: योजना_4 वर आधारित — SECC 2011 आधारित पात्र कुटुंबे
+            (योजनेच्या रचनेनुसार तपशील)...
 
-===========================================================================
+==========================================================================================
   All 11 queries processed successfully!
-===========================================================================
+==========================================================================================
 ```
 
-> **Note:** Current v1 uses SHA-256 dummy embeddings (384-dim) and simulates the Gemini answer with top chunk text. In production, Gemini generates a full cited answer before translation. Scores will improve once Sarvam embedding API replaces the hash-based vectors in v2.
+> **Note:** v1 uses SHA-256 dummy embeddings and simulates the Gemini answer with raw chunk text. In production, Gemini generates a full cited answer before back-translation. Retrieval accuracy will improve significantly once Sarvam embedding API replaces hash-based vectors in v2.
 
 ---
 

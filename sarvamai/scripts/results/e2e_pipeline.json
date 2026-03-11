@@ -1,117 +1,161 @@
 {
-  "test": "e2e_pipeline",
-  "timestamp": "2026-03-11T23:03:23.695642",
+  "test": "e2e_pipeline_realistic",
+  "timestamp": "2026-03-11T23:10:42.526353",
   "total_queries": 11,
   "results": [
     {
-      "input": "What pension schemes are available for elderly people?",
+      "input": "My name is Ramesh, I am 67 years old and my monthly income is around 4000 rupees. I live in Bihar and I don't have any pension right now. Am I eligible for any government pension scheme? What documents do I need to apply?",
       "detected_lang": "en-IN",
       "lang_name": "English",
-      "english_query": "What pension schemes are available for elderly people?",
-      "top_source": "scheme_3.md",
-      "top_score": 0.8645,
-      "answer_en": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - ",
-      "answer_local": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - "
+      "english_query": "My name is Ramesh, I am 67 years old and my monthly income is around 4000 rupees. I live in Bihar and I don't have any pension right now. Am I eligible for any government pension scheme? What documents do I need to apply?",
+      "sources_matched": [
+        "scheme_3.md",
+        "scheme_1.md",
+        "scheme_5.md"
+      ],
+      "top_score": 0.8603,
+      "answer_en": "Based on scheme_3.md: ## Checklist (Exact fields may vary slightly by distributor/State; this is the “common minimum” mentioned in official docs.) - PMUY KYC application fo",
+      "answer_local": "Based on scheme_3.md: ## Checklist (Exact fields may vary slightly by distributor/State; this is the “common minimum” mentioned in official docs.) - PMUY KYC application fo"
     },
     {
-      "input": "गरीब परिवारों के लिए कौन सी सरकारी योजनाएँ हैं?",
+      "input": "मेरा नाम सुनीता है, मैं उत्तर प्रदेश में रहती हूँ। मेरे पति की सालाना आय लगभग 2.5 लाख रुपये है और हमारे पास अपना घर नहीं है। क्या हम प्रधानमंत्री आवास योजना के लिए पात्र हैं? आवेदन के लिए कौन कौन से कागज़ात चाहिए?",
       "detected_lang": "hi-IN",
       "lang_name": "Hindi",
-      "english_query": "What are the government schemes for poor families?",
-      "top_source": "scheme_7.md",
-      "top_score": 0.8607,
-      "answer_en": "Based on scheme_7.md: ## Eligibility - State:   - Pan-India (via banks and India Post / post office savings accounts, depe",
-      "answer_local": "योजना_7 पर आधारित।एम.डी.: ## पात्रता - राज्य: - अखिल भारतीय (बैंकों और भारत पोस्ट / डाकघर बचत खातों के माध्यम से) -"
+      "english_query": "My name is Sunita, I live in Uttar Pradesh. My husband has a salary of around 2.5 lakhs per annum and we do not own a house. Are we eligible for the Pradhan Mantri Awas Yojana? What are the documents required for the application?",
+      "sources_matched": [
+        "scheme_2.md",
+        "scheme_6.md",
+        "scheme_4.md"
+      ],
+      "top_score": 0.8589,
+      "answer_en": "Based on scheme_2.md: ## Checklist (Exact KYC/fields depend on the bank. Keep this as your “minimum expected set” for the assistant.) - Proof of identity + address as per b",
+      "answer_local": "योजना_2 पर आधारित।एमडीः ## सूची (सटीक केवाईसी/क्षेत्र बैंक पर निर्भर करते हैं।) सहायक के लिए इसे अपना \"न्यूनतम अपेक्षित समूह\" के रूप में रखें। - पहचान और पते का प्रमाण"
     },
     {
-      "input": "ஏழை குடும்பங்களுக்கு என்ன அரசுத் திட்டங்கள் உள்ளன?",
+      "input": "என் பெயர் முருகன், எனக்கு 5 வயது மகள் இருக்கிறாள். நான் ஒரு தனியார் நிறுவனத்தில் வேலை செய்கிறேன், மாத சம்பளம் 15000 ரூபாய். என் மகளுக்கு சுகன்யா சம்ரிதி கணக்கு திறக்க என்ன ஆவணங்கள் தேவை? குறைந்தபட்ச டெபாசிட் எவ்வளவு?",
       "detected_lang": "ta-IN",
       "lang_name": "Tamil",
-      "english_query": "What government schemes are there for poor families?",
-      "top_source": "scheme_5.md",
-      "top_score": 0.8784,
-      "answer_en": "Based on scheme_5.md: ocal verification details (for NFBS) - Residence details (often required by State/UT for verificatio",
-      "answer_local": "scheme_5 அடிப்படையாகக் கொண்டது.எம்டி: ஓகால் சரிபார்ப்பு விவரங்கள் (என்எஃப்பிஎஸ்-க்கு) - வசிப்பிட விவரங்கள் (பெரும்பாலும் மாநில/யூனியன் பிரதேச அரசால் ச"
+      "english_query": "My name is Murugan, I have a 5-year-old daughter. I work in a private company and my salary is Rs. 15000 per month. What documents are needed to open a Sukanya Samriddhi account for my daughter? What is the minimum deposit?",
+      "sources_matched": [
+        "scheme_1.md",
+        "scheme_6.md",
+        "scheme_3.md"
+      ],
+      "top_score": 0.8211,
+      "answer_en": "Based on scheme_1.md: ## Checklist (Exact list varies by State/ULB + the vertical you apply under. This is the minimum “always mentioned” set.) - Aadhaar / Aadhaar Virtual ",
+      "answer_local": "scheme_1 அடிப்படையாகக் கொண்டது.எம்டி: ## சரிபார்ப்பு பட்டியல் (மாநில/யுஎல்பி மற்றும் நீங்கள் எந்த செங்குத்து நிலைக்குக் கீழ் விண்ணப்பிக்கிறீர்கள் என்பதைப் பொறுத்து சரியான பட்டியல் மாறுபடும்.) இது குறை"
     },
     {
-      "input": "పేద కుటుంబాలకు ఏ ప్రభుత్వ పథకాలు అందుబాటులో ఉన్నాయి?",
+      "input": "నా పేరు వెంకటేష్, నేను ఆంధ్రప్రదేశ్‌లో చిన్న రైతుని. నా వార్షిక ఆదాయం 1.5 లక్షలు. నేను SC కేటగిరీకి చెందినవాడిని. Stand-Up India లోన్ కోసం అప్లై చేయాలనుకుంటున్నాను. ఎంత లోన్ వస్తుంది? ఏ డాక్యుమెంట్స్ కావాలి?",
       "detected_lang": "te-IN",
       "lang_name": "Telugu",
-      "english_query": "Which government schemes are available for poor families?",
-      "top_source": "scheme_3.md",
-      "top_score": 0.8599,
-      "answer_en": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - ",
-      "answer_local": "స్కీమ్_3 ఆధారంగా.md: ## అధికారిక వనరులు - [పీఎంయూవై అధికారిక పోర్టల్ (సాధారణ సమాచారం + పత్రాలు)](https://www.pmuy.gov.in/)"
+      "english_query": "My name is Venkatesh, and I am a small farmer from Andhra Pradesh. My annual income is one and a half lakhs. I belong to the SC category. I want to apply for the Stand-Up India loan. How much loan will I get? What documents are required?",
+      "sources_matched": [
+        "scheme_1.md",
+        "scheme_2.md",
+        "scheme_7.md"
+      ],
+      "top_score": 0.8664,
+      "answer_en": "Based on scheme_1.md: ## Eligibility - State:   - All participating **States/UTs** (implementation is via States/UTs/ULBs/PLIs; coverage depends on notified towns/ULBs). - ",
+      "answer_local": "స్కీమ్_1 ఆధారంగా.MD: ## అర్హత - రాష్ట్రం: - పాల్గొనే అన్ని రాష్ట్రాలు/యూటీలు (అమలు రాష్ట్రాలు/యూటీలు/యుఎల్‌బిలు/పిఎల్‌ఐల ద్వారా; కవరేజ్ నోటిఫైడ్ పట్టణాలు/యుఎల్‌బిలపై ఆధారపడి ఉంటుంది). -"
     },
     {
-      "input": "দরিদ্র পরিবারের জন্য কোন সরকারি প্রকল্প আছে?",
+      "input": "আমার নাম ফাতিমা, আমি পশ্চিমবঙ্গে থাকি। আমার পরিবারে ৫ জন সদস্য আছে, স্বামীর বার্ষিক আয় ১.৮ লাখ টাকা। আমার শাশুড়ির হাসপাতালে ভর্তি হওয়া দরকার। আয়ুষ্মান ভারত কার্ড কীভাবে বানাবো? ক্যাশলেস চিকিৎসা কি পাওয়া যাবে?",
       "detected_lang": "bn-IN",
       "lang_name": "Bengali",
-      "english_query": "Are there any government schemes for poor families?",
-      "top_source": "scheme_4.md",
-      "top_score": 0.8346,
-      "answer_en": "Based on scheme_4.md: ## Overview Ayushman Bharat PM-JAY is a government-funded health assurance scheme that provides **ca",
-      "answer_local": "স্কিম_4-এর উপর ভিত্তি করে।MD: ## সংক্ষিপ্ত বিবরণ আয়ুষ্মান ভারত পিএম-জেএওয়াই একটি সরকার-অর্থায়িত স্বাস্থ্য বীমা প্রকল্প যা প্রায়"
+      "english_query": "My name is Fatima, I live in West Bengal. There are 5 members in my family, my husband's annual income is 1.8 lakhs. My mother-in-law needs to be hospitalized. How do I make an Ayushman Bharat card? Will cashless treatment be available?",
+      "sources_matched": [
+        "scheme_1.md",
+        "scheme_8.md",
+        "scheme_3.md"
+      ],
+      "top_score": 0.8903,
+      "answer_en": "Based on scheme_1.md: (as asked by implementing agency/ULB) - Basic application details needed for verification: household category (EWS/LIG/MIG), income details, contact d",
+      "answer_local": "স্কিম_1-এর উপর ভিত্তি করে।এমডি: (কার্যকরী সংস্থা/ইউএলবি দ্বারা জিজ্ঞাসা করা হিসাবে) - যাচাইয়ের জন্য প্রয়োজনীয় মৌলিক আবেদন বিবরণী: গৃহস্থালী বিভাগ (ইডব্লিউএস/এলআইজি/এমআইজি), আয়ের বিবরণ, যোগাযোগের ত"
     },
     {
-      "input": "ಬಡ ಕುಟುಂಬಗಳಿಗೆ ಯಾವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳು ಲಭ್ಯವಿವೆ?",
+      "input": "ನನ್ನ ಹೆಸರು ಲಕ್ಷ್ಮಿ, ನಾನು ವಿಧವೆ, ವಯಸ್ಸು 55 ವರ್ಷ. ನನ್ನ ಮಕ್ಕಳು ಕೂಲಿ ಕೆಲಸ ಮಾಡುತ್ತಾರೆ. ನನಗೆ ಯಾವುದೇ ಆದಾಯ ಇಲ್ಲ. ವಿಧವಾ ಪಿಂಚಣಿ ಯೋಜನೆಗೆ ನಾನು ಅರ್ಹಳಾ? ಎಷ್ಟು ಹಣ ಸಿಗುತ್ತದೆ ಮತ್ತು ಎಲ್ಲಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಬೇಕು?",
       "detected_lang": "kn-IN",
       "lang_name": "Kannada",
-      "english_query": "What government schemes are available for poor families?",
-      "top_source": "scheme_4.md",
-      "top_score": 0.8421,
-      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
-      "answer_local": "ಸ್ಕೀಮ್_4 ಆಧಾರಿತ.ಎಂ.ಡಿ.: ಆನ್. ವರ್ಗ: - ಪ್ರಾಥಮಿಕ ಗುರುತಿಸುವಿಕೆ: **ಎಸ್.ಇ.ಸಿ.ಸಿ. 2011** ಆಧಾರಿತ ಅರ್ಹ ಕುಟುಂಬಗಳು (ಶೇಕಡಾ ~ 40 ರಷ್ಟು ಕೆಳಗಿರುವಂತೆ ಬಿ)"
+      "english_query": "My name is Lakshmi, I am a widow and my age is 55 years. My children are doing coolie work. I don't have any income. Am I eligible for the widow pension scheme? How much money will I get and where should I apply?",
+      "sources_matched": [
+        "scheme_4.md",
+        "scheme_5.md",
+        "scheme_7.md"
+      ],
+      "top_score": 0.8336,
+      "answer_en": "Based on scheme_4.md: # Scheme 4 — Ayushman Bharat PM-JAY (Pradhan Mantri Jan Arogya Yojana)",
+      "answer_local": "ಸ್ಕೀಮ್_4 ಆಧಾರಿತ.ಎಂ.ಡಿ.: # ಸ್ಕೀಮ್ 4 - ಆಯುಷ್ಮಾನ್ ಭಾರತ್ ಪಿ.ಎಂ.-ಜೆ.ಎ.ವೈ. (ಪ್ರಧಾನ ಮಂತ್ರಿ ಜನ ಆರೋಗ್ಯ ಯೋಜನೆ)"
     },
     {
-      "input": "ગરીબ પરિવારો માટે કઈ સરકારી યોજનાઓ ઉપલબ્ધ છે?",
+      "input": "મારું નામ રાધાબેન છે, હું ગુજરાતના એક ગામમાં રહું છું. અમારી પાસે BPL કાર્ડ છે અને અમે હજી સુધી LPG કનેક્શન લીધું નથી. ઉજ્જવલા યોજનામાં ફ્રી ગેસ કનેક્શન મળશે? KYC માટે શું શું જોઈએ? ક્યાં અરજી કરવી?",
       "detected_lang": "gu-IN",
       "lang_name": "Gujarati",
-      "english_query": "What government schemes are available for poor families?",
-      "top_source": "scheme_4.md",
-      "top_score": 0.8421,
-      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
-      "answer_local": "યોજના_4 પર આધારિત.એમ.ડી.: ઓન. શ્રેણીઃ પ્રાથમિક ઓળખઃ **એસઈસીસી 2011** આધારિત હકદાર પરિવારો (પી તરીકે ~40% નીચે)"
+      "english_query": "My name is Radhaben, and I live in a village in Gujarat. We have a BPL card and we haven't taken an LPG connection yet. Will I get a free gas connection under the Ujjwala scheme? What are the inputs required for doing a KYC? Where can I apply?",
+      "sources_matched": [
+        "scheme_5.md",
+        "scheme_4.md",
+        "scheme_4.md"
+      ],
+      "top_score": 0.8309,
+      "answer_en": "Based on scheme_5.md: # Scheme 5 — NSAP (National Social Assistance Programme)",
+      "answer_local": "યોજના_5 પર આધારિત.એમ.ડી.: # યોજના 5 - એન.એસ.એ.પી. (રાષ્ટ્રીય સામાજિક સહાય કાર્યક્રમ)"
     },
     {
-      "input": "പാവപ്പെട്ട കുടുംബങ്ങൾക്ക് എന്ത് സർക്കാർ പദ്ധതികൾ ലഭ്യമാണ്?",
+      "input": "എന്റെ പേര് അനിത, ഞാൻ കേരളത്തിൽ താമസിക്കുന്നു. എനിക്ക് ബാങ്ക് അക്കൗണ്ട് ഇല്ല. ജൻ ധൻ യോജനയിൽ സീറോ ബാലൻസ് അക്കൗണ്ട് തുറക്കാൻ ആധാർ കാർഡ് മാത്രം മതിയോ? എന്തെല്ലാം ആനുകൂല്യങ്ങൾ ലഭിക്കും? ഡെബിറ്റ് കാർഡ് കിട്ടുമോ?",
       "detected_lang": "ml-IN",
       "lang_name": "Malayalam",
-      "english_query": "What government schemes are available for poor families?",
-      "top_source": "scheme_4.md",
-      "top_score": 0.8421,
-      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
-      "answer_local": "സ്കീം 4 അടിസ്ഥാനമാക്കി.എം.ഡി.: ഓൺ. വിഭാഗം: - പ്രാഥമിക തിരിച്ചറിയൽ: **എസ്.ഇ.സി.സി. 2011** അടിസ്ഥാനമാക്കിയുള്ള അവകാശവാദമുള്ള കുടുംബങ്ങൾ (ബി.ഒ.പി. ആയി ~4"
+      "english_query": "I am Anitha, and I am from Kerala. I don't have a bank account. Is an Aadhaar card sufficient to open a zero balance account in the Jan Dhan Yojana? What are the benefits? Will I get a debit card?",
+      "sources_matched": [
+        "scheme_8.md",
+        "scheme_3.md",
+        "scheme_5.md"
+      ],
+      "top_score": 0.8496,
+      "answer_en": "Based on scheme_8.md: ## Overview Stand-Up India is a Government of India scheme to facilitate **bank loans from ₹10 lakh to ₹1 crore** to: - **at least one SC/ST borrower*",
+      "answer_local": "സ്കീം_8 അടിസ്ഥാനമാക്കി.എം.ഡി.: ## ഓവർവ്യൂ സ്റ്റാൻഡ്-അപ്പ് ഇന്ത്യ എന്നത് ഒരു ഇന്ത്യാ ഗവൺമെണ്ട് പദ്ധതിയാണ്, **10 ലക്ഷം രൂപ മുതൽ 1 കോടി രൂപ വരെ** വായ്പയ്ക്കായി: - കുറഞ്ഞത് ഒരു എസ്.സി/എസ്.ടി വായ്പയെടുക്കു"
     },
     {
-      "input": "ਗ਼ਰੀਬ ਪਰਿਵਾਰਾਂ ਲਈ ਕਿਹੜੀਆਂ ਸਰਕਾਰੀ ਸਕੀਮਾਂ ਉਪਲਬਧ ਹਨ?",
+      "input": "ਮੇਰਾ ਨਾਮ ਗੁਰਪ੍ਰੀਤ ਹੈ, ਮੈਂ ਪੰਜਾਬ ਵਿੱਚ ਆਟੋ ਰਿਕਸ਼ਾ ਚਲਾਉਂਦਾ ਹਾਂ। ਮੇਰੀ ਉਮਰ 30 ਸਾਲ ਹੈ ਅਤੇ ਮੇਰੇ ਕੋਲ ਕੋਈ ਪੈਨਸ਼ਨ ਨਹੀਂ ਹੈ। ਅਟਲ ਪੈਨਸ਼ਨ ਯੋਜਨਾ ਵਿੱਚ ਮਹੀਨੇ ਦਾ ਕਿੰਨਾ ਯੋਗਦਾਨ ਦੇਣਾ ਪਵੇਗਾ? 60 ਸਾਲ ਬਾਅਦ ਕਿੰਨੀ ਪੈਨਸ਼ਨ ਮਿਲੇਗੀ?",
       "detected_lang": "pa-IN",
       "lang_name": "Punjabi",
-      "english_query": "What government schemes are available for poor families?",
-      "top_source": "scheme_4.md",
-      "top_score": 0.8421,
-      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
-      "answer_local": "ਸਕੀਮ_4 'ਤੇ ਆਧਾਰਿਤ।ਆਨਲਾਈਨ। ਸ਼੍ਰੇਣੀ: - ਪ੍ਰਾਇਮਰੀ ਪਛਾਣ: **ਐੱਸ.ਈ.ਸੀ.ਸੀ. 2011**-ਅਧਾਰਿਤ ਹੱਕਦਾਰ ਪਰਿਵਾਰ (ਪੀ.ਈ. ਦੇ ਰੂਪ ਵਿੱਚ ਹੇਠਲੇ ~40% ਦੇ ਰੂਪ ਵਿੱਚ) - ਸੈਕੰਡਰੀ ਪਛ"
+      "english_query": "My name is Gurpreet, I drive an auto-rickshaw in Punjab. I am 30 years old and I don't have a pension. How much contribution is required per month in Atal Pension Yojana? What is the pension amount after 60 years of age?",
+      "sources_matched": [
+        "scheme_3.md",
+        "scheme_4.md",
+        "scheme_7.md"
+      ],
+      "top_score": 0.8201,
+      "answer_en": "Based on scheme_3.md: # Scheme 3 — PMUY (Pradhan Mantri Ujjwala Yojana) / Ujjwala 2.0",
+      "answer_local": "ਸਕੀਮ_3 'ਤੇ ਆਧਾਰਿਤ।ਐੱਮਡੀਃ # ਸਕੀਮ 3 - ਪੀਐੱਮਯੂਵਾਈ (ਪ੍ਰਧਾਨ ਮੰਤਰੀ ਉਜਵਲਾ ਯੋਜਨਾ) / ਉਜਵਲਾ 2.0"
     },
     {
-      "input": "ଗରିବ ପରିବାରମାନଙ୍କ ପାଇଁ କେଉଁ ସରକାରୀ ଯୋଜନା ଉପଲବ୍ଧ?",
+      "input": "ମୋ ନାଁ ସୁରେଶ, ମୁଁ ଓଡ଼ିଶାରେ ରହେ। ମୋ ବାପାଙ୍କ ବୟସ 72 ବର୍ଷ ଏବଂ ସେ ଶାରୀରିକ ଭାବେ ଅକ୍ଷମ। ସେ କୌଣସି ସରକାରୀ ପେନ୍‌ସନ ପାଉନାହାନ୍ତି। NSAP ଯୋଜନାରେ ବିକଳାଙ୍ଗ ପେନ୍‌ସନ ପାଇଁ କିପରି ଆବେଦନ କରିବା? କେତେ ଟଙ୍କା ମିଳିବ?",
       "detected_lang": "od-IN",
       "lang_name": "Odia",
-      "english_query": "Which government schemes are available for poor families?",
-      "top_source": "scheme_3.md",
-      "top_score": 0.8599,
-      "answer_en": "Based on scheme_3.md: ## Official Sources - [PMUY Official Portal (General info + documents)](https://www.pmuy.gov.in/) - ",
-      "answer_local": "ସ୍କିମ୍_3 ଉପରେ ଆଧାରିତ।ଏମ୍‌.ଡି.: ## ସରକାରୀ ଉତ୍ସ - [ପି.ଏମ୍‌.ୟୁ.ୱାଇ. ଅଫିସିଆଲ୍ ପୋର୍ଟାଲ୍ (ସାଧାରଣ ସୂଚନା + ଦସ୍ତାବିଜ୍)](https://www.pmuy.gov.in/) -"
+      "english_query": "My name is Suresh, I live in Odisha. My father is 72 years old and physically handicapped. He is not getting any government pension. How to apply for Disability Pension under NSAP yojana? How much money will be received?",
+      "sources_matched": [
+        "scheme_7.md",
+        "scheme_7.md",
+        "scheme_4.md"
+      ],
+      "top_score": 0.8899,
+      "answer_en": "Based on scheme_7.md: ## Eligibility - State:   - Pan-India (via banks and India Post / post office savings accounts, depending on access). - Age:   - 18 to 40 years (entry",
+      "answer_local": "ସ୍କିମ୍_7 ଉପରେ ଆଧାରିତ।ଏମ୍‌.ଡି.: ## ଯୋଗ୍ୟତା - ରାଜ୍ୟ: - ସମଗ୍ର ଭାରତ (ବ୍ୟାଙ୍କ ଏବଂ ଭାରତ ପୋଷ୍ଟ / ଡାକଘର ସଞ୍ଚୟ ଖାତା ମାଧ୍ୟମରେ, ସୁଲଭତା ଉପରେ ନିର୍ଭର କରି) । ବୟସ: 18 ରୁ 40 ବର୍ଷ (ପ୍ରବେଶ)"
     },
     {
-      "input": "गरीब कुटुंबांसाठी कोणत्या सरकारी योजना उपलब्ध आहेत?",
+      "input": "माझे नाव प्रिया आहे, मी पुण्यात राहते. मला एक छोटा कपड्यांचा व्यवसाय सुरू करायचा आहे. माझ्याकडे 3 लाख रुपये स्वतःचे आहेत. Stand-Up India योजनेतून बँक लोन मिळू शकते का? किती लोन मिळेल? कुठल्या बँकेत जायचे?",
       "detected_lang": "mr-IN",
       "lang_name": "Marathi",
-      "english_query": "What government schemes are available for poor families?",
-      "top_source": "scheme_4.md",
-      "top_score": 0.8421,
-      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as pe",
-      "answer_local": "योजना_4 वर आधारित.md: चालू आहे. श्रेणीः - प्राथमिक ओळख: **एस.ई.सी.सी. 2011** आधारित पात्र कुटुंबे (बीच ~40% पी म्हणून)"
+      "english_query": "My name is Priya, and I live in Pune. I want to start a small clothing business. I have Rs. 3 lakhs in my name. Can I get a bank loan through the Stand-Up India scheme? How much loan will I get? Which bank should I go to?",
+      "sources_matched": [
+        "scheme_4.md",
+        "scheme_8.md",
+        "scheme_2.md"
+      ],
+      "top_score": 0.8567,
+      "answer_en": "Based on scheme_4.md: on. - Category:   - Primary identification: **SECC 2011**-based entitled families (bottom ~40% as per scheme design).   - Also includes families earli",
+      "answer_local": "योजना_4 वर आधारित.md: चालू आहे. श्रेणीः - प्राथमिक ओळख: **एस.ई.सी.सी. 2011** आधारित पात्र कुटुंबे (योजनेच्या रचनेनुसार तळाशी ~40%). - पूर्वकालीन कुटुंबांचा समावेश देखील आहे"
     }
   ]
 }
