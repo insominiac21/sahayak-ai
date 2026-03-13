@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: sahayak-ai
+    env: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -e .
+    startCommand: uvicorn app.main:app --app-dir sarvamai/src --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_WHATSAPP_NUMBER
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+      - key: QDRANT_URL
+        sync: false
+      - key: QDRANT_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY1
+        sync: false
+      - key: GEMINI_API_KEY2
+        sync: false
+      - key: GEMINI_API_KEY3
+        sync: false
+      - key: GEMINI_API_KEY4
+        sync: false
+      - key: GEMINI_API_KEY5
+        sync: false
+      - key: GEMINI_API_KEY6
+        sync: false
+      - key: POSTGRES_URL
+        sync: false

@@ -50,7 +50,8 @@ sarvamai/
 │           │   ├── stt_sarvam.py            # Download audio, Sarvam STT
 │           │   └── translate_sarvam.py      # Sarvam language detect + translate
 │           ├── rag/
-│           │   └── retrieve.py              # Embed query, search Qdrant
+│           │   ├── retrieve.py              # Embed query, search Qdrant
+│           │   └── embeddings.py            # Gemini embeddings helper
 │           ├── agent/
 │           │   └── orchestrator.py          # Build prompt, call Gemini, translate answer
 │           └── llm/
@@ -58,8 +59,17 @@ sarvamai/
 ├── scripts/
 │   ├── ingest.py                            # One-time: chunk docs, embed, upload to Qdrant
 │   ├── send_twilio_test_message.py          # Send a live WhatsApp message from the CLI
-│   └── ping_test.py                         # Health-check all API keys
-├── tests/
+│   ├── ping_test.py                         # Health-check all API keys
+│   ├── test_audio_input.py                  # Validate STT on local/sample audio
+│   ├── test_audio_to_answer.py              # Voice note -> answer pipeline test
+│   ├── test_e2e_pipeline.py                 # End-to-end text pipeline checks
+│   ├── test_retrieval.py                    # Basic retrieval checks
+│   ├── test_retrieval_quality.py            # Retrieval quality assertions
+│   ├── test_multilang.py                    # Multilingual query checks
+│   └── results/                             # Stored JSON outputs from test runs
+│       ├── audio_to_answer.json
+│       └── e2e_pipeline.json
+├── scripts/test_data/audio/                 # Sample WhatsApp .ogg clips for testing
 ├── .env.example                             # Required environment variables
 ├── README.md                                # This file
 └── ARCHITECTURE.md                          # Detailed system design and component docs
@@ -83,7 +93,7 @@ sarvamai/
 # from the repo root
 python -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -e ".[dev]"
+pip install -e .
 ```
 
 ### 3. Configure environment
@@ -157,6 +167,68 @@ Method: `HTTP POST`
 
 Send "hi" to the Twilio Sandbox number on WhatsApp. You should receive the help menu.
 Send any scheme question in English or any Indian language (text or voice note).
+
+### 9. Run test scripts (including audio)
+
+```powershell
+cd sarvamai
+$env:PYTHONPATH="$PWD\src"
+
+# audio-focused checks
+python scripts/test_audio_input.py
+python scripts/test_audio_to_answer.py
+
+# retrieval/e2e checks
+python scripts/test_retrieval.py
+python scripts/test_retrieval_quality.py
+python scripts/test_multilang.py
+python scripts/test_e2e_pipeline.py
+```
+
+Test outputs are written under `scripts/results/`.
+
+---
+
+## Always-On Deployment (Render + UptimeRobot)
+
+Use this when you want a stable public URL and 24x7 availability.
+
+### Render
+
+1. Push the latest code to GitHub.
+2. In Render, create a new Web Service from your repository.
+3. Use the repository-level `render.yaml` blueprint (included in this repo), or set manually:
+    - Build command: `pip install -e .`
+    - Start command: `uvicorn app.main:app --app-dir sarvamai/src --host 0.0.0.0 --port $PORT`
+    - Health check path: `/health`
+4. Add environment variables in Render dashboard:
+    - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`
+    - `SARVAM_API_KEY`
+    - `QDRANT_URL`, `QDRANT_API_KEY`
+    - `GEMINI_API_KEY1` (and additional Gemini keys if used)
+    - `POSTGRES_URL` (optional currently; see Supabase status below)
+5. After deploy succeeds, copy your Render URL:
+    - `https://<your-service>.onrender.com/api/v1/webhooks/twilio/webhook`
+6. Paste it into Twilio Sandbox "When a message comes in" webhook URL.
+
+### UptimeRobot
+
+1. Create an HTTP(s) monitor.
+2. Monitor URL: `https://<your-service>.onrender.com/health`
+3. Interval: 5 minutes.
+4. Enable alerts (email/Telegram) for downtime.
+
+This gives you uptime alerts and helps reduce cold starts on free plans.
+
+---
+
+## Supabase Status (Current)
+
+Supabase is configured as an environment variable (`POSTGRES_URL`), but runtime message
+logging is not wired yet. Current flow logs to application logs only (stdout/Render logs);
+it does not insert chat logs into Supabase tables yet.
+
+So if you do not see records in Supabase, that is expected with the current codebase.
 
 ---
 
