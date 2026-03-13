@@ -1,6 +1,7 @@
 # WhatsApp webhook endpoint
 
 import logging
+from urllib.parse import parse_qs
 from fastapi import APIRouter, BackgroundTasks, Request
 from starlette.responses import JSONResponse
 from app.services.audio.stt_sarvam import transcribe_audio
@@ -35,12 +36,17 @@ def _wants_help_menu(text: str) -> bool:
 
 @router.post("/webhook")
 async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
-    # Twilio posts form-encoded fields; keep JSON fallback for local tests.
+    # Twilio posts form-encoded fields; keep robust fallbacks for local tests.
     try:
         form_data = await request.form()
         payload = dict(form_data)
     except Exception:
-        payload = await request.json()
+        raw_body = (await request.body()).decode("utf-8", errors="ignore")
+        parsed = parse_qs(raw_body)
+        if parsed:
+            payload = {k: (v[0] if isinstance(v, list) and v else v) for k, v in parsed.items()}
+        else:
+            payload = await request.json()
 
     logger.info(
         "Incoming Twilio webhook: from=%s body_len=%s num_media=%s",
