@@ -11,7 +11,7 @@ async def root():
 	return {"service": "sahayak-ai", "status": "ok"}
 
 
-@app.get("/health")
+@app.api_route("/health", methods=["GET", "POST"])
 async def health():
-	# Lightweight health endpoint for Render/UptimeRobot probes.
+	# Lightweight health endpoint for Render/UptimeRobot probes (both GET and POST).
 	return {"status": "ok"}
