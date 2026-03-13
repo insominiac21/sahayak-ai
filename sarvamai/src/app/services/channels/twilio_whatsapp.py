@@ -1,23 +1,52 @@
 # Twilio WhatsApp channel service
 import httpx
-from src.app.core.config import settings
+from app.core.config import settings
+
+SUPPORTED_AUDIO_CONTENT_TYPES = {
+	"audio/ogg",        # WhatsApp voice notes are commonly OGG/Opus
+	"audio/opus",
+	"audio/mpeg",       # .mp3
+	"audio/mp3",
+	"audio/wav",        # .wav
+	"audio/x-wav",
+	"audio/wave",
+	"audio/aac",        # .aac
+	"audio/mp4",        # .m4a often arrives as audio/mp4
+	"audio/x-m4a",
+	"audio/amr",        # .amr
+	"application/ogg",  # some providers send OGG with application/*
+}
 
 def parse_twilio_request(form_data: dict):
 	"""Parse incoming Twilio webhook for WhatsApp messages."""
-	body = form_data.get("Body", "")
-	num_media = int(form_data.get("NumMedia", 0))
-	media_urls = [form_data.get(f"MediaUrl{i}") for i in range(num_media)]
-	return body, media_urls
+	body = (form_data.get("Body") or "").strip()
+	num_media = int(form_data.get("NumMedia", 0) or 0)
+
+	media_urls = []
+	media_content_types = []
+	for i in range(num_media):
+		url = form_data.get(f"MediaUrl{i}")
+		ctype = (form_data.get(f"MediaContentType{i}") or "").lower().strip()
+		if url:
+			media_urls.append(url)
+			media_content_types.append(ctype)
+
+	return body, media_urls, media_content_types
 
 def send_whatsapp_reply(to: str, message: str):
 	"""Send reply via Twilio WhatsApp API."""
 	url = f"https://api.twilio.com/2010-04-01/Accounts/{settings.TWILIO_ACCOUNT_SID}/Messages.json"
+	from_number = settings.TWILIO_WHATSAPP_NUMBER
+	if not from_number.startswith("whatsapp:"):
+		from_number = f"whatsapp:{from_number}"
+	if not to.startswith("whatsapp:"):
+		to = f"whatsapp:{to}"
 	data = {
 		"To": to,
-		"From": settings.TWILIO_WHATSAPP_NUMBER,
-		"Body": message
+		"From": from_number,
+		"Body": message,
 	}
 	auth = (settings.TWILIO_ACCOUNT_SID, settings.TWILIO_AUTH_TOKEN)
-	response = httpx.post(url, data=data, auth=auth)
+	response = httpx.post(url, data=data, auth=auth, timeout=30.0)
 	response.raise_for_status()
 	return response.json()

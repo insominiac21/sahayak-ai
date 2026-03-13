@@ -1,0 +1,96 @@
+{
+  "test": "audio_to_answer",
+  "timestamp": "2026-03-13T21:57:58.800102",
+  "input_dir": "scripts/test_data/audio",
+  "total_files": 6,
+  "passed": 6,
+  "failed": 0,
+  "results": [
+    {
+      "file": "WhatsApp Ptt 2026-03-13 at 9.26.26 PM.ogg",
+      "ok": true,
+      "stt_language_code": "mr-IN",
+      "detected_language_code": "mr-IN",
+      "transcript": "माझे नाव गुरप्रीत आहे. मी पंजाबमध्ये ऑटोरिक्षा चालवतो. मी साठ वर्षाचा आहे आणि मला पेन्शन नाही. अटल पेन्शन योजनेत दर महिन्यात किती योगदान द्यावे लागेल? साठ वर्षानंतर पेन्शनची रक्कम किती आहे?",
+      "english_query": "My name is Gurpreet. I drive an auto-rickshaw in Punjab. I am sixty years old and I am not getting any pension. How much contribution is required every month in Atal Pension Yojana? What is the pension amount after sixty years?",
+      "sources_matched": [
+        "APY (Atal Pension Yojana)"
+      ],
+      "top_score": 0.8108,
+      "answer_en": "Gurpreet, regarding the Atal Pension Yojana (APY), you are unfortunately not eligible to open a new account. The entry age for the Atal Pension Yojana is 18 to 40 years, and you are currently 60 years old. Therefore, you cannot contribute to this scheme or receive a pension from it. The scheme provides a guaranteed minimum monthly pension of ₹1,000 to ₹5,000 after the subscriber reaches 60 years, based on their contribution plan and entry age, but this is only for eligible subscribers.",
+      "answer_local": "अटल पेन्शन योजनेसाठी (एपीवाय) गुरप्रीत, आपण दुर्दैवाने नवीन खाते उघडण्यास पात्र नाही. अटल पेन्शन योजनेसाठी प्रवेश वय 18 ते 40 वर्षे आहे आणि तुमचे वय सध्या 60 वर्षे आहे. त्यामुळे आपण या योजनेत योगदान देऊ शकत नाही किंवा त्यातून निवृत्तीवेतन मिळवू शकत नाही. या योजनेअंतर्गत, ग्राहक 60 वर्षे वयाला पोहोचल्यानंतर, त्यांच्या योगदान योजनेनुसार आणि प्रवेश वयाच्या आधारे, ₹1,000 ते ₹5,000 पर्यंत किमान मासिक निवृत्तीवेतन निश्चित केले जाते, परंतु हे केवळ पात्र ग्राहकांनाच लागू होते."
+    },
+    {
+      "file": "WhatsApp Ptt 2026-03-13 at 9.30.20 PM.ogg",
+      "ok": true,
+      "stt_language_code": "mr-IN",
+      "detected_language_code": "mr-IN",
+      "transcript": "माझे नाव मुरुगन आहे. मला 5 वर्षाची मुलगी आहे. मी एक खाजगी कंपनीत काम करते आणि माझा पगार दरमहा ₹15,000 आहे. माझ्या मुलीसाठी सुकन्या समृद्धी खाते उघडण्यासाठी कोणती कागदपत्रे आवश्यक आहेत? किमान ठेव किती आहे?",
+      "english_query": "My name is Murugan. I have a 5-year-old daughter. I work in a private company and my salary is fifteen thousand rupees per month. What documents are required to open a Sukanya Samriddhi account for my daughter? What is the minimum deposit amount?",
+      "sources_matched": [
+        "Sukanya Samriddhi Yojana (SSY) / Sukanya Samriddhi Account (SSA)"
+      ],
+      "top_score": 0.7767,
+      "answer_en": "To open a Sukanya Samriddhi Account (SSA) for your 5-year-old daughter, you will need the Sukanya Samriddhi Account opening form, her birth certificate, and your identity and address proof as the parent/guardian (as per RBI KYC). Additionally, an Aadhaar number is commonly requested, along with PAN or Form 60 as applicable. Your daughter is eligible as the account can be opened from birth until the girl child attains 10 years, and there are no income or occupation requirements for the parent.\n\nThe provided context does not specify the minimum deposit amount required for the Sukanya Samriddhi Yojana.",
+      "answer_local": "तुमच्या पाच वर्षांच्या मुलीसाठी सुकन्या समृद्धी खाते (एसएसए) उघडण्यासाठी, तुम्हाला सुकन्या समृद्धी खाते उघडण्याचे अर्ज, तिचे जन्म प्रमाणपत्र आणि पालक/पालक म्हणून तुमचा ओळख आणि पत्त्याचा पुरावा आवश्यक असेल (आरबीआय केवायसीनुसार). याव्यतिरिक्त, पॅन किंवा फॉर्म 60 लागू असल्यास आधार क्रमांक सामान्यतः विनंती केला जातो. तुमची कन्या पात्र आहे कारण खाते तिच्या जन्मापासून ते बालिकेचे वय 10 वर्षे होईपर्यंत उघडले जाऊ शकते आणि पालकांसाठी उत्पन्नाची किंवा व्यवसायाची कोणतीही आवश्यकता नाही. प्रदान केलेल्या संदर्भात सुकन्या समृद्धी योजनेसाठी आवश्यक किमान ठेव रक्कम नमूद केलेली नाही."
+    },
+    {
+      "file": "WhatsApp Ptt 2026-03-13 at 9.34.36 PM.ogg",
+      "ok": true,
+      "stt_language_code": "mr-IN",
+      "detected_language_code": "mr-IN",
+      "transcript": "माझे नाव रमेश आहे. मी सदुसष्ठ वर्षाचा आहे आणि माझे मासिक उत्पन्न सुमारे चार हजार रुपये आहे. मी बिहारमध्ये राहतो आणि सध्या माझ्याकडे कोणतीही पेन्शन नाही. मी कोणत्याही सरकारी पेन्शन योजनेसाठी पात्र आहे का? अर्ज करण्यासाठी मला कोणती कागदपत्रे आवश्यक आहेत?",
+      "english_query": "My name is Ramesh. I am sixty-seven years old and my monthly income is around four thousand rupees. I live in Bihar and currently, I don't have any pension. Am I eligible for any government pension schemes? What documents do I need to apply?",
+      "sources_matched": [
+        "NSAP (National Social Assistance Programme)",
+        "APY (Atal Pension Yojana)"
+      ],
+      "top_score": 0.7229,
+      "answer_en": "Ramesh, at 67 years old, may be eligible for the **Indira Gandhi National Old Age Pension Scheme (IGNOAPS)** under the National Social Assistance Programme (NSAP). This scheme provides ₹200 per month for individuals aged 60-79. Eligibility requires being part of a BPL household, which the context does not define by a specific income slab, so it cannot be confirmed if your ₹4000 monthly income meets this criterion.\n\nTo apply for IGNOAPS, you would typically need Aadhaar (or State/UT accepted ID) + mobile number, proof of BPL status / ration card / State beneficiary list reference, bank/post office account details, and age proof. You are not eligible for the Atal Pension Yojana (APY) as the entry age is 18 to 4",
+      "answer_local": "67 वर्षे वयाच्या रमेश यांना राष्ट्रीय सामाजिक सहाय्य कार्यक्रम (एन.एस.ए.पी.) अंतर्गत इंदिरा गांधी राष्ट्रीय वृद्धापकाळ निवृत्तीवेतन योजनेसाठी (इग्नॉप) पात्र ठरू शकतात. या योजनेअंतर्गत 60-79 वयोगटातील व्यक्तींना दरमहा 200 रुपये प्रदान केले जातात. पात्रतेसाठी बीपीएल कुटुंबातील सदस्य असणे आवश्यक आहे, परंतु संदर्भानुसार विशिष्ट उत्पन्नाच्या श्रेणीद्वारे हे परिभाषित केलेले नाही, त्यामुळे तुमच्या ₹4000 मासिक उत्पन्नाने या निकषांची पूर्तता होते की नाही हे निश्चित करता येत नाही. IGNOAPS साठी अर्ज करण्यासाठी, आपल्याकडे आधार कार्ड (किंवा राज्य/केंद्रशासित प्रदेश मान्यताप्राप्त ओळखपत्र) + मोबाईल क्रमांक, बीपीएल स्थिती/राशन कार्ड/राज्य लाभार्थी यादी संदर्भाचा पुरावा, बँक/पोस्ट ऑफिस खाते तपशील आणि वयाचा पुरावा असणे आवश्यक आहे. आपणास अटल पेन्शन योजनेसाठी (एपीवाय) पात्र नाही कारण प्रवेश वय 18 ते 4 वर्षे आहे."
+    },
+    {
+      "file": "WhatsApp Ptt 2026-03-13 at 9.50.48 PM.ogg",
+      "ok": true,
+      "stt_language_code": "od-IN",
+      "detected_language_code": "od-IN",
+      "transcript": "ମୋ ନାଁ ରମେଶ, ମୋର ବୟସ 67 ବର୍ଷ ଏବଂ ମୋର ମାସିକା ଟଙ୍କା ହେଲା ₹4000। ମୁଁ ବିହାରରେ ରହୁଛି ଏବଂ ଏବେ ମୋର କୌଣସି ପେନସନ୍ ନାହିଁ। ମୁଁ କି କୌଣସି ସରକାରୀ ପେନସନ୍ ଯୋଜନା ପାଇଁ ଯୋଗ୍ୟ ଅଛି? ଆପ୍ଲାଏ କରିବା ପାଇଁ ମୋତେ କେଉଁ ଡକ୍ୟୁମେଣ୍ଟ୍ସ ଦରକାର?",
+      "english_query": "My name is Ramesh, I am 67 years old and my monthly income is 4000 rupees. I live in Bihar and I don't have any pension now. Am I eligible for any government pension scheme? What are the documents required for the application?",
+      "sources_matched": [
+        "NSAP (National Social Assistance Programme)",
+        "APY (Atal Pension Yojana)"
+      ],
+      "top_score": 0.7322,
+      "answer_en": "Yes, Ramesh, you may be eligible for a pension under the **National Social Assistance Programme (NSAP)**, specifically the Indira Gandhi National Old Age Pension Scheme (IGNOAPS) or the Annapurna scheme.\n\nFor **IGNOAPS**, you are eligible if you are 60 years or older (you are 67) and belong to a BPL household as per Government of India or State BPL identification criteria. If eligible, you would receive ₹200 per month (as you are 60-79 years old).\n\nAlternatively, under the **Annapurna** scheme, you could be eligible for 10kg of food grains per month if you are a senior citizen eligible for an old age pension but currently uncovered. Both schemes require proof of BPL status.\n\nCommon documents required for NSAP schemes include Aadhaar (or State/UT accepted ID) + mobile number, proof of BPL status / ration card, bank/post office account details, and age proof. You are not eligible for the Atal Pension Yojana (APY) as the entry age is 18 to 40 years.",
+      "answer_local": "ହଁ, ରମେଶ, ଆପଣ ଜାତୀୟ ସାମାଜିକ ସହାୟତା କାର୍ଯ୍ୟକ୍ରମ (NSAP) ଅଧୀନରେ, ବିଶେଷ କରି ଇନ୍ଦିରା ଗାନ୍ଧୀ ଜାତୀୟ ବୃଦ୍ଧାବସ୍ଥା ପେନ୍‌ସନ୍‌ ଯୋଜନା (IGNNOPS) କିମ୍ବା ଅନ୍ନପୂର୍ଣ୍ଣା ଯୋଜନା ଅଧୀନରେ ପେନ୍‌ସନ୍‌ ପାଇବା ପାଇଁ ଯୋଗ୍ୟ ହୋଇପାରନ୍ତି। **IGNOAPS** ପାଇଁ, ଆପଣ ଯୋଗ୍ୟ ଯଦି ଆପଣ 60 ବର୍ଷ କିମ୍ବା ତଦୁର୍ଦ୍ଧ (ଆପଣ 67 ବର୍ଷ) ଏବଂ ଭାରତ ସରକାର କିମ୍ବା ରାଜ୍ୟ BPL ଚିହ୍ନଟ ମାନଦଣ୍ଡ ଅନୁଯାୟୀ BPL ପରିବାରର ସଦସ୍ୟ ଅଟନ୍ତି । ଯୋଗ୍ୟ ହେଲେ ଆପଣଙ୍କୁ ମାସିକ 200 ଟଙ୍କା (ଆପଣଙ୍କର 60-79 ବର୍ଷ ବୟସ ହୋଇଥିବାରୁ) ପ୍ରଦାନ କରାଯିବ। ଅନ୍ୟଥା, 'ଅନ୍ନପୂର୍ଣ୍ଣା' ଯୋଜନା ଅଧୀନରେ, ଆପଣ ଯଦି ଜଣେ ବରିଷ୍ଠ ନାଗରିକ ଯିଏ ବୟସ୍କ ପେନ୍ସନ ପାଇଁ ଯୋଗ୍ୟ କିନ୍ତୁ ବର୍ତ୍ତମାନ ଅସୁବିଧାରେ ଅଛନ୍ତି, ତେବେ ଆପଣ ପ୍ରତି ମାସରେ 10 କିଲୋଗ୍ରାମ ଖାଦ୍ୟଶସ୍ୟ ପାଇପାରିବେ। ଉଭୟ ଯୋଜନାରେ ବି.ପି.ଏଲ୍. ସ୍ଥିତିର ପ୍ରମାଣ ଆବଶ୍ୟକ। ଏନ୍‌.ଏସ୍‌.ଏ.ପି. ଯୋଜନା ପାଇଁ ଆବଶ୍ୟକ ସାଧାରଣ କାଗଜପତ୍ର ମଧ୍ୟରେ ଆଧାର (କିମ୍ବା ରାଜ୍ୟ/କେନ୍ଦ୍ର ଶାସିତ ଅଞ୍ଚଳର ଗ୍ରହଣୀୟ ପରିଚୟପତ୍ର) + ମୋବାଇଲ୍‌ ନମ୍ବର, ବି.ପି.ଏଲ୍‌. ସ୍ଥିତି/ରାସନ କାର୍ଡର ପ୍ରମାଣପତ୍ର, ବ୍ୟାଙ୍କ/ପୋଷ୍ଟ ଅଫିସ ଆକାଉଣ୍ଟ ବିବରଣୀ ଏବଂ ବୟସର ପ୍ରମାଣପତ୍ର ଅନ୍ତର୍ଭୁକ୍ତ। ଆପଣଙ୍କର ପ୍ରବେଶ ବୟସ 18 ରୁ 40 ବର୍ଷ ହୋଇଥିବାରୁ ଆପଣ ଅಟಲ್ ପେନ୍ସନ୍ ଯୋଜନାର (ଏପିୱାଇ) ପାଇଁ ଯୋଗ୍ୟ ନୁହଁନ୍ତି।"
+    },
+    {
+      "file": "WhatsApp Ptt 2026-03-13 at 9.51.28 PM.ogg",
+      "ok": true,
+      "stt_language_code": "od-IN",
+      "detected_language_code": "od-IN",
+      "transcript": "ମୋ ନାଁ ମୁରୁଗନ, ମୋର 5 ବର୍ଷର ଝିଅ ଅଛି। ମୁଁ ଏକ ପ୍ରାଇଭେଟ୍ କମ୍ପାନୀରେ କାମ କରେ ଏବଂ ମୋର ସାଲାରୀ ମାସକୁ ₹15000। ମୋର ଝିଅ ପାଇଁ ସୁକନ୍ୟା ସମୃଦ୍ଧି ଆକାଉଣ୍ଟ ଖୋଲିବା ପାଇଁ କେଉଁ ଡକ୍ୟୁମେଣ୍ଟ ଦରକାର? ମିନିମମ୍ ଡିପୋଜିଟ୍ସ କେତେ?",
+      "english_query": "My name is Murugan, I am 5 years old. I work in a private company and my salary is ₹15000 per month. What documents are required to open a Sukanya Samriddhi account for my daughter? What is the minimum deposit?",
+      "sources_matched": [
+        "Sukanya Samriddhi Yojana (SSY) / Sukanya Samriddhi Account (SSA)"
+      ],
+      "top_score": 0.782,
+      "answer_en": "To open a Sukanya Samriddhi Account (SSA) for your daughter, the required documents include the Sukanya Samriddhi Account opening form, the birth certificate of the girl child, identity proof of the parent/guardian, and address/residence proof of the parent/guardian. Additionally, an Aadhaar number and PAN or Form 60 are commonly requested. This account is for an Indian girl child, opened by a parent or legal guardian, and can be opened from birth until the girl child attains 10 years of age. The provided context does not specify the minimum deposit amount for the Sukanya Samriddhi Yojana.",
+      "answer_local": "ଆପଣଙ୍କ କନ୍ୟା ପାଇଁ ଏକ ସୁକନ୍ୟା ସମ୍ପଦ ଆକାଉଣ୍ଟ (SSA) ଖୋଲିବା ପାଇଁ ଆବଶ୍ୟକୀୟ କାଗଜପତ୍ରଗୁଡ଼ିକ ମଧ୍ୟରେ ସୁକନ୍ୟା ସମ୍ପଦ ଆକାଉଣ୍ଟ ଖୋଲିବା ଫର୍ମ, କନ୍ୟା ସନ୍ତାନର ଜନ୍ମ ପ୍ରମାଣପତ୍ର, ପିତାମାତା/ଅଭିଭାବକଙ୍କ ପରିଚୟପତ୍ର ଏବଂ ପିତାମାତା/ଅଭିଭାବକଙ୍କ ଠିକଣା/ଆବାସ ପ୍ରମାଣପତ୍ର ଅନ୍ତର୍ଭୁକ୍ତ। ଏହା ବ୍ୟତୀତ, ଏକ ଆଧାର ନମ୍ବର ଏବଂ ପ୍ୟାନ୍ କିମ୍ବା ଫର୍ମ 60 ସାଧାରଣତଃ ଅନୁରୋଧ କରାଯାଏ। ଏହି ଆକାଉଣ୍ଟଟି ଜଣେ ଭାରତୀୟ କନ୍ୟା ସନ୍ତାନ ପାଇଁ ଖୋଲାଯାଇଛି, ଯାହା ଜଣେ ପିତାମାତା କିମ୍ବା ଆଇନଗତ ଅଭିଭାବକଙ୍କ ଦ୍ୱାରା ଖୋଲାଯାଇଥାଏ, ଏବଂ କନ୍ୟା ସନ୍ତାନ 10 ବର୍ଷ ବୟସ ହେବା ପର୍ଯ୍ୟନ୍ତ ଖୋଲାଯାଇପାରିବ । ପ୍ରଦତ୍ତ ପରିପ୍ରେକ୍ଷୀରେ ସୁକନ୍ୟା ସମ୍ପଦ ଯୋଜନା ପାଇଁ ସର୍ବନିମ୍ନ ଜମା ରାଶି ନିର୍ଦ୍ଧାରିତ ହୋଇନାହିଁ।"
+    },
+    {
+      "file": "WhatsApp Ptt 2026-03-13 at 9.51.52 PM.ogg",
+      "ok": true,
+      "stt_language_code": "od-IN",
+      "detected_language_code": "od-IN",
+      "transcript": "ମୋର ନାଁ ଗୁରପ୍ରୀତ, ମୁଁ ପଞ୍ଜାବରେ ଅଟୋ ରିକ୍ସା ଚଲାଏ, ମୋର ବୟସ 30 ବର୍ଷ ଏବଂ ମୋର କୌଣସି ପେନସନ୍ ନାହିଁ। ଅଟଲ ପେନସନ୍ ଯୋଜନାରେ ପ୍ରତ୍ୟେକ ମାସକୁ ମୋତେ କେତେ କଣ୍ଟ୍ରିବ୍ୟୁସନ୍ ଦେବାକୁ ପଡ଼ିବ? 60 ବର୍ଷ ପରେ ପେନସନ୍ କେତେ ମିଳିବ?",
+      "english_query": "My name is Gurpreet. I drive an auto-rickshaw in Punjab. I am 30 years old and I do not have any pension. How much contribution do I have to give every month under the Atal Pension Yojana? What will be my pension amount after 60 years of age?",
+      "sources_matched": [
+        "APY (Atal Pension Yojana)"
+      ],
+      "top_score": 0.8041,
+      "answer_en": "Gurpreet, as a 30-year-old auto-rickshaw driver, you are eligible for the Atal Pension Yojana (APY) as the entry age is 18 to 40 years, provided you are not an income-tax payer and have a savings bank or post office savings account. Under this scheme, you can receive a guaranteed minimum monthly pension ranging from ₹1,000 to ₹5,000 after you reach 60 years of age, based on the contribution plan you choose. The specific monthly contribution amount depends on your entry age and the chosen pension slab, but this information is not provided in the context.",
+      "answer_local": "ଗୁର୍‌ପ୍ରୀତ, 30 ବର୍ଷ ବୟସ୍କ ଅଟୋ-ରିକ୍ସା ଚାଳକ ଭାବରେ, ଆପଣ ଅଟାଲ୍ ପେନ୍‌ସନ୍‌ ଯୋଜନାର (ଏ.ପି.ୱାଇ.) ପାଇଁ ଯୋଗ୍ୟ ଅଟନ୍ତି, କାରଣ ପ୍ରବେଶ ବୟସ 18 ରୁ 40 ବର୍ଷ ମଧ୍ୟରେ, ଯଦି ଆପଣ ଆୟକରଦାତା ନୁହଁନ୍ତି ଏବଂ ଆପଣଙ୍କର ଏକ ସେଭିଂସ୍‌ ବ୍ୟାଙ୍କ କିମ୍ବା ପୋଷ୍ଟ ଅଫିସ୍‌ ସେଭିଂସ୍‌ ଆକାଉଣ୍ଟ୍‌ ରହିଛି । ଏହି ଯୋଜନା ଅନ୍ତର୍ଗତ ଆପଣ ନିଜର ଚୟନ କରାଯାଇଥିବା ନିବେଶ ଯୋଜନା ଉପରେ ନିର୍ଭର କରି, 60 ବର୍ଷ ବୟସ ପରେ ₹1,000 ରୁ ₹5,000 ପର୍ଯ୍ୟନ୍ତ ଏକ ନିର୍ଦ୍ଧାରିତ ସର୍ବନିମ୍ନ ମାସିକ ପେନସନ ପାଇପାରିବେ । ନିର୍ଦ୍ଦିଷ୍ଟ ମାସିକ କଣ୍ଟ୍ରିବ୍ୟୁସନ୍ ରାଶି ଆପଣଙ୍କର ପ୍ରବେଶ ବୟସ ଏବଂ ଚୟନ କରାଯାଇଥିବା ପେନ୍‌ସନ୍‌ ସ୍ଲାବ୍‌ ଉପରେ ନିର୍ଭର କରେ, କିନ୍ତୁ ଏହି ସୂଚନା ଏହି ପରିପ୍ରେକ୍ଷୀରେ ପ୍ରଦାନ କରାଯାଇନାହିଁ ।"
+    }
+  ]
+}
