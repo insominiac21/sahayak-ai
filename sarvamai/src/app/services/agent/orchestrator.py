@@ -23,6 +23,7 @@ def route_tools(query, chunks, user_profile):
         "- Use *bold* (single asterisks) for section headings and scheme names. "
         "Do NOT use # or ## markdown headers.\n"
         "- Use numbered lists (1. 2. 3.) for steps, documents, or eligibility criteria.\n"
+        "- Put each numbered item on a new line (never in the same sentence).\n"
         "- Use a dash (-) for single-level bullet points when order does not matter.\n"
         "- Separate sections with a blank line.\n"
         "- Do NOT use emojis, horizontal rules, or any other formatting.\n"
@@ -41,13 +42,16 @@ def route_tools(query, chunks, user_profile):
     answer = response.text
 
     # Step 4: Translate answer back to user's language.
-    # Sarvam strips newlines during translation, so we protect them with a
-    # placeholder, translate, then restore.
-    _NL = " ⏎ "
+    # Translate line-by-line to preserve WhatsApp list formatting.
     if user_lang != "en-IN" and user_lang in SARVAM_LANG_CODES:
-        answer_flat = answer.replace("\n", _NL)
-        translated = detect_and_translate(answer_flat, target_lang=user_lang)
-        final_answer = translated["translated_text"].replace(_NL, "\n")
+        translated_lines = []
+        for line in answer.split("\n"):
+            if not line.strip():
+                translated_lines.append("")
+                continue
+            translated = detect_and_translate(line, target_lang=user_lang)
+            translated_lines.append(translated["translated_text"].strip())
+        final_answer = "\n".join(translated_lines)
     else:
         final_answer = answer
 
