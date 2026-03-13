@@ -32,48 +32,141 @@ the system replies with accurate, scheme-grounded answers in the same language.
 
 ---
 
-## Project Structure
+## Repository File Index
+
+Below is the practical file map (excluding local runtime artifacts like `__pycache__`).
 
 ```
 sarvamai/
-├── src/
-│   └── app/
-│       ├── main.py                          # FastAPI app, router registration
-│       ├── core/
-│       │   └── config.py                    # Pydantic Settings, loads .env
-│       ├── api/v1/endpoints/
-│       │   └── webhooks_twilio.py           # Webhook handler, help menu, background pipeline
-│       └── services/
-│           ├── channels/
-│           │   └── twilio_whatsapp.py       # Parse Twilio payload, send reply
-│           ├── audio/
-│           │   ├── stt_sarvam.py            # Download audio, Sarvam STT
-│           │   └── translate_sarvam.py      # Sarvam language detect + translate
-│           ├── rag/
-│           │   ├── retrieve.py              # Embed query, search Qdrant
-│           │   └── embeddings.py            # Gemini embeddings helper
-│           ├── agent/
-│           │   └── orchestrator.py          # Build prompt, call Gemini, translate answer
-│           └── llm/
-│               └── gemini_client.py         # Round-robin Gemini client with key failover
+├── .env.example
+├── .env
+├── README.md
+├── ARCHITECTURE.md
+├── BUILD_CHECKLIST.md
 ├── scripts/
-│   ├── ingest.py                            # One-time: chunk docs, embed, upload to Qdrant
-│   ├── send_twilio_test_message.py          # Send a live WhatsApp message from the CLI
-│   ├── ping_test.py                         # Health-check all API keys
-│   ├── test_audio_input.py                  # Validate STT on local/sample audio
-│   ├── test_audio_to_answer.py              # Voice note -> answer pipeline test
-│   ├── test_e2e_pipeline.py                 # End-to-end text pipeline checks
-│   ├── test_retrieval.py                    # Basic retrieval checks
-│   ├── test_retrieval_quality.py            # Retrieval quality assertions
-│   ├── test_multilang.py                    # Multilingual query checks
-│   └── results/                             # Stored JSON outputs from test runs
-│       ├── audio_to_answer.json
-│       └── e2e_pipeline.json
-├── scripts/test_data/audio/                 # Sample WhatsApp .ogg clips for testing
-├── .env.example                             # Required environment variables
-├── README.md                                # This file
-└── ARCHITECTURE.md                          # Detailed system design and component docs
+│   ├── ingest.py
+│   ├── eval.py
+│   ├── ping_test.py
+│   ├── send_twilio_test_message.py
+│   ├── test_sarvam.py
+│   ├── test_audio_input.py
+│   ├── test_audio_to_answer.py
+│   ├── test_e2e_pipeline.py
+│   ├── test_multilang.py
+│   ├── test_retrieval.py
+│   ├── test_retrieval_quality.py
+│   ├── results/
+│   │   ├── audio_to_answer.json
+│   │   ├── e2e_pipeline.json
+│   │   ├── multilang_retrieval.json
+│   │   ├── retrieval_basic.json
+│   │   └── sarvam_translation.json
+│   └── test_data/
+│       └── audio/
+│           ├── WhatsApp Ptt 2026-03-13 at 9.26.26 PM.ogg
+│           ├── WhatsApp Ptt 2026-03-13 at 9.30.20 PM.ogg
+│           ├── WhatsApp Ptt 2026-03-13 at 9.34.36 PM.ogg
+│           ├── WhatsApp Ptt 2026-03-13 at 9.50.48 PM.ogg
+│           ├── WhatsApp Ptt 2026-03-13 at 9.51.28 PM.ogg
+│           └── WhatsApp Ptt 2026-03-13 at 9.51.52 PM.ogg
+└── src/
+        ├── __init__.py
+        └── app/
+                ├── __init__.py
+                ├── main.py
+                ├── api/
+                │   └── v1/
+                │       ├── router.py
+                │       └── endpoints/
+                │           └── webhooks_twilio.py
+                ├── core/
+                │   └── config.py
+                ├── db/
+                │   ├── base.py
+                │   └── session.py
+                ├── models/
+                │   ├── user.py
+                │   └── message_log.py
+                ├── repositories/
+                │   ├── user.py
+                │   └── message_log.py
+                ├── schemas/
+                │   └── user.py
+                ├── services/
+                │   ├── __init__.py
+                │   ├── agent/
+                │   │   ├── checklist_tool.py
+                │   │   ├── eligibility_tool.py
+                │   │   └── orchestrator.py
+                │   ├── audio/
+                │   │   ├── stt_sarvam.py
+                │   │   └── translate_sarvam.py
+                │   ├── channels/
+                │   │   └── twilio_whatsapp.py
+                │   ├── llm/
+                │   │   ├── __init__.py
+                │   │   └── gemini_client.py
+                │   └── rag/
+                │       ├── __init__.py
+                │       ├── embeddings.py
+                │       ├── ingest.py
+                │       ├── qdrant_client.py
+                │       └── retrieve.py
+                ├── tests/
+                │   └── test_webhook.py
+                └── utils/
+                        └── logging.py
 ```
+
+At repository root (outside `sarvamai/`), deployment files are also used:
+
+```
+render.yaml
+pyproject.toml
+requirements.txt
+README.md
+```
+
+---
+
+## Audio Subsystem
+
+Audio support is first-class in this project, not an add-on.
+
+### Audio Input Flow
+
+1. Twilio sends `MediaUrl0` and `MediaContentType0` in webhook payload.
+2. `webhooks_twilio.py` normalizes content type (for example, `audio/ogg; codecs=opus` -> `audio/ogg`).
+3. `stt_sarvam.py` downloads media with Twilio auth and follows redirect to `mms.twiliocdn.com`.
+4. Audio bytes are sent to Sarvam STT using tuple format:
+     `("audio.ogg", audio_bytes, "audio/ogg")`.
+5. Transcript is then routed through retrieval + Gemini + translation.
+6. Final answer is sent back on WhatsApp.
+
+### Supported Audio Types
+
+- `audio/ogg`
+- `audio/opus`
+- `audio/mpeg`
+- `audio/mp3`
+- `audio/wav`
+- `audio/x-wav`
+- `audio/wave`
+- `audio/aac`
+- `audio/mp4`
+- `audio/x-m4a`
+- `audio/amr`
+- `application/ogg`
+
+### Audio Tests and Artifacts
+
+- Test scripts:
+    - `scripts/test_audio_input.py`
+    - `scripts/test_audio_to_answer.py`
+- Sample WhatsApp voice notes:
+    - `scripts/test_data/audio/*.ogg`
+- Saved outputs:
+    - `scripts/results/audio_to_answer.json`
 
 ---
 
