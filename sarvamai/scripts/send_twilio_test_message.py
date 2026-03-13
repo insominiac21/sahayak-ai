@@ -14,13 +14,18 @@ from app.services.channels.twilio_whatsapp import send_whatsapp_reply
 
 
 HELP_MENU = (
-    "Sahayak AI Help Menu\n\n"
-    "Send one of the options below:\n"
-    "1. Text message\n"
-    "2. Audio message\n\n"
-    "Examples:\n"
-    "- Type your question directly (any supported Indian language).\n"
-    "- Send a WhatsApp voice note and I will transcribe + answer."
+    "*Sahayak AI* — Government Scheme Assistant\n\n"
+    "*8 Indian Government Schemes Available:*\n"
+    "1. PMAY-U 2.0 — Housing for poor families\n"
+    "2. PMJDY — Free bank accounts\n"
+    "3. PMUY (Ujjwala) — Free LPG\n"
+    "4. Ayushman Bharat — Health insurance\n"
+    "5. NSAP — Pensions\n"
+    "6. Sukanya Samriddhi — Girl child savings\n"
+    "7. APY — Guaranteed pension\n"
+    "8. Stand-Up India — Loans\n\n"
+    "*Ask in any language (text or voice)*\n"
+    "Examples: What is PMJDY? Tell me about Ayushman Bharat. मुझे कौन सी योजना चाहिए?"
 )
 
 

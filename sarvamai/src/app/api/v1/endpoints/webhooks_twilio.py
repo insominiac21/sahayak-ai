@@ -20,14 +20,24 @@ logger = logging.getLogger(__name__)
 
 HELP_MENU = (
     "*Sahayak AI* — Government Scheme Assistant\n\n"
-    "*How to use*\n"
-    "1. Type your question in any Indian language.\n"
-    "2. Send a voice note — it will be transcribed automatically.\n\n"
-    "*Example questions*\n"
-    "- Am I eligible for PMAY housing scheme?\n"
-    "- What documents are needed for PM Vishwakarma?\n"
-    "- PM Kisan yojana ke liye kya chahiye?\n\n"
-    "Reply with any question to get started."
+    "*What can I help with?*\n"
+    "Ask me about 8 Indian government schemes in any language (text or voice)\n\n"
+    "*Available Schemes:*\n"
+    "1. PMAY-U 2.0 — Housing for poor families\n"
+    "2. PMJDY — Free zero-balance bank accounts\n"
+    "3. PMUY (Ujjwala) — Free LPG for women\n"
+    "4. Ayushman Bharat — Health insurance (₹5 lakh/year)\n"
+    "5. NSAP — Pensions for elderly/widow/disabled\n"
+    "6. Sukanya Samriddhi — Girl child education savings\n"
+    "7. APY — Guaranteed pension scheme\n"
+    "8. Stand-Up India — Loans for SC/ST/women\n\n"
+    "*Example questions:*\n"
+    "- What are the requirements for PMAY-U 2.0?\n"
+    "- Tell me about Ayushman Bharat eligibility\n"
+    "- How to get free LPG?" 
+    "- मुझे कौन सी पेंशन मिल सकती है?\n"
+    "- Or send a voice note asking your question\n\n"
+    "Just type or send your question to get started!"
 )
 
 
