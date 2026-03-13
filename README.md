@@ -163,48 +163,106 @@ Real output from `test_e2e_pipeline.py` — realistic helpline-style queries sho
 ## Project Structure
 
 ```
-sahayak-ai/
-├── data/seed_docs/             # 8 curated Markdown scheme documents
-├── sarvamai/
-│   ├── .env.example            # Environment template
-│   ├── scripts/
-│   │   ├── ingest.py           # Chunk + embed docs → Qdrant
-│   │   ├── eval.py             # Offline evaluation harness
-│   │   ├── ping_test.py        # Health-check all API keys
-│   │   └── results/            # Detailed JSON test outputs
-│   │       ├── e2e_pipeline.json
-│   │       ├── multilang_retrieval.json
-│   │       ├── retrieval_basic.json
-│   │       └── sarvam_translation.json
-│   └── src/app/
-│       ├── main.py             # FastAPI entrypoint
-│       ├── api/v1/endpoints/
-│       │   └── webhooks_twilio.py  # WhatsApp webhook handler
-│       ├── core/
-│       │   └── config.py       # Env loading + Settings class
-│       ├── services/
-│       │   ├── llm/
-│       │   │   └── gemini_client.py    # Round-robin Gemini with auto-failover
-│       │   ├── audio/
-│       │   │   ├── stt_sarvam.py       # Speech-to-text (Sarvam Saaras v3)
-│       │   │   └── translate_sarvam.py # Translation (Sarvam Mayura)
-│       │   ├── rag/
-│       │   │   ├── qdrant_client.py    # Qdrant connection singleton
-│       │   │   ├── embeddings.py        # Gemini embedding-001 (3072-dim)
-│       │   │   ├── ingest.py           # RAG ingestion pipeline class
-│       │   │   └── retrieve.py         # Semantic retrieval
-│       │   └── agent/
-│       │       ├── orchestrator.py     # Tool routing via Gemini function calling
-│       │       ├── eligibility_tool.py # Eligibility checker
-│       │       └── checklist_tool.py   # Document checklist generator
-│       ├── models/                     # SQLAlchemy models
-│       ├── schemas/                    # Pydantic schemas
-│       ├── repositories/              # DB access layer
-│       └── utils/
-│           └── logging.py
+whatsapp-RAG/
+├── .gitignore
+├── .python-version
+├── main.py
 ├── pyproject.toml
+├── README.md
+├── render.yaml
 ├── requirements.txt
-└── .gitignore
+├── uv.lock
+├── .vscode/
+│   └── settings.json
+├── data/
+│   └── seed_docs/
+│       ├── scheme_1.md
+│       ├── scheme_2.md
+│       ├── scheme_3.md
+│       ├── scheme_4.md
+│       ├── scheme_5.md
+│       ├── scheme_6.md
+│       ├── scheme_7.md
+│       └── scheme_8.md
+└── sarvamai/
+  ├── .env
+  ├── .env.example
+  ├── ARCHITECTURE.md
+  ├── BUILD_CHECKLIST.md
+  ├── README.md
+  ├── scripts/
+  │   ├── eval.py
+  │   ├── ingest.py
+  │   ├── ping_test.py
+  │   ├── send_twilio_test_message.py
+  │   ├── test_audio_input.py
+  │   ├── test_audio_to_answer.py
+  │   ├── test_e2e_pipeline.py
+  │   ├── test_multilang.py
+  │   ├── test_retrieval.py
+  │   ├── test_retrieval_quality.py
+  │   ├── test_sarvam.py
+  │   ├── results/
+  │   │   ├── audio_to_answer.json
+  │   │   ├── e2e_pipeline.json
+  │   │   ├── multilang_retrieval.json
+  │   │   ├── retrieval_basic.json
+  │   │   └── sarvam_translation.json
+  │   └── test_data/
+  │       └── audio/
+  │           ├── WhatsApp Ptt 2026-03-13 at 9.26.26 PM.ogg
+  │           ├── WhatsApp Ptt 2026-03-13 at 9.30.20 PM.ogg
+  │           ├── WhatsApp Ptt 2026-03-13 at 9.34.36 PM.ogg
+  │           ├── WhatsApp Ptt 2026-03-13 at 9.50.48 PM.ogg
+  │           ├── WhatsApp Ptt 2026-03-13 at 9.51.28 PM.ogg
+  │           └── WhatsApp Ptt 2026-03-13 at 9.51.52 PM.ogg
+  └── src/
+    ├── __init__.py
+    └── app/
+      ├── __init__.py
+      ├── main.py
+      ├── api/
+      │   └── v1/
+      │       ├── router.py
+      │       └── endpoints/
+      │           └── webhooks_twilio.py
+      ├── core/
+      │   └── config.py
+      ├── db/
+      │   ├── base.py
+      │   └── session.py
+      ├── models/
+      │   ├── message_log.py
+      │   └── user.py
+      ├── repositories/
+      │   ├── message_log.py
+      │   └── user.py
+      ├── schemas/
+      │   └── user.py
+      ├── services/
+      │   ├── __init__.py
+      │   ├── agent/
+      │   │   ├── checklist_tool.py
+      │   │   ├── eligibility_tool.py
+      │   │   └── orchestrator.py
+      │   ├── audio/
+      │   │   ├── stt_sarvam.py
+      │   │   └── translate_sarvam.py
+      │   ├── channels/
+      │   │   └── twilio_whatsapp.py
+      │   ├── llm/
+      │   │   ├── __init__.py
+      │   │   └── gemini_client.py
+      │   └── rag/
+      │       ├── __init__.py
+      │       ├── embeddings.py
+      │       ├── ingest.py
+      │       ├── qdrant_client.py
+      │       └── retrieve.py
+      ├── tests/
+      │   └── test_webhook.py
+      └── utils/
+        └── logging.py
 ```
 
 ---
