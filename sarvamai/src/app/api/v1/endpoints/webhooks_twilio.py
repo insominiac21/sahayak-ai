@@ -6,6 +6,7 @@ from starlette.responses import JSONResponse
 from app.services.audio.stt_sarvam import transcribe_audio
 from app.services.rag.retrieve import retrieve_chunks
 from app.services.agent.orchestrator import route_tools
+from app.repositories.message_log import write_message_log
 from app.services.channels.twilio_whatsapp import (
     SUPPORTED_AUDIO_CONTENT_TYPES,
     parse_twilio_request,
@@ -55,6 +56,10 @@ async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
 async def process_message(payload: dict):
     user_number = payload.get("From")
     text, media_urls, media_content_types = parse_twilio_request(payload)
+    inbound_text = text
+    transcript = ""
+    answer = ""
+    media_types = ", ".join(media_content_types) if media_content_types else ""
 
     logger.info(
         "Processing WhatsApp message: from=%s text_present=%s media_count=%s",
@@ -79,6 +84,17 @@ async def process_message(payload: dict):
                             "Unsupported audio format. Please send OGG/Opus, MP3, WAV, AAC, M4A, or AMR audio."
                         ),
                     )
+                write_message_log(
+                    user_number=user_number,
+                    inbound_text=inbound_text,
+                    query_text=text,
+                    transcript=transcript,
+                    answer_text=None,
+                    media_count=len(media_urls),
+                    media_types=media_types,
+                    status="unsupported_media",
+                    raw_payload=str(payload),
+                )
                 return
 
             stt_result = await transcribe_audio(media_urls[0])
@@ -90,12 +106,34 @@ async def process_message(payload: dict):
                 logger.warning("STT returned empty transcript for %s", user_number)
                 if user_number:
                     send_whatsapp_reply(to=user_number, message="Sorry, I could not transcribe your voice note. Please try again or send a text message.")
+                write_message_log(
+                    user_number=user_number,
+                    inbound_text=inbound_text,
+                    query_text=text,
+                    transcript=transcript,
+                    answer_text=None,
+                    media_count=len(media_urls),
+                    media_types=media_types,
+                    status="stt_empty",
+                    raw_payload=str(payload),
+                )
                 return
 
         if _wants_help_menu(text):
             if user_number:
                 logger.info("Sending help menu to %s", user_number)
                 send_whatsapp_reply(to=user_number, message=HELP_MENU)
+            write_message_log(
+                user_number=user_number,
+                inbound_text=inbound_text,
+                query_text=text,
+                transcript=transcript,
+                answer_text=HELP_MENU,
+                media_count=len(media_urls),
+                media_types=media_types,
+                status="help_menu",
+                raw_payload=str(payload),
+            )
             return
 
         # Orchestrator handles: detect lang → translate → retrieve → Gemini → translate back.
@@ -107,8 +145,32 @@ async def process_message(payload: dict):
         if user_number and answer:
             logger.info("Sending generated reply to %s", user_number)
             send_whatsapp_reply(to=user_number, message=answer)
+
+        write_message_log(
+            user_number=user_number,
+            inbound_text=inbound_text,
+            query_text=text,
+            transcript=transcript,
+            answer_text=answer,
+            media_count=len(media_urls),
+            media_types=media_types,
+            status="answered",
+            raw_payload=str(payload),
+        )
     except Exception as exc:
         logger.exception("Failed to process incoming WhatsApp message: %s", exc)
+        write_message_log(
+            user_number=user_number,
+            inbound_text=inbound_text,
+            query_text=text,
+            transcript=transcript,
+            answer_text=answer,
+            media_count=len(media_urls),
+            media_types=media_types,
+            status="failed",
+            error_message=str(exc),
+            raw_payload=str(payload),
+        )
         if user_number:
             try:
                 send_whatsapp_reply(

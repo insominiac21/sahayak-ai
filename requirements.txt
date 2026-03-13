@@ -2,6 +2,7 @@ fastapi
 uvicorn
 python-dotenv
 pydantic
+pydantic-settings
 sarvamai
 qdrant-client
 google-genai

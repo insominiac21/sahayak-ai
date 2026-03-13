@@ -224,11 +224,23 @@ This gives you uptime alerts and helps reduce cold starts on free plans.
 
 ## Supabase Status (Current)
 
-Supabase is configured as an environment variable (`POSTGRES_URL`), but runtime message
-logging is not wired yet. Current flow logs to application logs only (stdout/Render logs);
-it does not insert chat logs into Supabase tables yet.
+Supabase Postgres logging is now wired for webhook processing.
 
-So if you do not see records in Supabase, that is expected with the current codebase.
+Every incoming message writes one row to the `message_logs` table with:
+
+- `user_number`
+- `inbound_text`
+- `query_text`
+- `transcript` (for audio)
+- `answer_text`
+- `media_count` and `media_types`
+- `status` (`answered`, `help_menu`, `stt_empty`, `unsupported_media`, `failed`)
+- `error_message` (if failed)
+- `raw_payload`
+
+Table creation is automatic on first write (via SQLAlchemy `create_all`).
+
+If rows are still missing, verify `POSTGRES_URL` is set correctly in your environment.
 
 ---
 
