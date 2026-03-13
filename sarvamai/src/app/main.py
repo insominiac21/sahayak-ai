@@ -13,6 +13,7 @@ async def root():
 
 @app.get("/health")
 @app.post("/health")
+@app.head("/health")
 async def health():
-	# Lightweight health endpoint for Render/UptimeRobot probes (both GET and POST).
+	# Lightweight health endpoint for Render/UptimeRobot probes (GET, POST, and HEAD).
 	return {"status": "ok"}
