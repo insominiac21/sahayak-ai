@@ -1,6 +1,7 @@
 # WhatsApp webhook endpoint
 
 import logging
+import json
 from urllib.parse import parse_qs
 from fastapi import APIRouter, BackgroundTasks, Request
 from starlette.responses import JSONResponse
@@ -36,17 +37,24 @@ def _wants_help_menu(text: str) -> bool:
 
 @router.post("/webhook")
 async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
-    # Twilio posts form-encoded fields; keep robust fallbacks for local tests.
-    try:
-        form_data = await request.form()
-        payload = dict(form_data)
-    except Exception:
-        raw_body = (await request.body()).decode("utf-8", errors="ignore")
+    # Twilio typically sends application/x-www-form-urlencoded.
+    # Parse raw body first so fallback paths are not affected by form-parser errors.
+    content_type = (request.headers.get("content-type") or "").lower()
+    raw_body = (await request.body()).decode("utf-8", errors="ignore")
+
+    if "application/x-www-form-urlencoded" in content_type:
         parsed = parse_qs(raw_body)
-        if parsed:
-            payload = {k: (v[0] if isinstance(v, list) and v else v) for k, v in parsed.items()}
-        else:
-            payload = await request.json()
+        payload = {k: (v[0] if isinstance(v, list) and v else v) for k, v in parsed.items()}
+    elif "application/json" in content_type:
+        payload = json.loads(raw_body) if raw_body else {}
+    else:
+        # Keep form parser for multipart edge cases and local tooling.
+        try:
+            form_data = await request.form()
+            payload = dict(form_data)
+        except Exception:
+            parsed = parse_qs(raw_body)
+            payload = {k: (v[0] if isinstance(v, list) and v else v) for k, v in parsed.items()} if parsed else {}
 
     logger.info(
         "Incoming Twilio webhook: from=%s body_len=%s num_media=%s",
