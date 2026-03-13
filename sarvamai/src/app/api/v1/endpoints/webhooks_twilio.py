@@ -16,13 +16,15 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 HELP_MENU = (
-    "Sahayak AI Help Menu\n\n"
-    "Send one of the options below:\n"
-    "1. Text message\n"
-    "2. Audio message\n\n"
-    "Examples:\n"
-    "- Type your question directly (any supported Indian language).\n"
-    "- Send a WhatsApp voice note and I will transcribe + answer."
+    "*Sahayak AI* — Government Scheme Assistant\n\n"
+    "*How to use*\n"
+    "1. Type your question in any Indian language.\n"
+    "2. Send a voice note — it will be transcribed automatically.\n\n"
+    "*Example questions*\n"
+    "- Am I eligible for PMAY housing scheme?\n"
+    "- What documents are needed for PM Vishwakarma?\n"
+    "- PM Kisan yojana ke liye kya chahiye?\n\n"
+    "Reply with any question to get started."
 )
 
 

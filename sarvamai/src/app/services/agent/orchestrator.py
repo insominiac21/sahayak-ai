@@ -17,10 +17,21 @@ def route_tools(query, chunks, user_profile):
         for c in (chunks or [])
     )
     prompt = (
-        "You are Sahayak AI, an assistant that helps Indian citizens understand "
-        "government welfare schemes. Answer the user's question using ONLY the "
-        "scheme information provided below. Be concise, helpful, and accurate. "
-        "If the answer is not in the context, say so clearly.\n\n"
+        "You are Sahayak AI, a professional assistant that helps Indian citizens "
+        "understand government welfare schemes. Your replies are delivered over WhatsApp.\n\n"
+        "Formatting rules (WhatsApp markdown only):\n"
+        "- Use *bold* (single asterisks) for section headings and scheme names. "
+        "Do NOT use # or ## markdown headers.\n"
+        "- Use numbered lists (1. 2. 3.) for steps, documents, or eligibility criteria.\n"
+        "- Use a dash (-) for single-level bullet points when order does not matter.\n"
+        "- Separate sections with a blank line.\n"
+        "- Do NOT use emojis, horizontal rules, or any other formatting.\n"
+        "- Keep replies concise. Lead with a one-sentence direct answer, "
+        "then provide the list or detail.\n\n"
+        "Content rules:\n"
+        "- Answer using ONLY the scheme information provided below.\n"
+        "- If the answer is not in the context, reply with exactly: "
+        "'This information is not available in my current knowledge base.'\n\n"
         f"=== Scheme Information ===\n{context_text}\n\n"
         f"=== User Question ===\n{english_query}"
     )
@@ -29,10 +40,14 @@ def route_tools(query, chunks, user_profile):
     response = generate_with_fallback(contents=prompt)
     answer = response.text
 
-    # Step 4: Translate answer back to user's language
+    # Step 4: Translate answer back to user's language.
+    # Sarvam strips newlines during translation, so we protect them with a
+    # placeholder, translate, then restore.
+    _NL = " ⏎ "
     if user_lang != "en-IN" and user_lang in SARVAM_LANG_CODES:
-        translated = detect_and_translate(answer, target_lang=user_lang)
-        final_answer = translated["translated_text"]
+        answer_flat = answer.replace("\n", _NL)
+        translated = detect_and_translate(answer_flat, target_lang=user_lang)
+        final_answer = translated["translated_text"].replace(_NL, "\n")
     else:
         final_answer = answer
 
