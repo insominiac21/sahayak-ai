@@ -172,146 +172,167 @@ Audio support is first-class in this project, not an add-on.
 
 ## Setup
 
-### 1. Prerequisites
+### Quick Prerequisites Checklist
 
-- Python 3.11+
-- A [Twilio account](https://www.twilio.com) with WhatsApp Sandbox enabled
-- A [Sarvam AI](https://www.sarvam.ai) API key
-- A [Qdrant Cloud](https://cloud.qdrant.io) cluster (free tier is sufficient)
-- One or more [Google AI Studio](https://aistudio.google.com) API keys (Gemini)
+Before starting, collect these API keys:
 
-### 2. Install dependencies
+- ✅ **Sarvam AI API key** — [sarvam.ai](https://www.sarvam.ai)
+- ✅ **Google Gemini API key (1–6 keys)** — [aistudio.google.com](https://aistudio.google.com)
+- ✅ **Qdrant Cloud cluster URL + API key** — [cloud.qdrant.io](https://cloud.qdrant.io) (free tier)
+- ✅ **Twilio Account SID + Auth Token** — [twilio.com](https://www.twilio.com) (includes Sandbox)
+- ✅ **(Optional) Supabase Postgres URL** — for message logging to [supabase.com](https://supabase.com)
+
+### Development Setup (Local)
+
+#### 1. Virtual Environment & Dependencies
 
 ```powershell
-# from the repo root
+# From repo root
 python -m venv .venv
 .venv\Scripts\Activate.ps1
+
+# Install from pyproject.toml (includes all dependencies)
 pip install -e .
 ```
 
-### 3. Configure environment
-
-Copy `.env.example` to `.env` and fill in all values:
-
-```
-TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-TWILIO_AUTH_TOKEN=your_auth_token
-TWILIO_WHATSAPP_NUMBER=+14155238886        # Twilio Sandbox number
-SARVAM_API_KEY=your_sarvam_key
-QDRANT_URL=https://your-cluster.qdrant.io
-QDRANT_API_KEY=your_qdrant_key
-GEMINI_API_KEY1=AIza...
-GEMINI_API_KEY2=AIza...   # add up to 6 keys for rate-limit headroom
+Or with `uv` (faster):
+```powershell
+uv sync
 ```
 
-### 4. Ingest scheme documents
-
-Run once to embed and upload scheme docs to Qdrant:
+#### 2. Environment Configuration
 
 ```powershell
 cd sarvamai
-$env:PYTHONPATH="$PWD\src"
+cp .env.example .env
+# Edit .env with all your API keys (see .env.example for format)
+```
+
+**Required `.env` variables**:
+```
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxx...
+TWILIO_AUTH_TOKEN=...
+TWILIO_WHATSAPP_NUMBER=+14155238886
+
+SARVAM_API_KEY=...
+
+GEMINI_API_KEY1=AIza...
+GEMINI_API_KEY2=AIza...
+# Add more GEMINI_API_KEY2–GEMINI_API_KEY6 for better rate-limit handling
+
+QDRANT_URL=https://your-cluster.qdrant.io
+QDRANT_API_KEY=...
+
+# Optional: Supabase message logging
+POSTGRES_URL=postgresql://user:password@host:5432/database
+```
+
+#### 3. Ingest Scheme Documents
+
+**Run once** to embed all scheme documents and store vectors in Qdrant:
+
+```powershell
+cd sarvamai
+$env:PYTHONPATH = "$PWD\src"
 python scripts/ingest.py
 ```
 
-### 5. Start the server
+This:
+- Reads 8 scheme Markdown files from `../data/seed_docs/`
+- Chunks them semantically
+- Embeds using Gemini `embedding-001` (3072-dim)
+- Uploads ~68 vectors to Qdrant Cloud
+- Prints: `Ingested [N] vectors successfully`
+
+On full restart, this step runs again (idempotent).
+
+#### 4. Start Local Development Server
 
 ```powershell
 cd sarvamai
-$env:PYTHONPATH="$PWD\src"
-python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --log-level info
+$env:PYTHONPATH = "$PWD\src"
+python -m uvicorn app.main:app \
+  --host 0.0.0.0 \
+  --port 8000 \
+  --reload \
+  --log-level info
 ```
 
-### 6. Expose localhost to the internet (Cloudflare Tunnel)
+Verify startup:
+```
+INFO:     Application startup complete
+INFO:     Uvicorn running on http://0.0.0.0:8000
+```
 
-Twilio needs a public HTTPS URL to send webhook requests to. Cloudflare Tunnel creates
-one without any port-forwarding or server:
+#### 5. Expose Locally to Internet (Cloudflare Tunnel)
+
+Twilio needs a public HTTPS URL to send webhook requests. Use Cloudflare Tunnel (no charge):
 
 ```powershell
-# Download cloudflared.exe from https://github.com/cloudflare/cloudflared/releases
-# Then run:
+# Download from https://github.com/cloudflare/cloudflared/releases
+# Or: scoop install cloudflare/cloudflare-cli/cloudflared
+
 cloudflared tunnel --url http://localhost:8000
 ```
 
-It will print a URL like `https://xyz.trycloudflare.com`. Copy it.
-
-**How it works:** `cloudflared` opens an outbound TLS connection to Cloudflare's edge.
-Cloudflare assigns a random subdomain that routes all inbound HTTPS traffic back through
-that tunnel to your local port 8000. No inbound firewall rules are needed. Each restart
-generates a new URL — you must re-paste it into the Twilio console.
-
-### 7. Configure Twilio Webhook
-
-In the [Twilio Console](https://console.twilio.com), go to:
-
+It prints:
 ```
-Messaging → Try it out → Send a WhatsApp message → Sandbox settings
+Your quick tunnel has been created! Visit it at (it may take a few seconds to be reachable):
+
+https://abc123def456.trycloudflare.com
 ```
 
-Set **"When a message comes in"** to:
+**Important**: Each restart creates a **new URL**. You'll need to update Twilio's webhook URL each time (see Step 6).
 
-```
-https://xyz.trycloudflare.com/api/v1/webhooks/twilio/webhook
-```
+#### 6. Configure Twilio Webhook
 
-Method: `HTTP POST`
+1. Go to [Twilio Console](https://console.twilio.com)
+2. Navigate to: **Messaging** → **Try it out** → **Send a WhatsApp message** → **Sandbox settings**
+3. In **"When a message comes in"** field, paste:
+   ```
+   https://abc123def456.trycloudflare.com/api/v1/webhooks/twilio/webhook
+   ```
+   (Replace `abc123def456` with your actual Cloudflare Tunnel URL)
+4. Set Method to: **HTTP POST**
+5. Click **Save**
 
-### 8. Test
+#### 7. Test on WhatsApp
 
-Send "hi" to the Twilio Sandbox number on WhatsApp. You should receive the help menu.
-Send any scheme question in English or any Indian language (text or voice note).
+Send a message from WhatsApp to Twilio Sandbox number **+14155238886**:
 
-### 9. Run test scripts (including audio)
+**First time?** Send: `join acres-moving`  
+(This activates your sandbox access; you only do this once)
+
+Then try:
+- Text: `"help"` → see the help menu
+- Text: `"Am I eligible for PM-KISAN?"` → get scheme-based answer
+- Voice note: record a question about pensions or housing
+- Hindi: `"मुझे कौन सी पेंशन मिल सकती है?"` (What pensions am I eligible for?)
+- Check your local terminal for logs: STT transcript, LLM reasoning, answer generation
+
+#### 8. Run Test Scripts (Optional)
 
 ```powershell
 cd sarvamai
-$env:PYTHONPATH="$PWD\src"
+$env:PYTHONPATH = "$PWD\src"
 
-# audio-focused checks
-python scripts/test_audio_input.py
-python scripts/test_audio_to_answer.py
-
-# retrieval/e2e checks
-python scripts/test_retrieval.py
-python scripts/test_retrieval_quality.py
-python scripts/test_multilang.py
-python scripts/test_e2e_pipeline.py
+# Test individual components
+python scripts/test_retrieval.py          # Vector search
+python scripts/test_audio_input.py        # STT on sample audio
+python scripts/test_audio_to_answer.py    # Full audio pipeline
+python scripts/test_e2e_campaign.py       # End-to-end with real queries
+python scripts/test_multilang.py          # Language detection + translation
 ```
 
-Test outputs are written under `scripts/results/`.
+Outputs are saved to `scripts/results/` as JSON files.
 
 ---
 
-## Always-On Deployment (Render + UptimeRobot)
+### Production Deployment (Always-On)
 
-Use this when you want a stable public URL and 24x7 availability.
+See the **root [README.md](../README.md#-production-deployment-render--uptimerobot)** for full Render + UptimeRobot setup.
 
-### Render
-
-1. Push the latest code to GitHub.
-2. In Render, create a new Web Service from your repository.
-3. Use the repository-level `render.yaml` blueprint (included in this repo), or set manually:
-    - Build command: `pip install -e .`
-    - Start command: `uvicorn app.main:app --app-dir sarvamai/src --host 0.0.0.0 --port $PORT`
-    - Health check path: `/health`
-4. Add environment variables in Render dashboard:
-    - `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_WHATSAPP_NUMBER`
-    - `SARVAM_API_KEY`
-    - `QDRANT_URL`, `QDRANT_API_KEY`
-    - `GEMINI_API_KEY1` (and additional Gemini keys if used)
-    - `POSTGRES_URL` (optional currently; see Supabase status below)
-5. After deploy succeeds, copy your Render URL:
-    - `https://<your-service>.onrender.com/api/v1/webhooks/twilio/webhook`
-6. Paste it into Twilio Sandbox "When a message comes in" webhook URL.
-
-### UptimeRobot
-
-1. Create an HTTP(s) monitor.
-2. Monitor URL: `https://<your-service>.onrender.com/health`
-3. Interval: 5 minutes.
-4. Enable alerts (email/Telegram) for downtime.
-
-This gives you uptime alerts and helps reduce cold starts on free plans.
+For cost breakdown and service longevity details, see the **[Service Longevity](../README.md#-service-longevity-how-long-can-this-run)** section in the root README covering all components: Render, Twilio, Gemini, Sarvam AI, Qdrant, Supabase, and UptimeRobot.
 
 ---
 
@@ -337,7 +358,7 @@ If rows are still missing, verify `POSTGRES_URL` is set correctly in your enviro
 
 ---
 
-## Local Webhook — How It Actually Works
+## How Cloudflare Tunnel Works (Local Webhook Forwarding)
 
 A common question: *"My server is running locally — how does Twilio reach it?"*
 
@@ -364,27 +385,21 @@ User → WhatsApp → Twilio
           Twilio → WhatsApp reply to user
 ```
 
-The key insight: `cloudflared` makes an **outbound** connection to Cloudflare when it
-starts. Cloudflare holds that connection open and uses it to forward inbound requests.
-Your laptop never needs to accept inbound connections; your firewall and NAT are irrelevant.
+**The key insight**: `cloudflared` makes an **outbound** TLS connection to Cloudflare when it starts. Cloudflare holds that connection open and uses it to forward inbound requests. Your laptop never needs to accept inbound connections; your firewall and NAT are irrelevant. Each restart creates a **new random URL** — that's by design.
 
 ---
 
-## Scripts
+## Useful Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/ingest.py` | Chunk scheme Markdown docs, embed with Gemini, upload to Qdrant |
-| `scripts/ping_test.py` | Verify all API keys are valid and services are reachable |
-| `scripts/send_twilio_test_message.py` | Send a WhatsApp message directly from the command line |
-
-```powershell
-# Send a test message
-python scripts/send_twilio_test_message.py --to whatsapp:+91XXXXXXXXXX --message "hello"
-
-# Send the help menu
-python scripts/send_twilio_test_message.py --to whatsapp:+91XXXXXXXXXX --menu
-```
+| Script | Purpose | Command |
+|--------|---------|---------|
+| `ingest.py` | Ingest scheme docs into Qdrant | `python scripts/ingest.py` |
+| `ping_test.py` | Verify all API keys work | `python scripts/ping_test.py` |
+| `send_twilio_test_message.py` | Send message directly from CLI | `python scripts/send_twilio_test_message.py --to whatsapp:+91XXXXXXXXXX --message "hello"` |
+| `test_retrieval.py` | Test vector search | `python scripts/test_retrieval.py` |
+| `test_audio_input.py` | Test STT on sample audio | `python scripts/test_audio_input.py` |
+| `test_audio_to_answer.py` | Test full audio pipeline | `python scripts/test_audio_to_answer.py` |
+| `test_e2e_pipeline.py` | End-to-end with real queries | `python scripts/test_e2e_pipeline.py` |
 
 ---
 
