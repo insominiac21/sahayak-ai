@@ -7,7 +7,7 @@ This module implements asymmetric two-stage retrieval:
 """
 
 from typing import List, Dict, Tuple
-from app.services.rag.qdrant_client import qdrant_client
+from app.services.rag.qdrant_client import get_qdrant_client
 from app.services.rag.embeddings_bge import BGEEmbeddingsClient
 from app.services.rag.sparse_indexer import SparseIndexer
 
@@ -59,7 +59,7 @@ class HybridRetriever:
         print(f"Loading all chunks from Qdrant collection '{collection_name}'...")
         try:
             # Scroll through all points
-            points, _ = qdrant_client.scroll(
+            points, _ = get_qdrant_client().scroll(
                 collection_name=collection_name,
                 limit=10000,  # Adjust if more chunks
                 with_payload=True,
@@ -102,7 +102,7 @@ class HybridRetriever:
         
         # 1. Dense search (Qdrant)
         query_embedding = self.embedding_client.embed_query(query)
-        dense_results = qdrant_client.query_points(
+        dense_results = get_qdrant_client().query_points(
             collection_name=self.collection_name,
             query=query_embedding,
             limit=top_k * 2  # Get extra candidates for hybrid combination
