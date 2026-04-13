@@ -165,13 +165,31 @@ async def process_message(payload: dict):
         chunks = retrieve_chunks(text)
         result = route_tools(text, chunks, user_profile={"whatsapp": user_number})
         answer = result.get("answer") if isinstance(result, dict) else str(result)
-        logger.exception("Failed to process incoming WhatsApp message: %s", exc)
+        
+        # Send successful response
+        if user_number:
+            send_whatsapp_reply(to=user_number, message=answer)
+        
         write_message_log(
             user_number=user_number,
             inbound_text=inbound_text,
             query_text=text,
             transcript=transcript,
             answer_text=answer,
+            media_count=len(media_urls),
+            media_types=media_types,
+            status="success",
+            raw_payload=str(payload),
+        )
+    
+    except Exception as exc:
+        logger.exception("Failed to process incoming WhatsApp message: %s", exc)
+        write_message_log(
+            user_number=user_number,
+            inbound_text=inbound_text,
+            query_text=text,
+            transcript=transcript,
+            answer_text=None,
             media_count=len(media_urls),
             media_types=media_types,
             status="failed",
