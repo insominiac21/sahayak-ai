@@ -61,9 +61,9 @@ class CrossEncoderReranker:
         print(f"Loading {self.model_name}...")
         try:
             self.model = CrossEncoder(self.model_name)
-            print(f"✓ Cross-encoder ready\n")
+            print(f"[OK] Cross-encoder ready\n")
         except Exception as e:
-            print(f"✗ Error loading model: {e}")
+            print(f"[ERROR] Error loading model: {e}")
             raise
     
     def rerank(

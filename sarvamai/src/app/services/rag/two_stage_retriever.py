@@ -66,7 +66,7 @@ class TwoStageRetriever:
         self.hybrid_retriever.setup()
         
         self.reranker = CrossEncoderReranker()
-        print("✓ Two-stage retriever ready\n")
+        print("[OK] Two-stage retriever ready\n")
     
     def retrieve(
         self, 
