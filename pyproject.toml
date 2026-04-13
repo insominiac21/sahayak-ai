@@ -15,6 +15,7 @@ dependencies = [
     "qdrant-client>=1.16.2",
     "sarvamai>=0.1.25",
     "sqlalchemy>=2.0.46",
+    "supabase>=2.4.0",
     "twilio>=9.10.1",
     "uvicorn>=0.40.0",
 ]
