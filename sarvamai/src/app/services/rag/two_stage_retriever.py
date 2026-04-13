@@ -60,13 +60,10 @@ class TwoStageRetriever:
         self.hybrid_top_k = hybrid_top_k
         self.rerank_top_k = rerank_top_k
         self.dense_weight = dense_weight
+        self._setup_done = False  # Lazy setup flag
         
-        print("Initializing two-stage retriever...")
         self.hybrid_retriever = HybridRetriever(dense_weight=dense_weight)
-        self.hybrid_retriever.setup()
-        
         self.reranker = CrossEncoderReranker()
-        print("[OK] Two-stage retriever ready\n")
     
     def retrieve(
         self, 
@@ -83,6 +80,13 @@ class TwoStageRetriever:
         Returns:
             List of top-k reranked chunks with metadata and scores
         """
+        # Lazy setup on first retrieval (defers Qdrant connection from startup)
+        if not self._setup_done:
+            print("Initializing two-stage retriever (first retrieval)...")
+            self.hybrid_retriever.setup()
+            self._setup_done = True
+            print("[OK] Two-stage retriever ready\n")
+        
         # Stage 1a: Hybrid search
         start_stage1 = time.time()
         candidates = self.hybrid_retriever.retrieve(query, top_k=self.hybrid_top_k)
