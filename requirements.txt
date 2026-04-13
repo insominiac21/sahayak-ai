@@ -10,3 +10,6 @@ httpx
 requests
 psycopg2-binary
 sqlalchemy
+sentence-transformers>=3.0.0
+tqdm
+rank-bm25>=0.2.2
