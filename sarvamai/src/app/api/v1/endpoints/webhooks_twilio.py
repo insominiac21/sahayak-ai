@@ -8,7 +8,6 @@ from starlette.responses import JSONResponse
 from app.services.audio.stt_sarvam import transcribe_audio
 from app.services.rag.retrieve import retrieve_chunks
 from app.services.agent.orchestrator import route_tools
-from app.services.chat.multi_turn_orchestrator import MultiTurnOrchestrator
 from app.repositories.message_log import write_message_log
 from app.services.channels.twilio_whatsapp import (
     SUPPORTED_AUDIO_CONTENT_TYPES,
@@ -161,43 +160,11 @@ async def process_message(payload: dict):
             )
             return
 
-        # Multi-turn orchestrator handles: session lookup → intent detection → 
-        # query reformulation → retrieval → generation → storage
-        logger.info("Running multi-turn orchestration for %s", user_number)
-        
-        # Extract phone number for session tracking
-        phone_number = user_number.replace("whatsapp:", "") if user_number else None
-        
-        # Detect language from text (simple heuristic)
-        language = "en"  # Default to English; can be enhanced with language detection
-        if text and any(chr(ord(c)) for c in text if ord(c) > 0x900 and ord(c) < 0x950):
-            language = "hi"  # Simple Hindi detection
-        
-        try:
-            orchestrator = MultiTurnOrchestrator()
-            result = orchestrator.process_message(
-                phone_number=phone_number,
-                user_message=text,
-                language=language
-            )
-            answer = result.response if hasattr(result, 'response') else str(result)
-
-        if user_number and answer:
-            logger.info("Sending generated reply to %s", user_number)
-            send_whatsapp_reply(to=user_number, message=answer)
-
-        write_message_log(
-            user_number=user_number,
-            inbound_text=inbound_text,
-            query_text=text,
-            transcript=transcript,
-            answer_text=answer,
-            media_count=len(media_urls),
-            media_types=media_types,
-            status="answered",
-            raw_payload=str(payload),
-        )
-    except Exception as exc:
+        # Orchestrator handles: detect lang → translate → retrieve → Gemini → translate back.
+        logger.info("Running retrieval/orchestration for %s", user_number)
+        chunks = retrieve_chunks(text)
+        result = route_tools(text, chunks, user_profile={"whatsapp": user_number})
+        answer = result.get("answer") if isinstance(result, dict) else str(result)
         logger.exception("Failed to process incoming WhatsApp message: %s", exc)
         write_message_log(
             user_number=user_number,
