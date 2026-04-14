@@ -54,24 +54,16 @@ class CrossEncoderReranker:
         self.model_name = model_name or self.MODEL_NAME
         self.batch_size = batch_size
         self.model = None
-        self._load_model()
+        self._model_loaded = False
     
-    def _load_model(self) -> None:
-        """Load cross-encoder model on demand."""
+    def _ensure_model_loaded(self) -> None:
+        """Lazy-load cross-encoder model on first use (saves 62MB at startup)."""
+        if self._model_loaded:
+            return
         print(f"Loading {self.model_name}...")
         try:
             self.model = CrossEncoder(self.model_name)
-            print(f"[OK] Cross-encoder ready\n")
-        except Exception as e:
-            print(f"[ERROR] Error loading model: {e}")
-            raise
-    
-    def rerank(
-        self, 
-        query: str, 
-        documents: List[str],
-        top_k: int = 4
-    ) -> List[Tuple[int, float, str]]:
+            self._model_loaded = True
         """
         Rerank documents by query relevance.
         
@@ -86,8 +78,7 @@ class CrossEncoderReranker:
         if not documents:
             return []
         
-        if not self.model:
-            raise ValueError("Model not loaded")
+        self._ensure_model_loaded()  # Lazy load on first call
         
         # Create query-document pairs
         pairs = [[query, doc] for doc in documents]
@@ -126,6 +117,8 @@ class CrossEncoderReranker:
         """
         if not chunks:
             return []
+        
+        self._ensure_model_loaded()  # Lazy load on first call
         
         documents = [c.get('text', '') for c in chunks]
         rankings = self.rerank(query, documents, top_k=top_k)

@@ -42,7 +42,7 @@ class HybridRetriever:
         self.embedding_client = BGEEmbeddingsClient()
         self.sparse_indexer = None
         self.collection_name = "schemes"
-        self.all_chunks = {}  # chunk_id -> payload
+        self.chunk_ids = []  # Just IDs, not full payloads (saves memory)
     
     def setup(self, collection_name: str = "schemes") -> None:
         """
@@ -66,10 +66,10 @@ class HybridRetriever:
                 with_vectors=False
             )
             
-            # Extract chunks for BM25 indexing
+            # Extract chunks for BM25 indexing (don't store full payloads, just IDs)
             extract_text_list = []
             for point in points:
-                self.all_chunks[point.id] = point.payload
+                self.chunk_ids.append(point.id)
                 extract_text_list.append(point.payload.get("text", ""))
             
             print(f"  Loaded {len(points)} chunks")
@@ -117,10 +117,9 @@ class HybridRetriever:
         # Note: sparse_results are (chunk_idx, score) from the ordered list
         sparse_scores = {}
         for chunk_idx, score in sparse_results:
-            # Get chunk_id from all_chunks dict
-            chunk_list = list(self.all_chunks.keys())
-            if chunk_idx < len(chunk_list):
-                chunk_id = chunk_list[chunk_idx]
+            # Get chunk_id from stored IDs list
+            if chunk_idx < len(self.chunk_ids):
+                chunk_id = self.chunk_ids[chunk_idx]
                 sparse_scores[chunk_id] = score
         
         # 3. Normalize scores to [0, 1]
@@ -148,22 +147,34 @@ class HybridRetriever:
             reverse=True
         )[:top_k]
         
-        # Build result dicts
+        # Fetch payloads for top results from Qdrant (on-demand, not stored in memory)
         results = []
-        for chunk_id, scores in sorted_results:
-            payload = self.all_chunks[chunk_id]
-            results.append({
-                'id': chunk_id,
-                'text': payload.get('text', ''),
-                'source': payload.get('source', ''),
-                'scheme_name': payload.get('scheme_name', ''),
-                'category': payload.get('category', ''),
-                'chunk_type': payload.get('chunk_type', ''),
-                'benefits': payload.get('benefits', []),
-                'dense_score': scores['dense'],
-                'sparse_score': scores['sparse'],
-                'hybrid_score': scores['hybrid'],
-            })
+        final_chunk_ids = [chunk_id for chunk_id, _ in sorted_results]
+        
+        if final_chunk_ids:
+            # Query Qdrant for just the final chunk payloads
+            points = get_qdrant_client().retrieve(
+                collection_name=self.collection_name,
+                ids=final_chunk_ids,
+                with_payload=True,
+                with_vectors=False
+            )
+            payload_map = {p.id: p.payload for p in points}
+            
+            for chunk_id, scores in sorted_results:
+                payload = payload_map.get(chunk_id, {})
+                results.append({
+                    'id': chunk_id,
+                    'text': payload.get('text', ''),
+                    'source': payload.get('source', ''),
+                    'scheme_name': payload.get('scheme_name', ''),
+                    'category': payload.get('category', ''),
+                    'chunk_type': payload.get('chunk_type', ''),
+                    'benefits': payload.get('benefits', []),
+                    'dense_score': scores['dense'],
+                    'sparse_score': scores['sparse'],
+                    'hybrid_score': scores['hybrid'],
+                })
         
         return results
     
