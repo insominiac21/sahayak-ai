@@ -64,6 +64,17 @@ class CrossEncoderReranker:
         try:
             self.model = CrossEncoder(self.model_name)
             self._model_loaded = True
+            print(f"[OK] Cross-encoder ready\n")
+        except Exception as e:
+            print(f"[ERROR] Error loading model: {e}")
+            raise
+    
+    def rerank(
+        self, 
+        query: str, 
+        documents: List[str],
+        top_k: int = 4
+    ) -> List[Tuple[int, float, str]]:
         """
         Rerank documents by query relevance.
         
