@@ -1,46 +1,38 @@
 """
-Two-Stage Retrieval Pipeline: Hybrid Search + Cross-Encoder Reranking.
+Retrieval Pipeline: Hybrid Search (Dense + Sparse).
 
-Complete Stage 1 pipeline for production-grade RAG:
-    Stage 1a: Hybrid Search (Dense 60% + Sparse 40%) → 20 chunks (wide net)
-    Stage 1b: Cross-Encoder Rerank (mmarco-MiniLMv2-L12-H384-v1) → 3-4 chunks (quality filter)
+Simplified Stage 1 pipeline for memory-constrained environments (512MB Render free tier):
+    Stage 1: Hybrid Search (Dense 60% + Sparse 40%) → top-4 chunks directly
+    
+Uses HuggingFace Inference API for embeddings (saves 500MB local model).
+Skips cross-encoder reranking (saves 62MB) since quality still good with hybrid search.
 
-This architecture addresses key RAG failure modes:
+Architecture addresses key RAG failure modes:
     - Dense retriever bias → Mitigated by sparse keywords (BM25)
-    - "Lost in the Middle" problem → Mitigated by cross-encoder reranking
-    - Semantic similarity drift → Validated by 2nd-pass relevance check
-    - Inference latency → Optimized: 20 hybrid searches << 40 cross-encoder pairs
-    - Multilingual support → Both BGE-M3 and mmarco support Hindi + 100+ languages
+    - Multilingual support → BGE-M3 via HF API supports 100+ languages
+    - Low memory footprint → No local model loads
 
-Next stage (Phase 2): Send top-4 to LLM with full context
+Next stage (Phase 3): Add agentic tools (web search, eligibility calculator)
 """
 
 from typing import List, Dict
 import time
 
 from app.services.rag.hybrid_retriever import HybridRetriever
-from app.services.rag.cross_encoder_reranker import CrossEncoderReranker
 
 
 class TwoStageRetriever:
     """
-    Production-grade two-stage retrieval combining semantic + relevance signals.
+    Production hybrid search combining semantic + keyword signals.
     
-    Stage 1a (Hybrid Search):
-        - Dense: BGE-M3 embeddings + cosine similarity
+    Stage 1 (Hybrid Search):
+        - Dense: BGE-M3 embeddings (via HF API) + cosine similarity
         - Sparse: BM25 keyword matching
         - Weights: 60% dense + 40% sparse
-        - Returns: Top 20 candidates
-        
-    Stage 1b (Reranking):
-        - Model: BGE-Reranker-V2-M3 (cross-encoder)
-        - Input: Query + each of 20 candidates
-        - Output: Relevance scores [0, 1]
-        - Returns: Top 3-4 by relevance
+        - Returns: Top 4 candidates directly (no reranking to save RAM)
     
     Attributes:
         hybrid_retriever: HybridRetriever instance
-        reranker: CrossEncoderReranker instance
     """
     
     def __init__(
@@ -50,11 +42,11 @@ class TwoStageRetriever:
         dense_weight: float = 0.6
     ):
         """
-        Initialize two-stage retriever.
+        Initialize hybrid retriever.
         
         Args:
-            hybrid_top_k: Candidates from Stage 1a (default 20)
-            rerank_top_k: Final results from Stage 1b (default 3-4)
+            hybrid_top_k: Candidates from hybrid search (default 20, not all used)
+            rerank_top_k: Final results to return (default 4)
             dense_weight: Weight for dense search in hybrid (default 0.6)
         """
         self.hybrid_top_k = hybrid_top_k
@@ -63,7 +55,7 @@ class TwoStageRetriever:
         self._setup_done = False  # Lazy setup flag
         
         self.hybrid_retriever = HybridRetriever(dense_weight=dense_weight)
-        self.reranker = CrossEncoderReranker()
+        # No cross-encoder reranker (saves 62MB model)
     
     def retrieve(
         self, 
@@ -87,29 +79,21 @@ class TwoStageRetriever:
             self._setup_done = True
             print("[OK] Two-stage retriever ready\n")
         
-        # Stage 1a: Hybrid search
-        start_stage1 = time.time()
-        candidates = self.hybrid_retriever.retrieve(query, top_k=self.hybrid_top_k)
-        time_stage1 = time.time() - start_stage1
+        # Stage 1: Hybrid search (dense 60% + sparse 40%)
+        # Skip Stage 2 reranking to save 62MB cross-encoder model
+        start_time = time.time()
+        results = self.hybrid_retriever.retrieve(query, top_k=self.rerank_top_k)
+        elapsed = time.time() - start_time
         
-        # Stage 1b: Cross-encoder rerank
-        start_stage2 = time.time()
-        reranked = self.reranker.rerank_payloads(
-            query=query,
-            chunks=candidates,
-            top_k=self.rerank_top_k
-        )
-        time_stage2 = time.time() - start_stage2
+        # Add hybrid_score (already computed by hybrid_retriever)
+        # Skip cross-encoder reranking entirely (saves 62MB model load)
         
         # Add timing if requested
         if return_full_pipeline:
-            for chunk in reranked:
-                chunk['_stage1a_time_ms'] = round(time_stage1 * 1000, 2)
-                chunk['_stage1b_time_ms'] = round(time_stage2 * 1000, 2)
-                chunk['_total_time_ms'] = round((time_stage1 + time_stage2) * 1000, 2)
-                chunk['_candidates_evaluated'] = len(candidates)
+            for chunk in results:
+                chunk['_hybrid_search_time_ms'] = round(elapsed * 1000, 2)
         
-        return reranked
+        return results
 
 
 def create_two_stage_retriever(

@@ -1,41 +1,39 @@
 """
 Embedding models for RAG.
-Uses BGE-M3 (sentence-transformers) for efficient, accurate embeddings.
+Uses HuggingFace Inference API for BGE-M3 embeddings (saves ~500MB RAM).
 """
 
 import os
 from typing import List
-import numpy as np
+from huggingface_hub import InferenceClient
 
 
 class BGEEmbeddingsClient:
     """
-    BGE-M3 embeddings client (Bi-Encoder for asymmetric retrieval).
-    Multilingual, optimized for Q&D pairs, production-grade.
+    BGE-M3 embeddings client using HuggingFace Inference API.
+    - No local model load (saves 500MB RAM)
+    - Trade-off: ~300ms latency vs 50ms local
+    - Multilingual, optimized for Q&D pairs
     """
 
     def __init__(self):
-        """Initialize BGE-M3 embedding model."""
-        try:
-            from sentence_transformers import SentenceTransformer
-            
-            model_name = "BAAI/bge-m3"
-            print(f"Loading {model_name}...")
-            self.model = SentenceTransformer(model_name)
-            self.embedding_dim = 1024  # BGE-M3 dimension
-            print(f"Model loaded. Embedding dimension: {self.embedding_dim}")
-            
-        except ImportError:
+        """Initialize HF Inference client for BGE-M3."""
+        api_token = os.getenv("HF_TOKEN")
+        if not api_token:
             raise RuntimeError(
-                "sentence-transformers not installed. "
-                "Install with: pip install sentence-transformers"
+                "HF_TOKEN environment variable not set. "
+                "Get one at https://huggingface.co/settings/tokens"
             )
-        except Exception as e:
-            raise RuntimeError(f"Failed to load BGE-M3 model: {e}")
+        
+        self.client = InferenceClient(api_key=api_token)
+        self.model_name = "BAAI/bge-m3"
+        self.embedding_dim = 1024  # BGE-M3 dimension
+        print(f"Using HF Inference API for {self.model_name}")
+        print(f"Embedding dimension: {self.embedding_dim}\n")
 
     def embed_query(self, query: str) -> List[float]:
         """
-        Embed a query (optimized for short questions).
+        Embed a query via HF Inference API.
         
         Args:
             query: Query text
@@ -43,16 +41,19 @@ class BGEEmbeddingsClient:
         Returns:
             Embedding vector (1024 dimensions)
         """
-        embedding = self.model.encode(
-            query,
-            normalize_embeddings=True,
-            convert_to_numpy=True
-        )
-        return embedding.tolist()
+        try:
+            response = self.client.feature_extraction(
+                text=query,
+                model=self.model_name
+            )
+            # HF returns list of floats directly
+            return response
+        except Exception as e:
+            raise RuntimeError(f"Failed to embed query: {e}")
 
     def embed_document(self, document: str) -> List[float]:
         """
-        Embed a document chunk (optimized for longer documents).
+        Embed a document chunk via HF Inference API.
         
         Args:
             document: Document chunk text
@@ -60,50 +61,63 @@ class BGEEmbeddingsClient:
         Returns:
             Embedding vector (1024 dimensions)
         """
-        embedding = self.model.encode(
-            document,
-            normalize_embeddings=True,
-            convert_to_numpy=True
-        )
-        return embedding.tolist()
+        try:
+            response = self.client.feature_extraction(
+                text=document,
+                model=self.model_name
+            )
+            return response
+        except Exception as e:
+            raise RuntimeError(f"Failed to embed document: {e}")
 
     def embed_batch_documents(self, documents: List[str], batch_size: int = 32) -> List[List[float]]:
         """
-        Embed multiple documents efficiently.
+        Embed multiple documents via HF Inference API.
         
         Args:
             documents: List of document texts
-            batch_size: Batch size for processing
+            batch_size: Batch size for processing (ignored for HF API)
         
         Returns:
             List of embedding vectors
         """
-        embeddings = self.model.encode(
-            documents,
-            batch_size=batch_size,
-            normalize_embeddings=True,
-            convert_to_numpy=True
-        )
-        return [e.tolist() for e in embeddings]
+        embeddings = []
+        for doc in documents:
+            try:
+                embedding = self.client.feature_extraction(
+                    text=doc,
+                    model=self.model_name
+                )
+                embeddings.append(embedding)
+            except Exception as e:
+                print(f"Warning: Failed to embed document: {e}")
+                # Return zero vector on failure (will have low matches in Qdrant)
+                embeddings.append([0.0] * self.embedding_dim)
+        return embeddings
 
     def embed_batch_queries(self, queries: List[str], batch_size: int = 32) -> List[List[float]]:
         """
-        Embed multiple queries efficiently.
+        Embed multiple queries via HF Inference API.
         
         Args:
             queries: List of query texts
-            batch_size: Batch size for processing
+            batch_size: Batch size for processing (ignored for HF API)
         
         Returns:
             List of embedding vectors
         """
-        embeddings = self.model.encode(
-            queries,
-            batch_size=batch_size,
-            normalize_embeddings=True,
-            convert_to_numpy=True
-        )
-        return [e.tolist() for e in embeddings]
+        embeddings = []
+        for query in queries:
+            try:
+                embedding = self.client.feature_extraction(
+                    text=query,
+                    model=self.model_name
+                )
+                embeddings.append(embedding)
+            except Exception as e:
+                print(f"Warning: Failed to embed query: {e}")
+                embeddings.append([0.0] * self.embedding_dim)
+        return embeddings
 
 
 # Global client instance (lazy loaded)
