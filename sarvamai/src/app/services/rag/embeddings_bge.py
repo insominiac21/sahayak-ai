@@ -1,9 +1,11 @@
 """
 Embedding models for RAG.
 Uses HuggingFace Inference API for BGE-M3 embeddings (saves ~500MB RAM).
+Thread-safe singleton pattern to prevent race conditions with concurrent requests.
 """
 
 import os
+import threading
 from typing import List
 from huggingface_hub import InferenceClient
 
@@ -14,22 +16,45 @@ class BGEEmbeddingsClient:
     - No local model load (saves 500MB RAM)
     - Trade-off: ~300ms latency vs 50ms local
     - Multilingual, optimized for Q&D pairs
+    - Thread-safe singleton pattern
     """
+    
+    _instance = None
+    _lock = threading.Lock()
+
+    def __new__(cls):
+        """Implement thread-safe singleton pattern."""
+        if cls._instance is None:
+            with cls._lock:
+                # Double-checked locking: check again after acquiring lock
+                if cls._instance is None:
+                    cls._instance = super().__new__(cls)
+                    cls._instance._initialized = False
+        return cls._instance
 
     def __init__(self):
-        """Initialize HF Inference client for BGE-M3."""
-        api_token = os.getenv("HF_TOKEN")
-        if not api_token:
-            raise RuntimeError(
-                "HF_TOKEN environment variable not set. "
-                "Get one at https://huggingface.co/settings/tokens"
-            )
+        """Initialize HF Inference client for BGE-M3 (only once)."""
+        # Prevent re-initialization if already done
+        if self._initialized:
+            return
         
-        self.client = InferenceClient(api_key=api_token)
-        self.model_name = "BAAI/bge-m3"
-        self.embedding_dim = 1024  # BGE-M3 dimension
-        print(f"Using HF Inference API for {self.model_name}")
-        print(f"Embedding dimension: {self.embedding_dim}\n")
+        with self._lock:
+            if self._initialized:
+                return
+            
+            api_token = os.getenv("HF_TOKEN")
+            if not api_token:
+                raise RuntimeError(
+                    "HF_TOKEN environment variable not set. "
+                    "Get one at https://huggingface.co/settings/tokens"
+                )
+            
+            self.client = InferenceClient(api_key=api_token)
+            self.model_name = "BAAI/bge-m3"
+            self.embedding_dim = 1024  # BGE-M3 dimension
+            print(f"Using HF Inference API for {self.model_name}")
+            print(f"Embedding dimension: {self.embedding_dim}\n")
+            self._initialized = True
 
     def embed_query(self, query: str) -> List[float]:
         """

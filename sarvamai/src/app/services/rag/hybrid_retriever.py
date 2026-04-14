@@ -3,9 +3,10 @@ Hybrid Search Retriever combining Dense (60%) + Sparse (40%) vectors.
 
 This module implements asymmetric two-stage retrieval:
 - Stage 1: Hybrid search (dense 60% + BM25 sparse 40%) → 20 chunks
-- (Stage 2 will be cross-encoder reranking in Phase 1D)
+- Thread-safe initialization for concurrent requests
 """
 
+import threading
 from typing import List, Dict, Tuple
 from app.services.rag.qdrant_client import get_qdrant_client
 from app.services.rag.embeddings_bge import BGEEmbeddingsClient
@@ -29,7 +30,7 @@ class HybridRetriever:
     
     def __init__(self, dense_weight: float = 0.6, sparse_weight: float = 0.4):
         """
-        Initialize hybrid retriever.
+        Initialize hybrid retriever (thread-safe).
         
         Args:
             dense_weight: Weight for dense search (0-1)
@@ -39,52 +40,64 @@ class HybridRetriever:
         
         self.dense_weight = dense_weight
         self.sparse_weight = sparse_weight
-        self.embedding_client = BGEEmbeddingsClient()
+        self.embedding_client = BGEEmbeddingsClient()  # Thread-safe singleton
         self.sparse_indexer = None
         self.collection_name = "schemes"
         self.chunk_ids = []  # Just IDs, not full payloads (saves memory)
+        self._setup_lock = threading.Lock()  # Protect setup() from concurrent calls
+        self._setup_done = False
     
     def setup(self, collection_name: str = "schemes") -> None:
         """
-        Initialize retrievers by loading all chunks from Qdrant.
+        Initialize retrievers by loading all chunks from Qdrant (thread-safe).
         
-        Must be called once before retrieval.
+        Uses lock to prevent multiple concurrent calls from duplicating work.
         
         Args:
             collection_name: Qdrant collection name
         """
-        self.collection_name = collection_name
+        # Skip if already initialized
+        if self._setup_done:
+            return
         
-        # Load all chunks from Qdrant
-        print(f"Loading all chunks from Qdrant collection '{collection_name}'...")
-        try:
-            # Scroll through all points
-            points, _ = get_qdrant_client().scroll(
-                collection_name=collection_name,
-                limit=10000,  # Adjust if more chunks
-                with_payload=True,
-                with_vectors=False
-            )
+        with self._setup_lock:
+            # Double-checked: skip if another thread already initialized
+            if self._setup_done:
+                return
             
-            # Extract chunks for BM25 indexing (don't store full payloads, just IDs)
-            extract_text_list = []
-            for point in points:
-                self.chunk_ids.append(point.id)
-                extract_text_list.append(point.payload.get("text", ""))
+            self.collection_name = collection_name
             
-            print(f"  Loaded {len(points)} chunks")
+            # Load all chunks from Qdrant
+            print(f"Loading all chunks from Qdrant collection '{collection_name}'...")
+            try:
+                # Scroll through all points
+                points, _ = get_qdrant_client().scroll(
+                    collection_name=collection_name,
+                    limit=10000,  # Adjust if more chunks
+                    with_payload=True,
+                    with_vectors=False
+                )
+                
+                # Extract chunks for BM25 indexing (don't store full payloads, just IDs)
+                extract_text_list = []
+                for point in points:
+                    self.chunk_ids.append(point.id)
+                    extract_text_list.append(point.payload.get("text", ""))
+                
+                print(f"  Loaded {len(points)} chunks")
             
             # Initialize BM25 sparse indexer
-            print(f"Building BM25 sparse index...")
-            self.sparse_indexer = SparseIndexer()
-            self.sparse_indexer.index_documents(extract_text_list)
-            print(f"  Vocabulary size: {self.sparse_indexer.get_vocab_size()}")
-            print(f"  [OK] Hybrid retriever ready\n")
-            
-        except Exception as e:
-            print(f"  Error loading chunks: {e}")
-            raise
-    
+                print(f"Building BM25 sparse index...")
+                self.sparse_indexer = SparseIndexer()
+                self.sparse_indexer.index_documents(extract_text_list)
+                print(f"  Vocabulary size: {self.sparse_indexer.get_vocab_size()}")
+                print(f"  [OK] Hybrid retriever ready\n")
+                
+                self._setup_done = True
+                
+            except Exception as e:
+                print(f"  Error loading chunks: {e}")
+                raise
     def retrieve(self, query: str, top_k: int = 20) -> List[Dict]:
         """
         Retrieve chunks using hybrid search.

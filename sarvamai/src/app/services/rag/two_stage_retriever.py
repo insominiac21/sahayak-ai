@@ -11,12 +11,14 @@ Architecture addresses key RAG failure modes:
     - Dense retriever bias → Mitigated by sparse keywords (BM25)
     - Multilingual support → BGE-M3 via HF API supports 100+ languages
     - Low memory footprint → No local model loads
+    - Thread-safe singleton pattern prevents race conditions with concurrent requests
 
 Next stage (Phase 3): Add agentic tools (web search, eligibility calculator)
 """
 
 from typing import List, Dict
 import time
+import threading
 
 from app.services.rag.hybrid_retriever import HybridRetriever
 
@@ -52,7 +54,6 @@ class TwoStageRetriever:
         self.hybrid_top_k = hybrid_top_k
         self.rerank_top_k = rerank_top_k
         self.dense_weight = dense_weight
-        self._setup_done = False  # Lazy setup flag
         
         self.hybrid_retriever = HybridRetriever(dense_weight=dense_weight)
         # No cross-encoder reranker (saves 62MB model)
@@ -70,23 +71,16 @@ class TwoStageRetriever:
             return_full_pipeline: Include timing + intermediate results
             
         Returns:
-            List of top-k reranked chunks with metadata and scores
+            List of top-k chunks with metadata and scores
         """
-        # Lazy setup on first retrieval (defers Qdrant connection from startup)
-        if not self._setup_done:
-            print("Initializing two-stage retriever (first retrieval)...")
-            self.hybrid_retriever.setup()
-            self._setup_done = True
-            print("[OK] Two-stage retriever ready\n")
+        # Hybrid retriever's setup() is thread-safe and returns early if already initialized
+        self.hybrid_retriever.setup()
         
         # Stage 1: Hybrid search (dense 60% + sparse 40%)
         # Skip Stage 2 reranking to save 62MB cross-encoder model
         start_time = time.time()
         results = self.hybrid_retriever.retrieve(query, top_k=self.rerank_top_k)
         elapsed = time.time() - start_time
-        
-        # Add hybrid_score (already computed by hybrid_retriever)
-        # Skip cross-encoder reranking entirely (saves 62MB model load)
         
         # Add timing if requested
         if return_full_pipeline:
@@ -116,17 +110,27 @@ def create_two_stage_retriever(
     )
 
 
-# Global instance (lazy load)
+# Global instance (lazy load with thread safety)
 _two_stage_instance = None
+_two_stage_lock = threading.Lock()
 
 def get_two_stage_retriever() -> TwoStageRetriever:
     """
-    Get or create global two-stage retriever instance.
+    Get or create global two-stage retriever instance (thread-safe singleton).
+    
+    Uses double-checked locking pattern to prevent race conditions
+    when multiple concurrent requests try to initialize simultaneously.
     
     Returns:
         TwoStageRetriever singleton
     """
     global _two_stage_instance
+    
+    # First check (without lock) for performance
     if _two_stage_instance is None:
-        _two_stage_instance = TwoStageRetriever()
+        with _two_stage_lock:
+            # Second check (with lock) to prevent race condition
+            if _two_stage_instance is None:
+                _two_stage_instance = TwoStageRetriever()
+    
     return _two_stage_instance
