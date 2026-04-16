@@ -44,7 +44,7 @@ def generate_with_fallback(
 ) -> object:
     """
     Call Gemini generate_content with round-robin key rotation.
-    On 429 (RESOURCE_EXHAUSTED) or 400 (INVALID/EXPIRED), skip to next key.
+    On 403 (PERMISSION_DENIED), 429 (RESOURCE_EXHAUSTED), or 400 (INVALID/EXPIRED), skip to next key.
     Tries all keys before raising.
     """
     global _current_index
@@ -67,7 +67,9 @@ def generate_with_fallback(
         except Exception as e:
             last_error = e
             error_str = str(e)
-            if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
+            if "403" in error_str or "PERMISSION_DENIED" in error_str:
+                logger.warning(f"Key {idx+1} permission denied (project blocked), rotating...")
+            elif "429" in error_str or "RESOURCE_EXHAUSTED" in error_str:
                 logger.warning(f"Key {idx+1} exhausted, rotating...")
             elif "400" in error_str or "INVALID" in error_str or "expired" in error_str:
                 logger.warning(f"Key {idx+1} invalid/expired, skipping...")
