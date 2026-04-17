@@ -1,28 +1,44 @@
-fastapi
-twilio
-uvicorn
-python-dotenv
-pydantic
-pydantic-settings
-sarvamai
-qdrant-client
-google-genai
-httpx
-requests
-psycopg2-binary
-sqlalchemy
+# Core FastAPI & Web
+fastapi>=0.129.0
+uvicorn>=0.40.0
+python-dotenv>=1.1.1
+pydantic>=2.0.0
+pydantic-settings>=2.12.0
+python-multipart>=0.0.22
+httpx>=0.28.1
+
+# Twilio WhatsApp Integration
+twilio>=9.10.1
+
+# LangChain & LangGraph (Phase 3 Agentic AI)
+langchain>=0.1.0
+langchain-core>=0.1.0
+langchain-google-genai>=0.0.1
+langchain-openai>=0.0.1
+langgraph>=0.0.1
+
+# LLM Providers
+google-genai>=1.52.0
+
+# Vector Search & Embeddings
+qdrant-client>=1.16.2
 sentence-transformers>=3.0.0
-tqdm
+huggingface-hub>=0.20.0
+
+# Database & ORM
+sqlalchemy>=2.0.46
+alembic>=1.18.4
+supabase>=2.4.0
+psycopg-pool>=1.2.0
+psycopg2-binary>=2.9.0
+
+# Search & ML
 rank-bm25>=0.2.2
+tenacity>=8.2.0
+tqdm>=4.66.0
 
+# Existing Sahayak dependency
+sarvamai>=0.1.25
 
-
-
-langgraph
-langgraph-supervisor
-langchain-openai
-langchain-community
-langgraph.checkpoint.postgres
-
-psycopg-pool
-python-dotenv
+# Optional but recommended
+requests>=2.31.0

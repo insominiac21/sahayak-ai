@@ -51,3 +51,7 @@ demo-img2.png
 future-prospect.txt
 PHASE_1A_IMPLEMENTATION_GUIDE.py
 PHASE_1A_SETUP_GUIDE.md
+key_test.py
+test_fallback.py
+KNOWLEDGE_BASE_STATUS.md
+test_retry_logic.py
