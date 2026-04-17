@@ -23,25 +23,45 @@ from pydantic_settings import BaseSettings
 
 # Settings for dependency injection (if needed)
 class Settings(BaseSettings):
+    # Twilio WhatsApp Integration
     TWILIO_AUTH_TOKEN: str
     TWILIO_ACCOUNT_SID: str
     TWILIO_WHATSAPP_NUMBER: str
-    SARVAM_API_KEY: str
-    POSTGRES_URL: str  # Supabase Postgres
+    
+    # LLM & Vector Search APIs
+    HF_TOKEN: str | None = None  # HuggingFace Inference API (embeddings)
+    GOOGLE_API_KEY: str | None = None  # Google Gemini API
+    SARVAM_API_KEY: str | None = None  # Sarvam AI (STT, translation)
+    
+    # Gemini API Keys (round-robin fallback)
+    GEMINI_API_KEY1: str | None = None
+    GEMINI_API_KEY2: str | None = None
+    GEMINI_API_KEY3: str | None = None
+    GEMINI_API_KEY4: str | None = None
+    GEMINI_API_KEY5: str | None = None
+    GEMINI_API_KEY6: str | None = None
+    
+    # Database Configuration
+    POSTGRES_URL: str | None = None  # Legacy Supabase Postgres
+    SUPABASE_POSTGRES_URI: str | None = None  # Supabase connection string (for checkpointer)
+    
+    # Vector Database (Qdrant)
     QDRANT_URL: str
     QDRANT_API_KEY: str
-    GEMINI_API_KEY1: str = None
-    GEMINI_API_KEY2: str = None
-    GEMINI_API_KEY3: str = None
-    GEMINI_API_KEY4: str = None
-    GEMINI_API_KEY5: str = None
-    GEMINI_API_KEY6: str = None
+    
+    # RAG Configuration
     RAG_CHUNK_SIZE: int = 512
-    RAG_EMBED_MODEL: str = "sarvam-embed-v1"
+    RAG_EMBED_MODEL: str = "BAAI/bge-m3"  # HuggingFace model for embeddings
     RAG_RETRIEVAL_TOP_K: int = 5
+    
+    # Logging
     LOG_LEVEL: str = "INFO"
+    
+    # Webhooks
+    WHATSAPP_WEBHOOK_SECRET: str | None = None
 
     class Config:
         env_file = ".env"
+        case_sensitive = True
 
 settings = Settings()
