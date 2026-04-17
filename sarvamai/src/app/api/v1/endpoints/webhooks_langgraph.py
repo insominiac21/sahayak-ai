@@ -32,7 +32,8 @@ TWILIO_AUTH = os.getenv("TWILIO_AUTH_TOKEN")
 TWILIO_PHONE = os.getenv("TWILIO_PHONE_NUMBER")
 
 if not all([TWILIO_SID, TWILIO_AUTH, TWILIO_PHONE]):
-    logger.error("❌ Missing Twilio configuration")
+    logger.warning("⚠️ Twilio configuration incomplete. WhatsApp webhook will return 200 OK but won't send replies.")
+    logger.warning("   For Render deployment: add TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_PHONE_NUMBER to environment.")
     twilio_client = None
 else:
     twilio_client = Client(TWILIO_SID, TWILIO_AUTH)
