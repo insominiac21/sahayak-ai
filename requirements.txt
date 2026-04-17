@@ -14,3 +14,15 @@ sqlalchemy
 sentence-transformers>=3.0.0
 tqdm
 rank-bm25>=0.2.2
+
+
+
+
+langgraph
+langgraph-supervisor
+langchain-openai
+langchain-community
+
+
+psycopg-pool
+python-dotenv
