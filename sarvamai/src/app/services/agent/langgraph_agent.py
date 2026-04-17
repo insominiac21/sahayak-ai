@@ -12,8 +12,7 @@ from dotenv import load_dotenv
 # Core LangGraph imports
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
-from langgraph.checkpoint.postgres import PostgresSaver
-from psycopg_pool import ConnectionPool
+from langgraph.checkpoint.memory import MemorySaver
 
 # LangChain imports
 from langchain_core.tools import tool
@@ -55,22 +54,29 @@ except Exception as e:
     llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
 
 # Setup database checkpointer for conversation memory
-DB_URI = settings.SUPABASE_POSTGRES_URI
-if not DB_URI:
-    raise RuntimeError("SUPABASE_POSTGRES_URI not set in .env")
+# For now, use MemorySaver (development/testing)
+# For production with Postgres, install langgraph-postgres and use PostgresSaver
+checkpointer = MemorySaver()
+logger.info("✅ MemorySaver checkpointer initialized (conversation memory enabled)")
 
-try:
-    connection_pool = ConnectionPool(
-        conninfo=DB_URI,
-        max_size=10,
-        kwargs={"autocommit": True}
-    )
-    checkpointer = PostgresSaver(connection_pool)
-    checkpointer.setup()  # Create tables if needed
-    logger.info("✅ Supabase checkpointer initialized")
-except Exception as e:
-    logger.error(f"❌ Failed to setup checkpointer: {e}")
-    raise
+# Future: Production PostgreSQL setup
+# Uncomment when langgraph-postgres is available
+# DB_URI = settings.SUPABASE_POSTGRES_URI
+# if not DB_URI:
+#     raise RuntimeError("SUPABASE_POSTGRES_URI not set in .env")
+# try:
+#     from langgraph_postgres import PostgresSaver as PGSaver
+#     connection_pool = ConnectionPool(
+#         conninfo=DB_URI,
+#         max_size=10,
+#         kwargs={"autocommit": True}
+#     )
+#     checkpointer = PGSaver(connection_pool)
+#     checkpointer.setup()
+#     logger.info("✅ PostgreSQL checkpointer initialized")
+# except Exception as e:
+#     logger.error(f"❌ Failed to setup PostgreSQL checkpointer: {e}, falling back to MemorySaver")
+#     checkpointer = MemorySaver()
 
 # ============================================================================
 # 2. STATE DEFINITION

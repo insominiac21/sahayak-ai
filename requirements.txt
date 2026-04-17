@@ -16,6 +16,7 @@ langchain-core>=0.1.0
 langchain-google-genai>=0.0.1
 langchain-openai>=0.0.1
 langgraph>=0.0.1
+langgraph-checkpoint>=1.0.0
 
 # LLM Providers
 google-genai>=1.52.0
