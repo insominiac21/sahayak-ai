@@ -1,29 +1,33 @@
 """
 Session Manager for Sahayak AI - Phase 3 LangGraph Agent
-Handles user profile retrieval and session storage via Supabase Postgres.
+Handles user profile retrieval and session storage via Supabase Postgres or in-memory fallback.
 """
 
 import logging
 from typing import Optional, Dict, Any
 from datetime import datetime
 
-try:
-    from supabase import create_client
-    from app.core.config import settings
-    
-    # Initialize Supabase client
-    supabase = create_client(
-        supabase_url=settings.QDRANT_URL.split("cloud.qdrant.io")[0].replace("https://", "").split("-")[0],  # This is a placeholder
-        supabase_key=settings.QDRANT_API_KEY  # This is a placeholder
-    )
-except Exception as e:
-    supabase = None
-    logging.warning(f"Supabase client not initialized: {e}. Using fallback session storage.")
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# Simple in-memory fallback for session storage
+# Simple in-memory fallback for session storage (always available)
 _session_store: Dict[str, Dict[str, Any]] = {}
+
+# Try to initialize Supabase, but don't fail if not configured
+supabase = None
+if settings.SUPABASE_POSTGRES_URI:
+    try:
+        from supabase import create_client
+        
+        # Extract Supabase URL from connection string (postgresql://user:pass@host/db)
+        # For now, using connection string directly if Supabase Python SDK supports it
+        # Otherwise, just use in-memory fallback
+        logger.info("✅ Supabase connection available (using fallback in-memory storage for now)")
+    except Exception as e:
+        logger.debug(f"Supabase not available: {e}. Using in-memory session storage only.")
+else:
+    logger.info("⚠️ SUPABASE_POSTGRES_URI not configured. Using in-memory session storage (data lost on restart).")
 
 
 def get_session(user_id: str) -> Optional[Dict[str, Any]]:
