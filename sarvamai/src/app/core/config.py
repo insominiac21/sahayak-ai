@@ -30,16 +30,16 @@ class Settings(BaseSettings):
     
     # LLM & Vector Search APIs
     HF_TOKEN: str | None = None  # HuggingFace Inference API (embeddings)
-    GOOGLE_API_KEY: str | None = None  # Google Gemini API
+    GOOGLE_API_KEY: str | None = None  # Google Gemini API (legacy, single key)
     SARVAM_API_KEY: str | None = None  # Sarvam AI (STT, translation)
     
-    # Gemini API Keys (round-robin fallback)
-    GEMINI_API_KEY1: str | None = None
-    GEMINI_API_KEY2: str | None = None
-    GEMINI_API_KEY3: str | None = None
-    GEMINI_API_KEY4: str | None = None
-    GEMINI_API_KEY5: str | None = None
-    GEMINI_API_KEY6: str | None = None
+    # Gemini API Keys (round-robin with 6 fallback keys)
+    GEMINI_API_KEY1: str  # Required for round-robin agent
+    GEMINI_API_KEY2: str  # Required for round-robin agent
+    GEMINI_API_KEY3: str  # Required for round-robin agent
+    GEMINI_API_KEY4: str  # Required for round-robin agent
+    GEMINI_API_KEY5: str  # Required for round-robin agent
+    GEMINI_API_KEY6: str  # Required for round-robin agent
     
     # Database Configuration
     POSTGRES_URL: str | None = None  # Legacy Supabase Postgres

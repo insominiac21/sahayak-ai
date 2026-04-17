@@ -6,6 +6,7 @@ Uses Supabase Postgres checkpointer for persistent memory.
 
 import os
 import logging
+import itertools
 from typing import Annotated, Any, Dict, List, TypedDict
 from dotenv import load_dotenv
 
@@ -41,17 +42,38 @@ qdrant = QdrantClient(
 
 hf_client = InferenceClient(api_key=settings.HF_TOKEN)
 
-# Use existing Gemini config from your system
-try:
-    llm = ChatGoogleGenerativeAI(
+# ============================================================================
+# ROUND-ROBIN GEMINI API KEY MANAGEMENT
+# ============================================================================
+# Load all 6 Gemini keys into a list
+API_KEYS = [
+    settings.GEMINI_API_KEY1,
+    settings.GEMINI_API_KEY2,
+    settings.GEMINI_API_KEY3,
+    settings.GEMINI_API_KEY4,
+    settings.GEMINI_API_KEY5,
+    settings.GEMINI_API_KEY6,
+]
+
+# Create an infinite cyclic iterator that rotates through all keys
+gemini_key_cycle = itertools.cycle(API_KEYS)
+logger.info(f"✅ Round-robin Gemini initialized with 6 API keys")
+
+def get_next_gemini_llm():
+    """
+    Returns a ChatGoogleGenerativeAI instance using the next API key in the round-robin.
+    This ensures automatic load distribution and fallback if one key hits rate limits.
+    """
+    next_key = next(gemini_key_cycle)
+    return ChatGoogleGenerativeAI(
         model="gemini-2.5-flash",
-        api_key=settings.GOOGLE_API_KEY,
+        api_key=next_key,  # Explicitly override environment variable search
         temperature=0.7,
         max_tokens=500,
     )
-except Exception as e:
-    logger.warning(f"Failed to load Gemini: {e}, falling back to OpenAI")
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.7)
+
+# Initialize the first LLM instance for startup
+llm = get_next_gemini_llm()
 
 # Setup database checkpointer for conversation memory
 # For now, use MemorySaver (development/testing)
@@ -244,8 +266,11 @@ Guidelines:
 6. If info not in knowledge base, acknowledge limitations"""
     
     try:
+        # Get next LLM instance from round-robin (load distribution + rate limit fallback)
+        current_llm = get_next_gemini_llm()
+        
         # Call LLM with tools
-        response = llm.bind_tools(
+        response = current_llm.bind_tools(
             [search_schemes, check_eligibility, fetch_user_profile],
             tool_choice="auto"
         ).invoke(
