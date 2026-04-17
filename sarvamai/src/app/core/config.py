@@ -32,6 +32,7 @@ class Settings(BaseSettings):
     HF_TOKEN: str | None = None  # HuggingFace Inference API (embeddings)
     GOOGLE_API_KEY: str | None = None  # Google Gemini API (legacy, single key)
     SARVAM_API_KEY: str | None = None  # Sarvam AI (STT, translation)
+    SERPER_API_KEY: str | None = None  # Google Serper API for web search (fallback)
     
     # Gemini API Keys (round-robin with 6 fallback keys)
     GEMINI_API_KEY1: str  # Required for round-robin agent

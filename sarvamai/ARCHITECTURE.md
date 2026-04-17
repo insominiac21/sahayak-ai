@@ -2,16 +2,18 @@
 
 ## Overview
 
-Sahayak AI is a WhatsApp-first, multilingual RAG (Retrieval-Augmented Generation) assistant
-that helps Indian citizens understand and apply for government welfare schemes. Users send
-text or voice messages in any Indian language over WhatsApp. The system transcribes voice,
-translates to English, retrieves relevant scheme excerpts from a vector database, generates
-a grounded answer with Gemini, translates back to the user's language, and replies — all
-inside a single asynchronous background task triggered by one incoming webhook POST.
+**Phase 3: Agentic AI with LangGraph**
+
+Sahayak AI is a WhatsApp-first, multilingual **agentic assistant** that helps Indian citizens understand 
+and apply for government welfare schemes. Users send text or voice messages in any Indian language. 
+The system transcribes voice, translates to English, then **routes the query through a LangGraph agent**
+that can dynamically choose from 4 tools (search knowledge base, search web, check eligibility, fetch user profile).
+The agent reasons through multi-step queries, generates grounded answers with Gemini, translates back,
+and replies — all inside a single asynchronous background task triggered by one incoming webhook POST.
 
 ---
 
-## Architecture Diagram
+## Architecture Diagram (Phase 3: LangGraph Agent)
 
 ```
 WhatsApp User (text or voice note)
@@ -21,7 +23,7 @@ WhatsApp User (text or voice note)
   Twilio Gateway  ──────────────────────────────────────────────────────┐
   (WhatsApp API)                                                         |
         |                                                                |
-        | POST /api/v1/webhooks/twilio/webhook                          |
+        | POST /api/v1/webhooks/langgraph/twilio/webhook                |
         | (HTTP to public URL → Cloudflare Tunnel → localhost:8000)     |
         v                                                                |
   FastAPI Server (uvicorn, port 8000)                                   |
@@ -29,12 +31,12 @@ WhatsApp User (text or voice note)
         | 1. Returns 200 OK immediately (Twilio requires fast ACK)      |
         | 2. Spawns BackgroundTask                                       |
         v                                                                |
-  ┌─────────────────────────────────────────────────────────────────┐   |
+  ┌──────────────────────────────────────────────────────────────────┐   |
   │  Background Processing Pipeline                                  │   |
   │                                                                  │   |
-  │  [Voice note?] ──────────────────────────────────────────────   │   |
+  │  [Voice note?] ────────────────────────────────────────────────  │   |
   │       |                                                          │   |
-  │       | Download audio from Twilio media URL (follows 307)      │   |
+  │       | Download audio from Twilio media URL                    │   |
   │       v                                                          │   |
   │  Sarvam STT (Saaras v3)                                          │   |
   │       | → transcript text + detected language code               │   |
@@ -44,11 +46,33 @@ WhatsApp User (text or voice note)
   │       | Sarvam Translate (Mayura)                                │   |
   │       | → English query + source language                        │   |
   │       v                                                          │   |
-  │  Qdrant Vector DB (Cloud, Cosine, 3072-dim)                      │   |
-  │       | → top-K scheme text chunks                               │   |
+  │  ┌─────────────────────────────────────────────────────────┐     │   |
+  │  │  LangGraph Agent (StateGraph)                           │     │   |
+  │  │                                                          │     │   |
+  │  │  Agent Node (reasoning loop):                           │     │   |
+  │  │  - Analyzes user query                                  │     │   |
+  │  │  - Decides which tools to call (or none)                │     │   |
+  │  │  - Available Tools:                                      │     │   |
+  │  │    * search_schemes → Qdrant KB (top-K chunks)          │     │   |
+  │  │    * web_search → Serper API (current info)             │     │   |
+  │  │    * check_eligibility → Income rules (PMAY-U, etc)    │     │   |
+  │  │    * fetch_user_profile → Session history              │     │   |
+  │  │                                                          │     │   |
+  │  │  Tool Node (execution):                                  │     │   |
+  │  │  - Calls selected tools sequentially                     │     │   |
+  │  │  - Returns results as ToolMessages                       │     │   |
+  │  │                                                          │     │   |
+  │  │  Should Continue (edge decision):                        │     │   |
+  │  │  - If tools were called → loop back to Agent            │     │   |
+  │  │  - If no more tools needed → move to response           │     │   |
+  │  │                                                          │     │   |
+  │  │  Output: Structured answer with tool context            │     │   |
+  │  └─────────────────────────────────────────────────────────┘     │   |
+  │       |                                                          │   |
+  │       | Agent output (with search results + eligibility)        │   |
   │       v                                                          │   |
-  │  Google Gemini 2.5 Flash                                         │   |
-  │  (prompted with chunks + query)                                  │   |
+  │  Google Gemini 2.5 Flash (with context)                         │   |
+  │  (round-robin across 6 API keys)                                │   |
   │       | → English answer                                         │   |
   │       v                                                          │   |
   │  Sarvam Translate                                                │   |
@@ -62,92 +86,95 @@ WhatsApp User (text or voice note)
 
 ---
 
-## How Local Development Works with Cloudflare Tunnel
+## Phase 3 Agent Architecture (Detailed)
 
-Twilio requires a **publicly reachable HTTPS URL** to send webhook POST requests to. When
-running locally, your server is only accessible at `localhost:8000` — invisible to the
-internet. Cloudflare Tunnel (`cloudflared`) solves this without port-forwarding or a VPS.
+### LangGraph StateGraph Flow
 
 ```
-WhatsApp User
-     |
-     | sends message
-     v
-Twilio  ──► POST https://xyz.trycloudflare.com/api/v1/webhooks/twilio/webhook
-                          |
-                          | Cloudflare edge (internet-facing)
-                          | ↓  encrypted tunnel (persistent outbound connection)
-                          | Cloudflared process running on your laptop
-                          | ↓  forwards to
-                          localhost:8000  (uvicorn / FastAPI)
-                                |
-                                | processes, replies via Twilio REST API
-                                v
-                          Twilio → WhatsApp reply to user
+START
+  |
+  v
+agent_node()
+  - Current state: messages[], intent, user_context
+  - LLM (Gemini 2.5 Flash, next key from round-robin)
+  - Binds 4 tools: [search_schemes, web_search, check_eligibility, fetch_user_profile]
+  - LLM decides if tools needed or responds directly
+  |
+  v
+should_continue() conditional
+  - Did the LLM emit tool calls?
+  - YES → tools_node()
+  - NO → END
+  |
+  v
+tools_node()  (if tools called)
+  - Executes each tool sequentially
+  - Collects results as ToolMessages
+  - Adds messages to state
+  |
+  v
+agent_node() [LOOP]
+  - LLM sees tool results
+  - Decides: call more tools OR respond to user
+  |
+  v
+(on final response)
+  |
+  v
+END
+  - Final message returned to webhook handler
+  - Sent to user via Twilio WhatsApp
 ```
 
-**Why this works:**
+### The 4 Agent Tools
 
-1. `cloudflared tunnel --url http://localhost:8000` starts a process on your machine that
-   opens an **outbound** TLS connection to a Cloudflare edge server. No inbound firewall
-   rules needed — outbound connections are almost never blocked.
+| Tool | Purpose | Data Source | When Used |
+|------|---------|-------------|-----------|
+| **search_schemes** | Find scheme details, eligibility rules, application process | Qdrant vector DB (hybrid search: semantic + BM25) | User asks about specific scheme (e.g., "What is PMAY-U?") |
+| **web_search** | Search Google for current/real-time info (updated policies, recent news, deadline changes) | Google Serper API (top 5 results) | KB doesn't have current answer (e.g., "What changed in PM-JAY 2024?") |
+| **check_eligibility** | Verify income-based eligibility for schemes (hardcoded rules: PMAY-U EWS/LIG/MIG, PM-JAY, PMJDY) | Local eligibility rules in function | User asks "Am I eligible for X?" with income info |
+| **fetch_user_profile** | Retrieve user's prior context (name, state, income, language) from session history | Supabase Postgres or in-memory cache | Personalized follow-ups (e.g., "What schemes fit YOUR state?") |
 
-2. Cloudflare assigns a random subdomain (`xyz.trycloudflare.com`) that routes all traffic
-   to your local process through that persistent tunnel.
+### Session Management
 
-3. You paste that URL into the Twilio Sandbox webhook field. Twilio now sends all incoming
-   WhatsApp messages to Cloudflare, which forwards them through the tunnel to your laptop.
+User sessions are stored in two layers:
+1. **In-Memory Cache** (fast lookup, development-friendly)
+2. **Supabase Postgres** (persistent, for analytics and multi-device continuity)
 
-4. Every time you restart `cloudflared`, you get a **new random URL**. You must re-paste
-   it into the Twilio console. For a stable URL, use a named Cloudflare tunnel with a
-   custom domain (requires a Cloudflare account and registered domain).
+When `fetch_user_profile` is called:
+- Check memory cache first (if found, return)
+- Query Supabase `user_sessions` table
+- Cache result in memory for subsequent calls
+- Return user profile dict with: `{name, state, income, ...}`
 
-**Critical detail:** The tunnel URL must point to the exact port where uvicorn is listening.
-If the app is on `:8000` and the tunnel points to `:8001`, all Twilio webhooks silently
-fail with a connection refused error on your end — Twilio keeps retrying but gets no reply.
+### Round-Robin Gemini API Key Rotation
 
----
+Because rate limits can block a single key, we rotate across 6 keys using `itertools.cycle()`:
 
-## Technology Choices — Why Each Was Selected
+```python
+API_KEYS = [
+  settings.GEMINI_API_KEY1,
+  settings.GEMINI_API_KEY2,
+  settings.GEMINI_API_KEY3,
+  settings.GEMINI_API_KEY4,
+  settings.GEMINI_API_KEY5,
+  settings.GEMINI_API_KEY6,
+]
 
-### WhatsApp via Twilio
-WhatsApp does not provide direct API access to developers without an approved Business API
-account. Twilio acts as an intermediary: it has a WhatsApp partnership and exposes a clean
-REST API and webhook model. The Twilio Sandbox requires no formal approval for development,
-making it the fastest path to a working WhatsApp integration.
+gemini_key_cycle = itertools.cycle(API_KEYS)
 
-### FastAPI + uvicorn
-FastAPI gives async request handling and `BackgroundTasks` built-in. The webhook handler
-must return a `200 OK` within a few seconds or Twilio marks the delivery as failed and
-retries. FastAPI's `BackgroundTasks` lets us ACK immediately and do the heavy processing
-(STT, retrieval, LLM call) asynchronously without needing a separate task queue like
-Celery or Redis.
+def get_next_gemini_llm():
+    next_key = next(gemini_key_cycle)  # KEY1 → KEY2 → ... → KEY6 → KEY1
+    return ChatGoogleGenerativeAI(
+        model="gemini-2.5-flash",
+        api_key=next_key,
+        temperature=0.7,
+        max_tokens=500,
+    )
+```
 
-### Sarvam AI (STT + Translation)
-Sarvam is purpose-built for Indian languages. Its Saaras v3 STT model handles the
-code-mixed, accented speech patterns common in Indian WhatsApp voice notes far better
-than general-purpose models (Whisper, Google Speech-to-Text). Its Mayura translation
-model covers 10+ scheduled Indian languages with auto-detection — no separate
-language-detection step needed. Using one vendor for both STT and translation reduces
-latency and API surface.
-
-### Qdrant (Vector Database)
-Qdrant is a dedicated vector database with a generous free cloud tier. It supports cosine
-similarity search over high-dimensional embeddings (3072-dim from Gemini's
-`gemini-embedding-001`) with fast approximate nearest-neighbour (ANN) indexing. Compared
-to storing embeddings in Postgres (pgvector), Qdrant gives better query performance at
-scale and a simpler SDK. The scheme corpus (68 vectors) fits entirely in the free tier.
-
-### Google Gemini 2.5 Flash
-Gemini 2.5 Flash has a large context window (1M tokens), making it suitable for RAG
-prompts that include multiple retrieved text chunks. Using the same Google API for both
-embeddings (`gemini-embedding-001`) and generation (Gemini Flash) keeps the vendor count
-low and ensures embedding-space consistency. The round-robin across 6 API keys prevents
-rate-limit errors during bursty usage.
-
-### RAG (Retrieval-Augmented Generation)
-Scheme eligibility rules change frequently. Fine-tuning an LLM on scheme data would
-require retraining whenever rules change. RAG instead keeps scheme knowledge in a
+Every time the agent calls `get_next_gemini_llm()`, it rotates to the next key, automatically balancing
+load and providing fallback if one key hits quota.
 searchable document store that can be updated by re-running `scripts/ingest.py`. The LLM
 only needs to synthesise a readable answer from retrieved excerpts — it does not need to
 memorise scheme rules. This keeps answers grounded and reduces hallucination.

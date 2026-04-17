@@ -1,8 +1,9 @@
 # Sahayak AI
 
-A WhatsApp-first, multilingual assistant that helps Indian citizens understand and apply
+A WhatsApp-first, multilingual **agentic AI assistant** that helps Indian citizens understand and apply
 for government welfare schemes. Users send text or voice messages in any Indian language;
-the system replies with accurate, scheme-grounded answers in the same language.
+the system uses multi-step reasoning with a **LangGraph agent** to search knowledge bases and the web,
+reply with accurate scheme-grounded answers in the same language.
 
 ---
 
@@ -11,8 +12,13 @@ the system replies with accurate, scheme-grounded answers in the same language.
 - Accepts WhatsApp messages (text or voice note) via Twilio
 - Transcribes voice notes using Sarvam AI (Saaras v3 STT)
 - Detects and translates the query to English (Sarvam Mayura)
-- Retrieves relevant scheme excerpts from a Qdrant vector database
-- Generates a grounded answer with Google Gemini 2.5 Flash
+- **Phase 3 Agent**: Uses 4-tool LangGraph agent for intelligent multi-step reasoning:
+  - **search_schemes**: Retrieves relevant scheme excerpts from Qdrant vector DB
+  - **web_search**: Searches Google (Serper API) for current/real-time info when KB doesn't have answer
+  - **check_eligibility**: Calculates income-based scheme eligibility (PMAY-U, PM-JAY, PMJDY rules)
+  - **fetch_user_profile**: Retrieves user context from session history (name, state, income)
+- Agent decides which tools to use, what order, and when to stop
+- Generates grounded answer with Google Gemini 2.5 Flash (round-robin across 6 API keys)
 - Translates the answer back to the user's language and replies via WhatsApp
 
 ---
@@ -23,100 +29,125 @@ the system replies with accurate, scheme-grounded answers in the same language.
 |-------|-----------|-----|
 | Channel | Twilio WhatsApp | WhatsApp API requires a business partnership; Twilio provides sandbox access with no approval needed for development |
 | Web framework | FastAPI + uvicorn | Async request handling; `BackgroundTasks` lets the webhook ACK immediately while the heavy pipeline (STT + LLM) runs asynchronously |
+| Agent Framework | LangGraph 1.1.8 | StateGraph for multi-step agentic reasoning; automatic tool binding and message routing |
 | STT | Sarvam Saaras v3 | Purpose-built for Indian languages and accents; outperforms Whisper on code-mixed Hindi/English voice notes |
 | Translation | Sarvam Mayura | Auto-detects source language; covers 10+ scheduled Indian languages in one API call |
-| Vector DB | Qdrant Cloud | Dedicated vector store with ANN indexing; supports 3072-dim Gemini embeddings; generous free tier |
-| LLM | Gemini 2.5 Flash | 1M token context window; same vendor as embeddings (consistent embedding space); round-robin across 6 keys avoids rate limits |
-| Embeddings | gemini-embedding-001 | 3072-dim; used identically at ingest time and query time |
+| Vector DB | Qdrant Cloud | Dedicated vector store with ANN indexing; supports 1024-dim HuggingFace embeddings; generous free tier |
+| LLM | Gemini 2.5 Flash | 1M token context window; round-robin across 6 API keys avoids rate limits and auto-distributes load |
+| Embeddings | BAAI/bge-m3 | 1024-dim; via HuggingFace Inference API with exponential backoff retry logic (503/504 handling) |
+| Web Search | Google Serper | Real-time web search when knowledge base doesn't have current/time-sensitive info |
+| Session Store | Supabase Postgres / Memory | User profile caching (name, state, income) for personalized follow-ups |
 | Tunnel (dev) | Cloudflare Tunnel | Exposes localhost:8000 to the internet via a free HTTPS URL; no port-forwarding or VPS required |
 
 ---
 
 ## Repository File Index
 
-Below is the practical file map (excluding local runtime artifacts like `__pycache__`).
+Below is the practical file map for Phase 3 (excluding local runtime artifacts like `__pycache__`, `.pyc`, and test data).
 
 ```
 sarvamai/
-├── .env.example
-├── .env
-├── README.md
-├── ARCHITECTURE.md
-├── BUILD_CHECKLIST.md
-├── scripts/
-│   ├── ingest.py
-│   ├── eval.py
-│   ├── ping_test.py
-│   ├── send_twilio_test_message.py
-│   ├── test_sarvam.py
-│   ├── test_audio_input.py
-│   ├── test_audio_to_answer.py
-│   ├── test_e2e_pipeline.py
-│   ├── test_multilang.py
-│   ├── test_retrieval.py
-│   ├── test_retrieval_quality.py
-│   ├── results/
-│   │   ├── audio_to_answer.json
-│   │   ├── e2e_pipeline.json
-│   │   ├── multilang_retrieval.json
-│   │   ├── retrieval_basic.json
-│   │   └── sarvam_translation.json
-│   └── test_data/
-│       └── audio/
-│           ├── WhatsApp Ptt 2026-03-13 at 9.26.26 PM.ogg
-│           ├── WhatsApp Ptt 2026-03-13 at 9.30.20 PM.ogg
-│           ├── WhatsApp Ptt 2026-03-13 at 9.34.36 PM.ogg
-│           ├── WhatsApp Ptt 2026-03-13 at 9.50.48 PM.ogg
-│           ├── WhatsApp Ptt 2026-03-13 at 9.51.28 PM.ogg
-│           └── WhatsApp Ptt 2026-03-13 at 9.51.52 PM.ogg
+├── .env                                   # Environment variables (secrets, DO NOT COMMIT)
+├── .env-example                           # Template for all env vars (safe to commit)
+├── README.md                              # This file (project overview)
+├── ARCHITECTURE.md                        # Phase 3 LangGraph architecture (detailed)
+├── pyproject.toml                         # Python package config (at repo root)
+├── requirements.txt                       # All 41 pinned dependencies (at repo root)
+│
+├── scripts/                               # Utility scripts (mostly deprecated, kept for reference)
+│   ├── ingest.py                          # Ingest scheme docs into Qdrant (run once)
+│   ├── eval.py                            # Evaluation utilities
+│   ├── test_data/                         # Sample audio files
+│   └── results/                           # Test output JSONs
+│
 └── src/
+    └── app/
         ├── __init__.py
-        └── app/
-                ├── __init__.py
-                ├── main.py
-                ├── api/
-                │   └── v1/
-                │       ├── router.py
-                │       └── endpoints/
-                │           └── webhooks_twilio.py
-                ├── core/
-                │   └── config.py
-                ├── db/
-                │   ├── base.py
-                │   └── session.py
-                ├── models/
-                │   ├── user.py
-                │   └── message_log.py
-                ├── repositories/
-                │   ├── user.py
-                │   └── message_log.py
-                ├── schemas/
-                │   └── user.py
-                ├── services/
-                │   ├── __init__.py
-                │   ├── agent/
-                │   │   ├── checklist_tool.py
-                │   │   ├── eligibility_tool.py
-                │   │   └── orchestrator.py
-                │   ├── audio/
-                │   │   ├── stt_sarvam.py
-                │   │   └── translate_sarvam.py
-                │   ├── channels/
-                │   │   └── twilio_whatsapp.py
-                │   ├── llm/
-                │   │   ├── __init__.py
-                │   │   └── gemini_client.py
-                │   └── rag/
-                │       ├── __init__.py
-                │       ├── embeddings.py
-                │       ├── ingest.py
-                │       ├── qdrant_client.py
-                │       └── retrieve.py
-                ├── tests/
-                │   └── test_webhook.py
-                └── utils/
-                        └── logging.py
+        ├── main.py                        # FastAPI app entry point; includes both Phase 2 & 3 routers
+        │
+        ├── api/
+        │   └── v1/
+        │       ├── router.py              # API router registry
+        │       └── endpoints/
+        │           ├── webhooks_langgraph.py    # ✨ Phase 3: LangGraph agent webhook
+        │           └── webhooks_twilio.py       # Phase 2: Legacy Twilio webhook (deprecated)
+        │
+        ├── core/
+        │   └── config.py                  # Pydantic Settings: env vars (GEMINI_KEY1-6, HF_TOKEN, SERPER_API_KEY, etc)
+        │
+        ├── db/
+        │   ├── __init__.py
+        │   ├── base.py                    # SQLAlchemy declarative base
+        │   ├── session.py                 # Database session factory
+        │   └── session_manager.py         # ✨ NEW: User session store (get/save/clear)
+        │
+        ├── models/                        # SQLAlchemy ORM models (if using Postgres)
+        │   ├── __init__.py
+        │   └── user.py
+        │
+        ├── repositories/                  # Data access layer
+        │   ├── __init__.py
+        │   └── user.py
+        │
+        ├── schemas/                       # Pydantic request/response schemas
+        │   └── __init__.py
+        │
+        ├── services/
+        │   ├── __init__.py
+        │   │
+        │   ├── agent/                     # ✨ Phase 3: LangGraph Agent
+        │   │   ├── __init__.py
+        │   │   └── langgraph_agent.py     # StateGraph with 4 tools:
+        │   │                              #   - search_schemes (Qdrant KB)
+        │   │                              #   - web_search (Serper API)
+        │   │                              #   - check_eligibility (income rules)
+        │   │                              #   - fetch_user_profile (session)
+        │   │                              # Round-robin Gemini key rotation
+        │   │                              # MemorySaver checkpointer
+        │   │
+        │   ├── audio/                     # STT & Translation
+        │   │   ├── __init__.py
+        │   │   ├── stt_sarvam.py          # Sarvam Saaras v3 (speech-to-text)
+        │   │   └── translate_sarvam.py    # Sarvam Mayura (language translation)
+        │   │
+        │   ├── channels/                  # Integration adapters
+        │   │   ├── __init__.py
+        │   │   └── twilio_whatsapp.py     # Twilio client wrapper
+        │   │
+        │   ├── llm/                       # LLM clients
+        │   │   ├── __init__.py
+        │   │   └── gemini_client.py       # Google Gemini with 403 error handling & key rotation
+        │   │
+        │   ├── rag/                       # Retrieval-Augmented Generation
+        │   │   ├── __init__.py
+        │   │   ├── embeddings_bge.py      # HuggingFace BAAI/bge-m3 with @retry decorator
+        │   │   ├── ingest.py              # Semantic chunking + vector upload
+        │   │   ├── retrieve.py            # Hybrid search (semantic + BM25)
+        │   │   └── qdrant_client.py       # Qdrant client singleton
+        │   │
+        │   └── chat/                      # Phase 2 (legacy)
+        │       ├── __init__.py
+        │       ├── session_manager.py     # Phase 2 session manager (for reference)
+        │       └── orchestrator.py        # Phase 2 9-step orchestrator
+        │
+        └── utils/
+            └── logging.py                 # Structured logging config
 ```
+
+### Key Files by Purpose
+
+| Purpose | Files |
+|---------|-------|
+| **Agent Brain** | `services/agent/langgraph_agent.py` |
+| **Webhook Handler (Phase 3)** | `api/v1/endpoints/webhooks_langgraph.py` |
+| **Configuration** | `core/config.py` (41 env vars) |
+| **User Sessions** | `db/session_manager.py` (memory + Supabase) |
+| **Vector Search** | `services/rag/retrieve.py` (hybrid BM25+semantic) |
+| **Embeddings** | `services/rag/embeddings_bge.py` (HF API + retry logic) |
+| **Speech-to-Text** | `services/audio/stt_sarvam.py` |
+| **Translation** | `services/audio/translate_sarvam.py` |
+| **Ingest Pipeline** | `scripts/ingest.py` (run once to populate Qdrant) |
+| **Environment Template** | `.env-example` (copy to `.env`) |
 
 At repository root (outside `sarvamai/`), deployment files are also used:
 

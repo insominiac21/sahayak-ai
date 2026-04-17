@@ -7,6 +7,7 @@ Uses Supabase Postgres checkpointer for persistent memory.
 import os
 import logging
 import itertools
+import requests
 from typing import Annotated, Any, Dict, List, TypedDict
 from dotenv import load_dotenv
 
@@ -233,6 +234,59 @@ def fetch_user_profile(user_id: str) -> str:
         return "Profile lookup unavailable"
 
 
+@tool
+def web_search(query: str) -> str:
+    """
+    Search Google using Serper API for current/real-time information.
+    Use this when knowledge base doesn't have the answer.
+    
+    Args:
+        query: Search query (e.g., "PMAY-U eligibility 2024", "latest housing schemes")
+    
+    Returns:
+        Top search results with snippets and links
+    """
+    try:
+        if not settings.SERPER_API_KEY:
+            return "Web search unavailable: SERPER_API_KEY not configured"
+        
+        # Call Serper API
+        url = "https://google.serper.dev/search"
+        headers = {
+            "X-API-KEY": settings.SERPER_API_KEY,
+            "Content-Type": "application/json"
+        }
+        payload = {"q": query, "num": 5}  # Get top 5 results
+        
+        response = requests.post(url, json=payload, headers=headers, timeout=5)
+        response.raise_for_status()
+        
+        results = response.json()
+        
+        # Format results
+        if "organic" not in results or not results["organic"]:
+            return "No search results found for your query."
+        
+        formatted_results = []
+        for i, result in enumerate(results["organic"][:5], 1):
+            title = result.get("title", "No title")
+            snippet = result.get("snippet", "No snippet")[:150]  # Limit snippet length
+            link = result.get("link", "")
+            formatted_results.append(f"{i}. {title}\n   {snippet}\n   Link: {link}")
+        
+        return "\n\n".join(formatted_results)
+        
+    except requests.exceptions.Timeout:
+        logger.error("Serper API request timeout")
+        return "Search timed out. Please try again."
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Serper API error: {e}")
+        return f"Search error: {str(e)[:100]}"
+    except Exception as e:
+        logger.error(f"Error in web_search tool: {e}")
+        return "Web search temporarily unavailable"
+
+
 # ============================================================================
 # 4. WORKFLOW DEFINITION
 # ============================================================================
@@ -253,17 +307,19 @@ def agent_node(state: AgentState) -> dict:
     system_prompt = """You are Sahayak AI, a professional WhatsApp assistant helping Indian citizens understand government schemes.
 
 You have access to tools:
-- search_schemes: Find scheme eligibility & details
+- search_schemes: Find scheme eligibility & details from knowledge base
 - check_eligibility: Verify income-based eligibility  
 - fetch_user_profile: Get user's prior context
+- web_search: Search Google for current/real-time information
 
 Guidelines:
-1. For scheme details → use search_schemes
-2. For eligibility checks → use check_eligibility (ask for income if needed)
-3. For personalized help → use fetch_user_profile
-4. Keep responses under 500 characters for WhatsApp readability
-5. Be warm, empowering, and clear
-6. If info not in knowledge base, acknowledge limitations"""
+1. For scheme details → use search_schemes FIRST (your knowledge base)
+2. If search_schemes returns no results → use web_search for current info
+3. For eligibility checks → use check_eligibility (ask for income if needed)
+4. For personalized help → use fetch_user_profile
+5. Keep responses under 500 characters for WhatsApp readability
+6. Be warm, empowering, and clear
+7. Always mention if using web search vs knowledge base"""
     
     try:
         # Get next LLM instance from round-robin (load distribution + rate limit fallback)
@@ -271,7 +327,7 @@ Guidelines:
         
         # Call LLM with tools
         response = current_llm.bind_tools(
-            [search_schemes, check_eligibility, fetch_user_profile],
+            [search_schemes, check_eligibility, fetch_user_profile, web_search],
             tool_choice="auto"
         ).invoke(
             conversation_messages,
