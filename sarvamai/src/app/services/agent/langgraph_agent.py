@@ -18,7 +18,7 @@ from langgraph.checkpoint.memory import MemorySaver
 
 # LangChain imports
 from langchain_core.tools import tool
-from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, BaseMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, BaseMessage, SystemMessage
 from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -135,8 +135,8 @@ def search_schemes(query: str) -> str:
             model="BAAI/bge-m3"
         )
         
-        # Validate embedding
-        if not query_embedding or len(query_embedding) == 0:
+        # Validate embedding (check length instead of truthiness to avoid numpy ambiguity)
+        if len(query_embedding) == 0:
             return "Error: Failed to generate query embedding"
         
         # Search Qdrant
@@ -368,14 +368,14 @@ IMPORTANT:
         # For eligibility questions, force tool use with tool_choice="any"
         tool_choice = "any" if is_eligibility_question else "auto"
         
+        # Prepend system prompt as SystemMessage (Gemini doesn't accept system= parameter)
+        messages_with_system = [SystemMessage(content=system_prompt)] + conversation_messages
+        
         # Call LLM with tools
         response = current_llm.bind_tools(
             [search_schemes, check_eligibility, fetch_user_profile, web_search],
             tool_choice=tool_choice  # Force or auto-select tools
-        ).invoke(
-            conversation_messages,
-            system=system_prompt
-        )
+        ).invoke(messages_with_system)
         
         # Log tool decision
         if hasattr(response, "tool_calls") and response.tool_calls:
