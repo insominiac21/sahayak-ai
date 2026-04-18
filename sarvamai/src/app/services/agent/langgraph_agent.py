@@ -170,9 +170,10 @@ def check_eligibility(scheme: str, income: int = None, age: int = None, state: s
     """
     Check eligibility for a specific scheme based on income and demographics.
     Use this tool when user asks about income categories or eligibility.
+    Covers all 8 supported schemes: PMAY-U, PM-JAY, PMJDY, SSY, APY, PMUY, NSAP, Stand-Up India.
     
     Args:
-        scheme: Scheme name (e.g., "PMAY-U", "PM-JAY", "PMJDY", "Ayushman Bharat")
+        scheme: Scheme name (e.g., "PMAY-U", "PM-JAY", "SSY", "Sukanya Samriddhi")
         income: Annual income in rupees (optional, but helps with eligibility)
         age: Age (optional)
         state: State (optional, for state-specific schemes)
@@ -184,7 +185,7 @@ def check_eligibility(scheme: str, income: int = None, age: int = None, state: s
         scheme = scheme.upper().strip()
         
         # PMAY-U income categories (Pradhan Mantri Awas Yojana - Urban)
-        if "PMAY-U" in scheme or "PMAY" in scheme:
+        if "PMAY-U" in scheme or "PMAY" in scheme or "HOUSING" in scheme:
             result = "🏠 **PMAY-U (Urban Housing) Income Categories:**\n"
             if income:
                 if income <= 300000:
@@ -196,32 +197,96 @@ def check_eligibility(scheme: str, income: int = None, age: int = None, state: s
                 else:
                     result += f"❌ NOT ELIGIBLE: Income exceeds ₹9L/year limit\n"
             else:
-                result += "• EWS: ₹0-₹3L/year\n• LIG: ₹3-₹6L/year\n• MIG: ₹6-₹9L/year"
+                result += "• EWS: ₹0-₹3L/year\n• LIG: ₹3-₹6L/year\n• MIG: ₹6-₹9L/year\n"
+            result += "\nℹ️ Age: 18 years or older\nℹ️ BPL/APL both eligible if meet income criteria"
             return result
         
         # PM-JAY / Ayushman Bharat (health insurance)
         elif "PM-JAY" in scheme or "AYUSHMAN" in scheme or "BHARATI" in scheme:
-            result = "🏥 **PM-JAY (Ayushman Bharat) - Health Insurance**\n"
+            result = "🏥 **PM-JAY (Ayushman Bharat) - Health Insurance (₹5L coverage)**\n"
             if income:
                 # SECC 2011 based income thresholds
                 if income <= 300000:
-                    result += f"✅ LIKELY ELIGIBLE: EWS category (based on SECC 2011)\n"
+                    result += f"✅ LIKELY ELIGIBLE: EWS category (₹0-₹3L)\n"
                 elif income <= 600000:
-                    result += f"✅ LIKELY ELIGIBLE: LIG category (based on SECC 2011)\n"
+                    result += f"✅ LIKELY ELIGIBLE: LIG category (₹3-₹6L)\n"
                 else:
-                    result += f"⚠️ May not be eligible based on income. Check SECC 2011 database for your state.\n"
-            result += "\n📋 Full eligibility based on: Socio-Economic Caste Census (SECC 2011) + state additions\n"
-            result += "👉 Check your state's beneficiary list on PM-JAY website"
+                    result += f"⚠️ May not be eligible based on income. Check SECC 2011 beneficiary list.\n"
+            result += "\n📋 Eligibility based on: SECC 2011 data (rural deprivation + urban occupational)\n"
+            result += "👉 Coverage: Hospitalization up to ₹5 lakhs per family per year"
             return result
         
         # PMJDY (Jan Dhan Yojana - Banking)
-        elif "PMJDY" in scheme or "JAN-DHAN" in scheme:
-            return "💰 **PMJDY (Jan Dhan) - Universal Banking**\n✅ ELIGIBLE: Anyone 18+ without existing bank account\n❌ No income limit or restriction"
+        elif "PMJDY" in scheme or "JAN-DHAN" in scheme or "BANK" in scheme:
+            result = "💰 **PMJDY (Jan Dhan) - Universal Banking Account**\n"
+            result += "✅ ELIGIBLE: Any Indian citizen 18+ without existing bank account\n"
+            result += "ℹ️ No income limit\nℹ️ No age limit (children can also open)\n"
+            result += "✨ Features: Zero balance, debit card, accident insurance, overdraft upto ₹10K"
+            return result
+        
+        # SSY (Sukanya Samriddhi Yojana)
+        elif "SSY" in scheme or "SUKANYA" in scheme or "GIRL" in scheme:
+            result = "👧 **SSY (Sukanya Samriddhi Yojana) - Girl Child Savings**\n"
+            if age and age >= 10:
+                result += f"⚠️ INELIGIBLE: Account must be opened before age 10\n"
+            elif age:
+                result += f"✅ ELIGIBLE: Girl child is {age} years old (limit: before age 10)\n"
+            else:
+                result += "✅ ELIGIBLE: For any girl child below 10 years\n"
+            result += "\nℹ️ No income criteria (any family can open)\n"
+            result += "✨ Interest: 7.6%+ (government-backed)\n"
+            result += "💰 Minimum deposit: ₹250/year; Maximum: ₹1.5L/year\n"
+            result += "📅 Maturity: At age 21 or after 21 years (whichever is later)"
+            return result
+        
+        # APY (Atal Pension Yojana)
+        elif "APY" in scheme or "ATAL PENSION" in scheme or "PENSION" in scheme:
+            result = "🎯 **APY (Atal Pension Yojana) - Guaranteed Pension**\n"
+            if age and age >= 40:
+                result += f"❌ INELIGIBLE: Age {age}. Entry age limit: 18-40 years\n"
+            elif age:
+                result += f"✅ ELIGIBLE: Age {age} (entry age 18-40)\n"
+            else:
+                result += "✅ ELIGIBLE: Ages 18-40 years\n"
+            result += "\nℹ️ No income criteria\n"
+            result += "💰 Pension: ₹1K-₹5K per month (guaranteed from age 60)\n"
+            result += "✨ Government contribution: 50% of your contribution (for 5 years)"
+            return result
+        
+        # PMUY (Pradhan Mantri Ujjwala Yojana)
+        elif "PMUY" in scheme or "UJJWALA" in scheme or "GAS" in scheme or "CYLINDER" in scheme:
+            result = "🔥 **PMUY (Ujjwala Yojana) - Free LPG Connection**\n"
+            result += "✅ ELIGIBLE: BPL households + SC/ST households\n"
+            result += "ℹ️ No income criteria (BPL status based)\n"
+            result += "ℹ️ Female head of household preferred\n"
+            result += "✨ Benefit: Free LPG connection + ₹1600 subsidy for stove"
+            return result
+        
+        # NSAP (National Social Assistance Program)
+        elif "NSAP" in scheme or "SOCIAL ASSISTANCE" in scheme or "PENSION" in scheme:
+            result = "👴 **NSAP (National Social Assistance) - Old Age/Widow Pension**\n"
+            result += "✅ Eligibility varies by state\n"
+            if age and age >= 60:
+                result += f"✅ Age {age}: Likely eligible for Old Age Pension\n"
+            result += "ℹ️ Old Age Pension: Usually 60+ years (varies by state)\n"
+            result += "ℹ️ Widow Pension: For widows below 60\n"
+            result += "ℹ️ Disability Pension: For certified disabled persons\n"
+            result += "💰 Amount: ₹200-₹500/month (varies by state)"
+            return result
+        
+        # Stand-Up India
+        elif "STAND-UP" in scheme or "STARTUP" in scheme or "ENTREPRENEURSHIP" in scheme:
+            result = "🚀 **Stand-Up India - Entrepreneurship Loan**\n"
+            result += "✅ ELIGIBLE: SC/ST/Women entrepreneurs\n"
+            result += "ℹ️ Age: 18-40 years preferred\n"
+            result += "💰 Loan: ₹10L - ₹1Cr at 7% interest\n"
+            result += "✨ Collateral: Minimal/No collateral for loans up to ₹50L\n"
+            result += "📋 Required: Business plan + bank tie-up"
+            return result
         
         # Generic response for unknown schemes
         else:
-            # Don't be defensive - encourage web_search instead
-            return f"📍 '{scheme}' eligibility details not in my database.\n👉 Calling web_search to find current information about '{scheme}' for you...\n\nEligibility usually depends on: income, age, state, occupation, and social category. Let me find the official requirements."
+            return f"📍 '{scheme}' - I don't have detailed eligibility in my database, but here's what matters for most schemes:\n\n✅ Income criteria: Usually EWS (₹0-3L), LIG (₹3-6L), MIG (₹6-9L)\n✅ Age: Typically 18+ years\n✅ Residency: Must be Indian citizen\n\n👉 Please ask about specific criteria or call web_search for current details."
     
     except Exception as e:
         logger.error(f"Error in check_eligibility: {e}")
@@ -268,7 +333,8 @@ def web_search(query: str) -> str:
     """
     try:
         if not settings.SERPER_API_KEY:
-            return "Web search unavailable: SERPER_API_KEY not configured"
+            logger.warning("⚠️ SERPER_API_KEY not configured - web_search tool is disabled. Set it in Render dashboard for full functionality.")
+            return "Web search temporarily unavailable (API key not configured). I can help with: PMAY-U 2.0, PMJDY, PMUY, Ayushman Bharat, NSAP, Sukanya Samriddhi, APY, Stand-Up India. Ask anything else and I'll try my best."
         
         # Call Serper API
         url = "https://google.serper.dev/search"
@@ -294,6 +360,7 @@ def web_search(query: str) -> str:
             link = result.get("link", "")
             formatted_results.append(f"{i}. {title}\n   {snippet}\n   Link: {link}")
         
+        logger.info(f"✅ Web search returned {len(formatted_results)} results for: {query[:50]}")
         return "\n\n".join(formatted_results)
         
     except requests.exceptions.Timeout:
@@ -331,57 +398,54 @@ def agent_node(state: AgentState) -> dict:
             break
     
     # Determine if this is an eligibility/income question
-    eligibility_keywords = ["eligible", "category", "income", "fall under", "qualify", "bracket", "limit", "above", "below", "earn", "salary", "annual"]
+    eligibility_keywords = ["eligible", "category", "income", "fall under", "qualify", "bracket", "limit", "above", "below", "earn", "salary", "annual", "age", "requirements", "criteria", "who can", "can i", "am i", "eligibility", "requirement"]
     is_eligibility_question = any(kw in last_user_msg for kw in eligibility_keywords) if last_user_msg else False
     
     # Determine if this is a scheme/program question (should trigger search/web_search)
-    scheme_keywords = ["scheme", "yojana", "program", "what is", "tell me about", "information about", "details about", "how to", "apply for", "benefits of", "pm-", "pradhan mantri", "national"]
+    scheme_keywords = ["scheme", "yojana", "program", "what is", "tell me", "information", "details", "how to", "apply", "benefits", "pm-", "pradhan mantri", "national", "ujjwala", "jan dhan", "sukanya", "atal", "awas", "ayushman", "samriddhi", "stand-up"]
     is_scheme_question = any(kw in last_user_msg for kw in scheme_keywords) if last_user_msg else False
     
     # System prompt - NOW MUCH MORE AGGRESSIVE ABOUT TOOL USE
     system_prompt = """You are Sahayak AI, a professional WhatsApp assistant helping Indian citizens understand government schemes.
 
-CRITICAL RULES - FOLLOW STRICTLY:
-🚫 NEVER EVER say "I don't have information" or "not in knowledge base" or "I don't support that scheme"
-   INSTEAD: Always call tools first - search_schemes OR web_search - BEFORE responding
-🚫 NEVER give up on user questions - you have tools to find answers
-✅ For ANY scheme question → try search_schemes FIRST, then web_search if KB doesn't have it
-✅ For eligibility questions → ALWAYS call check_eligibility with user's income/context
-✅ For unknown schemes → use web_search (don't just say you don't know)
+🚨 CRITICAL BEHAVIOR - FOLLOW 100%:
+🚫 NEVER say "not in knowledge base" without calling tools FIRST
+🚫 NEVER say "I don't have information" - use tools instead
+🚫 NEVER respond with "I only support X schemes" - search for others instead
+✅ For EVERY eligibility question → Call check_eligibility tool (even if you just answered about the scheme)
+✅ For EVERY scheme name → Search it with search_schemes FIRST, then web_search if needed
+✅ When unsure → Use web_search (don't guess or refuse)
 
-CONVERSATION CONTEXT:
-- Review ENTIRE conversation history before responding
-- Use info from earlier responses - if you said "LIG is ₹3L-₹6L" and user says "I earn 5L", match to LIG
-- Apply reasoning: don't repeat the same info, build on previous answers
+USER ASKED ABOUT ELIGIBILITY? → CALL check_eligibility IMMEDIATELY
+User says: "talk about eligibility" → You: [check_eligibility(last_scheme_mentioned)] → Answer
+User says: "who is eligible" → You: [check_eligibility] → Answer
+User says: "what's the age limit" → You: [check_eligibility(scheme, age=...)] → Answer
 
-TOOLS - USE THEM:
-- search_schemes(query): Search knowledge base for scheme details (PMAY-U, PM-JAY, PMJDY, etc.)
-- check_eligibility(scheme, income): Verify if user qualifies (EWS/LIG/MIG categories)
-- fetch_user_profile(user_id): Get user's saved info (state, income, name)
-- web_search(query): Search Google for current/new schemes or info not in KB (PM NITI AYOG, latest schemes, etc.)
+CONVERSATION RULES:
+- You have FULL conversation history - use previous answers/context
+- If you said "SSY is for girl child savings", and user says "eligibility?", you know the scheme - call check_eligibility("SSY")
+- Never apologize for not having info - search for it instead
 
-DECISION FLOW:
-1. Is this about a specific scheme? → call search_schemes(scheme_name)
-2. Did KB search return nothing? → call web_search(scheme_name) to find current info
-3. Is user asking about eligibility/income? → call check_eligibility with their numbers
-4. User asks "search for it"? → DO web_search IMMEDIATELY
-5. Your last response was "I don't have data"? → You made a MISTAKE - should have called web_search
+THE 4 TOOLS - USE THEM AGGRESSIVELY:
+1. search_schemes → For scheme details/application/process
+2. web_search → For current/unknown/new schemes (PM NITI, latest changes)
+3. check_eligibility → For income/age/criteria (ALWAYS for eligibility questions)
+4. fetch_user_profile → For personalized answers (what schemes fit YOUR state/situation)
 
-RESPONSE GUIDELINES:
-- Always be helpful and hopeful - schemes exist to help Indians
-- If you don't immediately know something, search for it (don't apologize, just do it)
-- Keep responses under 500 chars for WhatsApp
-- Use emojis and formatting to make info clear (🏠, 💰, ✅, ❌)
+RESPONSE FORMAT:
+- Be warm, clear, hopeful
+- Give actionable steps
+- Use emojis to highlight key info (✅, ❌, ℹ️, 💰, 🏠, etc)
+- Keep under 500 chars for WhatsApp
+- Always answer - never give up
 
-EXAMPLES:
-- User: "Tell me about PM NITI AYOG" → You: [search_schemes('PM NITI AYOG')] → [web_search('PM NITI AYOG 2024')] → Give full answer
-- User: "My income is 5 lakhs" → You: [check_eligibility('PMAY-U', 500000)] → Explain which categories they fit
-- User: "I don't know any schemes" → You: [search_schemes('government schemes for housing')] → List 3-4 with benefits
-
-EMPOWERMENT:
-- Users come to you hoping to improve their lives
-- Don't crush that hope by saying "I don't have information"
-- Use tools to deliver answers, every single time"""
+EMPOWERMENT FIRST:
+Users come to you for help improving their lives. Never crush that hope by saying:
+- "I don't know"
+- "Not in my knowledge base"  
+- "I only support X schemes"
+- "Information not available"
+Instead: Use tools to find answers. ALWAYS."""
     
     try:
         # Get next LLM instance from round-robin (load distribution + rate limit fallback)
