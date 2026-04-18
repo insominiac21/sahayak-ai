@@ -19,14 +19,32 @@ SUPPORTED_AUDIO_CONTENT_TYPES = {
 
 def parse_twilio_request(form_data: dict):
 	"""Parse incoming Twilio webhook for WhatsApp messages."""
-	body = (form_data.get("Body") or "").strip()
-	num_media = int(form_data.get("NumMedia", 0) or 0)
+	# Extract Body - handle both string and list (from form parsing)
+	raw_body = form_data.get("Body") or ""
+	if isinstance(raw_body, list):
+		raw_body = raw_body[0] if raw_body else ""
+	body = str(raw_body).strip()
+	
+	# Extract NumMedia - handle both string and list
+	raw_num_media = form_data.get("NumMedia") or "0"
+	if isinstance(raw_num_media, list):
+		raw_num_media = raw_num_media[0] if raw_num_media else "0"
+	num_media = int(raw_num_media or 0)
 
 	media_urls = []
 	media_content_types = []
 	for i in range(num_media):
 		url = form_data.get(f"MediaUrl{i}")
-		ctype = (form_data.get(f"MediaContentType{i}") or "").lower().strip()
+		# Handle list for URLs
+		if isinstance(url, list):
+			url = url[0] if url else None
+		
+		ctype = form_data.get(f"MediaContentType{i}") or ""
+		# Handle list for content types
+		if isinstance(ctype, list):
+			ctype = ctype[0] if ctype else ""
+		ctype = str(ctype).lower().strip()
+		
 		if url:
 			media_urls.append(url)
 			media_content_types.append(ctype)

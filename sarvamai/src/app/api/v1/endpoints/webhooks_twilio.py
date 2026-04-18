@@ -66,7 +66,13 @@ async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
         # Keep form parser for multipart edge cases and local tooling.
         try:
             form_data = await request.form()
-            payload = dict(form_data)
+            # Unpack lists from form data (FastAPI sometimes returns lists)
+            payload = {}
+            for k, v in form_data.items():
+                if isinstance(v, list):
+                    payload[k] = v[0] if v else ""
+                else:
+                    payload[k] = v
         except Exception:
             parsed = parse_qs(raw_body)
             payload = {k: (v[0] if isinstance(v, list) and v else v) for k, v in parsed.items()} if parsed else {}
