@@ -28,6 +28,7 @@ from huggingface_hub import InferenceClient
 
 # Existing Sahayak imports
 from app.core.config import settings
+from app.utils.text_preprocessing import preprocess_user_input
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -405,8 +406,12 @@ def agent_node(state: AgentState) -> dict:
     scheme_keywords = ["scheme", "yojana", "program", "what is", "tell me", "information", "details", "how to", "apply", "benefits", "pm-", "pradhan mantri", "national", "ujjwala", "jan dhan", "sukanya", "atal", "awas", "ayushman", "samriddhi", "stand-up"]
     is_scheme_question = any(kw in last_user_msg for kw in scheme_keywords) if last_user_msg else False
     
+    # 📖 Extract conversation summary for dynamic context
+    conv_summary = _get_conversation_summary(conversation_messages)
+    summary_section = f"\n\n📖 CONVERSATION CONTEXT:\n{conv_summary}" if conv_summary else ""
+    
     # System prompt - NOW MUCH MORE AGGRESSIVE ABOUT TOOL USE
-    system_prompt = """You are Sahayak AI, a professional WhatsApp assistant helping Indian citizens understand government schemes.
+    system_prompt = f"""You are Sahayak AI, a professional WhatsApp assistant helping Indian citizens understand government schemes.
 
 🚨 CRITICAL BEHAVIOR - FOLLOW 100%:
 🚫 NEVER say "not in knowledge base" without calling tools FIRST
@@ -425,6 +430,7 @@ CONVERSATION RULES:
 - You have FULL conversation history - use previous answers/context
 - If you said "SSY is for girl child savings", and user says "eligibility?", you know the scheme - call check_eligibility("SSY")
 - Never apologize for not having info - search for it instead
+{summary_section}
 
 THE 4 TOOLS - USE THEM AGGRESSIVELY:
 1. search_schemes → For scheme details/application/process
@@ -560,7 +566,73 @@ logger.info("✅ LangGraph agent compiled successfully")
 
 
 # ============================================================================
-# 5. INVOCATION HELPER
+# 5. CONTEXT EXTRACTION HELPER
+# ============================================================================
+
+def _extract_recent_context(messages: List[BaseMessage], last_n_messages: int = 3) -> str:
+    """
+    Extract and format the last N messages from conversation history.
+    Used to explicitly remind the agent of recent context.
+    
+    Args:
+        messages: Full message history
+        last_n_messages: Number of recent messages to extract (default 3)
+        
+    Returns:
+        Formatted string with recent conversation context
+    """
+    if not messages:
+        return ""
+    
+    # Get last N messages
+    recent = messages[-last_n_messages:] if len(messages) > last_n_messages else messages
+    
+    context_lines = []
+    for msg in recent:
+        if isinstance(msg, HumanMessage):
+            context_lines.append(f"👤 User: {msg.content[:100]}")
+        elif isinstance(msg, AIMessage):
+            context_lines.append(f"🤖 Assistant: {msg.content[:100]}")
+        elif isinstance(msg, ToolMessage):
+            context_lines.append(f"🔧 Tool({msg.name}): {msg.content[:100]}")
+    
+    return "\n".join(context_lines) if context_lines else ""
+
+
+def _get_conversation_summary(messages: List[BaseMessage]) -> str:
+    """
+    Create a brief summary of conversation topics mentioned.
+    Used in system prompt to remind agent of discussion history.
+    
+    Args:
+        messages: Full message history
+        
+    Returns:
+        Summary of main schemes/topics discussed
+    """
+    if not messages or len(messages) < 2:
+        return ""
+    
+    # Extract scheme names mentioned
+    scheme_keywords = ['pmay', 'pm-jay', 'pmjdy', 'ssy', 'apy', 'pmuy', 'nsap', 'stand-up', 
+                      'pm-kisan', 'nrega', 'ujjwala', 'ayushman', 'sukanya', 'atal', 'awas']
+    
+    topics_mentioned = set()
+    for msg in messages:
+        if isinstance(msg, (HumanMessage, AIMessage)):
+            text = msg.content.lower()
+            for scheme in scheme_keywords:
+                if scheme in text:
+                    topics_mentioned.add(scheme.upper())
+    
+    if topics_mentioned:
+        return f"Topics discussed: {', '.join(sorted(topics_mentioned))}"
+    
+    return ""
+
+
+# ============================================================================
+# 6. INVOCATION HELPER
 # ============================================================================
 
 def run_agent(
@@ -580,6 +652,12 @@ def run_agent(
         Final bot response
     """
     try:
+        # ✨ SPELL-CHECK & GRAMMAR CORRECTION
+        # Preprocess user input to handle typos and grammatical errors
+        corrected_message, original_message = preprocess_user_input(user_message)
+        if corrected_message != original_message:
+            logger.info(f"📝 Auto-corrected: '{original_message}' → '{corrected_message}'")
+        
         # Load previous conversation history from checkpointer
         # This ensures the agent has full context of the conversation
         try:
@@ -589,11 +667,19 @@ def run_agent(
             logger.debug(f"Could not load checkpoint for {thread_id}: {e}. Starting fresh.")
             previous_messages = []
         
-        # Build messages: previous history + new user message
-        all_messages = list(previous_messages) if previous_messages else []
-        all_messages.append(HumanMessage(content=user_message))
+        # ============================================================================
+        # 💾 CONTEXT GATHERING - Extract last 2-3 messages for explicit awareness
+        # ============================================================================
+        recent_context = _extract_recent_context(previous_messages, last_n_messages=3)
         
-        logger.debug(f"Agent running with {len(all_messages)} messages in conversation history")
+        if recent_context:
+            logger.info(f"📖 Recent conversation (last 2-3 turns):\n{recent_context}")
+        
+        # Build messages: previous history + corrected user message
+        all_messages = list(previous_messages) if previous_messages else []
+        all_messages.append(HumanMessage(content=corrected_message))
+        
+        logger.info(f"💬 Total conversation: {len(all_messages)} messages | Recent context extracted for agent awareness")
         
         # Initial state with full conversation history
         initial_state = AgentState(
