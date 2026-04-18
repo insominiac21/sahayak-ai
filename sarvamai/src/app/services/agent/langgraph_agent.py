@@ -705,9 +705,31 @@ def run_agent(
         config = {"configurable": {"thread_id": thread_id}}
         final_state = agent_app.invoke(initial_state, config=config)
         
-        # Extract final response
+        # Extract final response (handle both string and structured content)
         last_message = final_state["messages"][-1]
-        response = last_message.content if hasattr(last_message, "content") else str(last_message)
+        
+        # Get raw content
+        raw_content = last_message.content if hasattr(last_message, "content") else str(last_message)
+        
+        # Handle structured content (list of dicts from some LLMs)
+        if isinstance(raw_content, list):
+            # Extract text from list of content blocks
+            text_parts = []
+            for block in raw_content:
+                if isinstance(block, dict) and "text" in block:
+                    text_parts.append(block["text"])
+                elif isinstance(block, str):
+                    text_parts.append(block)
+            response = "\n".join(text_parts) if text_parts else str(raw_content)
+        # Handle dict content (single structured response)
+        elif isinstance(raw_content, dict) and "text" in raw_content:
+            response = raw_content["text"]
+        # Handle plain string (most common)
+        elif isinstance(raw_content, str):
+            response = raw_content
+        # Fallback
+        else:
+            response = str(raw_content)
         
         logger.info(f"✅ Agent response for {thread_id}: {response[:100]}...")
         return response
