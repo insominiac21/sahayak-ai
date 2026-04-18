@@ -47,19 +47,18 @@ hf_client = InferenceClient(api_key=settings.HF_TOKEN)
 # ============================================================================
 # ROUND-ROBIN GEMINI API KEY MANAGEMENT
 # ============================================================================
-# Load all 6 Gemini keys into a list
+# Load all 5 Gemini keys into a list (Key 4 removed - suspended/denied access)
 API_KEYS = [
     settings.GEMINI_API_KEY1,
     settings.GEMINI_API_KEY2,
     settings.GEMINI_API_KEY3,
-    settings.GEMINI_API_KEY4,
     settings.GEMINI_API_KEY5,
     settings.GEMINI_API_KEY6,
 ]
 
 # Create an infinite cyclic iterator that rotates through all keys
 gemini_key_cycle = itertools.cycle(API_KEYS)
-logger.info(f"✅ Round-robin Gemini initialized with 6 API keys")
+logger.info(f"✅ Round-robin Gemini initialized with 5 API keys")
 
 def get_next_gemini_llm():
     """
@@ -140,12 +139,12 @@ def search_schemes(query: str) -> str:
         if len(query_embedding) == 0:
             return "Error: Failed to generate query embedding"
         
-        # Search Qdrant
-        search_results = qdrant.search(
+        # Search Qdrant using query_points (correct method for vector search)
+        search_results = qdrant.query_points(
             collection_name="schemes",
-            query_vector=query_embedding,
+            query=query_embedding,
             limit=4
-        )
+        ).points
         
         if not search_results:
             # Don't be defensive - tell agent to use web_search

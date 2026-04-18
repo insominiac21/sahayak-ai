@@ -41,6 +41,12 @@ HELP_MENU = (
 
 
 def _wants_help_menu(text: str) -> bool:
+    # Ensure text is a string (Twilio payload might return list)
+    if isinstance(text, list):
+        text = text[0] if text else ""
+    elif not isinstance(text, str):
+        text = str(text)
+    
     normalized = (text or "").strip().lower()
     return normalized in {"", "help", "menu", "start", "hi", "hello", "1", "2"}
 
@@ -79,6 +85,15 @@ async def whatsapp_webhook(request: Request, background_tasks: BackgroundTasks):
 async def process_message(payload: dict):
     user_number = payload.get("From")
     text, media_urls, media_content_types = parse_twilio_request(payload)
+    
+    # Ensure text is a string (not list or bytes)
+    if isinstance(text, list):
+        text = text[0] if text else ""
+    elif isinstance(text, bytes):
+        text = text.decode("utf-8", errors="ignore")
+    elif not isinstance(text, str):
+        text = str(text) if text else ""
+    
     inbound_text = text
     transcript = ""
     answer = ""
