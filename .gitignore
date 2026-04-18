@@ -66,6 +66,13 @@ sarvamai/src/app/services/rag/ingest.py
 sarvamai/*.md
 !sarvamai/README.md
 !sarvamai/ARCHITECTURE.md
+
+# ─── Guide & Documentation (local interview prep only) ───
+AGENTIC_AI_DEFENSE.md
+DEPLOYMENT_GUIDE.md
+PHASE_3_LANGGRAPH_GUIDE.md
+SERPER_INTEGRATION_GUIDE.md
+test_agent_directly.py
 future-prospect.txt
 PHASE_1A_IMPLEMENTATION_GUIDE.py
 PHASE_1A_SETUP_GUIDE.md

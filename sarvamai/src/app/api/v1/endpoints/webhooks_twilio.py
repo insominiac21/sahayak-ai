@@ -6,8 +6,7 @@ from urllib.parse import parse_qs
 from fastapi import APIRouter, BackgroundTasks, Request
 from starlette.responses import JSONResponse
 from app.services.audio.stt_sarvam import transcribe_audio
-from app.services.rag.retrieve import retrieve_chunks
-from app.services.agent.orchestrator import route_tools
+from app.services.agent.langgraph_agent import run_agent
 from app.repositories.message_log import write_message_log
 from app.services.channels.twilio_whatsapp import (
     SUPPORTED_AUDIO_CONTENT_TYPES,
@@ -160,11 +159,13 @@ async def process_message(payload: dict):
             )
             return
 
-        # Orchestrator handles: detect lang → translate → retrieve → Gemini → translate back.
-        logger.info("Running retrieval/orchestration for %s", user_number)
-        chunks = retrieve_chunks(text)
-        result = route_tools(text, chunks, user_profile={"whatsapp": user_number})
-        answer = result.get("answer") if isinstance(result, dict) else str(result)
+        # LangGraph Agent handles: detect intent → choose tools → retrieve → generate → respond
+        logger.info("Running LangGraph agent for %s", user_number)
+        answer = run_agent(
+            user_message=text,
+            thread_id=user_number,
+            user_context={"phone": user_number, "transcript": transcript if transcript else None}
+        )
         
         # Send successful response
         if user_number:
