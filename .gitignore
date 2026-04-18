@@ -57,6 +57,8 @@ sarvamai/scripts/ingest.py
 sarvamai/scripts/send_twilio_test_message.py
 sarvamai/scripts/test_data/
 sarvamai/scripts/results/
+sarvamai/src/app/tests/
+sarvamai/src/app/services/chat/phase_2_test.py
 sarvamai/*.md
 !sarvamai/README.md
 !sarvamai/ARCHITECTURE.md
