@@ -398,6 +398,7 @@ Before starting, collect these API keys:
 - ✅ **Sarvam AI API key** — [sarvam.ai](https://www.sarvam.ai)
 - ✅ **Google Gemini API key (1–6 keys)** — [aistudio.google.com](https://aistudio.google.com)
 - ✅ **Qdrant Cloud cluster URL + API key** — [cloud.qdrant.io](https://cloud.qdrant.io) (free tier)
+- ✅ **Serper API key (Web Search Fallback)** — [serper.dev](https://serper.dev) (free tier: 100/month)
 - ✅ **Twilio Account SID + Auth Token** — [twilio.com](https://www.twilio.com) (includes Sandbox)
 - ✅ **(Optional) Supabase Postgres URL** — for message logging to [supabase.com](https://supabase.com)
 
@@ -442,9 +443,59 @@ GEMINI_API_KEY2=AIza...
 QDRANT_URL=https://your-cluster.qdrant.io
 QDRANT_API_KEY=...
 
+# Serper API (Google Search - Fallback for Unknown Schemes)
+SERPER_API_KEY=...
+
 # Optional: Supabase message logging
 POSTGRES_URL=postgresql://user:password@host:5432/database
 ```
+
+#### 2.5 **Configure Serper API (Web Search Fallback)**
+
+**Why Serper**?
+- ✅ Real-time Google search results for unknown/new schemes
+- ✅ Fallback when KB doesn't have answer (e.g., "Tell me about PM NITI AYOG")
+- ✅ Free tier: 100 searches/month (then $0.005/query)
+- ✅ Fast: <500ms response time
+
+**Setup**:
+1. Go to [serper.dev](https://serper.dev)
+2. Sign up (free account, no credit card needed)
+3. Copy your API key from dashboard
+4. Add to `.env`:
+   ```
+   SERPER_API_KEY=your_key_here
+   ```
+
+**Test Serper Connection**:
+```powershell
+cd sarvamai
+python scripts/test_serper.py
+```
+
+Output should show:
+```
+✅ SERPER_API_KEY is configured
+✅ Successfully connected to Serper API
+✅ Got 3 results
+Success Rate: 4/4
+✅ SERPER API TEST COMPLETE
+```
+
+**How It Works**:
+- User: "Tell me about PMAY 3.0" 
+- Agent: Calls `search_schemes()` → KB returns no results (only PMAY 2.0)
+- Agent: Sees "Not in KB" message → triggers `web_search()`
+- Serper: Returns latest Google results about PMAY 3.0
+- Agent: Synthesizes answer from search results
+- User: Gets current information with links ✅
+
+**If Serper is Not Configured**:
+- Agent still works (falls back to hardcoded eligibility rules)
+- But won't have access to latest scheme updates
+- Message: "Web search temporarily unavailable (API key not configured)"
+
+---
 
 #### 3. Ingest Scheme Documents
 
@@ -614,11 +665,163 @@ User → WhatsApp → Twilio
 |--------|---------|---------|
 | `ingest.py` | Ingest scheme docs into Qdrant | `python scripts/ingest.py` |
 | `ping_test.py` | Verify all API keys work | `python scripts/ping_test.py` |
+| **`test_serper.py`** | **Test Serper API (web search)** | **`python scripts/test_serper.py`** |
 | `send_twilio_test_message.py` | Send message directly from CLI | `python scripts/send_twilio_test_message.py --to whatsapp:+91XXXXXXXXXX --message "hello"` |
 | `test_retrieval.py` | Test vector search | `python scripts/test_retrieval.py` |
 | `test_audio_input.py` | Test STT on sample audio | `python scripts/test_audio_input.py` |
 | `test_audio_to_answer.py` | Test full audio pipeline | `python scripts/test_audio_to_answer.py` |
 | `test_e2e_pipeline.py` | End-to-end with real queries | `python scripts/test_e2e_pipeline.py` |
+
+---
+
+## Troubleshooting
+
+### **Serper API (Web Search) Not Working**
+
+**Symptom**: Agent responds with "Web search temporarily unavailable" when asking about unknown schemes.
+
+**Root Cause**: `SERPER_API_KEY` is not configured.
+
+**Diagnosis**:
+```powershell
+# Test Serper connectivity
+python scripts/test_serper.py
+```
+
+**Expected Output**:
+```
+✅ SERPER_API_KEY is configured
+✅ Successfully connected to Serper API
+✅ Got 3 results
+Success Rate: 4/4
+✅ SERPER API TEST COMPLETE
+```
+
+**If Test Fails**:
+
+| Error | Reason | Fix |
+|-------|--------|-----|
+| `SERPER_API_KEY is NOT configured` | Key not in `.env` or environment | Add `SERPER_API_KEY=` to `.env` file (get free key from [serper.dev](https://serper.dev)) |
+| `Status 401 (Unauthorized)` | Invalid API key | Go to [serper.dev](https://serper.dev) → copy correct key from dashboard |
+| `Status 403 (Forbidden)` | Quota exceeded or key disabled | Check [serper.dev](https://serper.dev) quota (100 free/month, then $0.005/query) |
+| `Status 429 (Rate Limited)` | Too many requests too fast | Wait before retrying (10s backoff) or upgrade plan |
+| `Connection Error` | Network issue or Serper down | Check internet connection or [serper.dev status page](https://status.serper.dev) |
+| `Timeout` | Serper taking >10s to respond | Retry (usually works on second attempt) |
+
+**How Agentic AI Uses Serper**:
+
+```
+User Query (e.g., "Tell me about PM NITI AYOG")
+    ↓
+Agent Analyzes: "This is a scheme question"
+    ↓
+Agent Calls: search_schemes() → Search local Qdrant KB
+    ↓
+KB Returns: ❌ No results (scheme not in knowledge base)
+    ↓
+search_schemes Tool Response: 
+"Scheme not found in knowledge base. 
+ Please call web_search('PM NITI AYOG') to find current information."
+    ↓
+Agent SEES this message and DECIDES:
+"KB is empty → trigger fallback"
+    ↓
+Agent Calls: web_search("PM NITI AYOG 2024")
+    ↓
+Serper API Returns: Top 5 Google results + snippets
+    ↓
+Agent Synthesizes answer from Google results
+    ↓
+User Gets: Current info about PM NITI AYOG with links ✅
+```
+
+**Why This Is Agentic**:
+- ✅ Agent **decides** when to use web_search (only if KB empty)
+- ✅ Agent **chains** tools (search_schemes → sees empty → web_search)
+- ✅ Agent **adapts** based on results (doesn't give up)
+- ✅ Agent **never says** "I don't know" (uses fallback)
+
+**If Serper is Disabled** (no API key):
+- ✅ Agent still works (uses hardcoded eligibility rules + KB search)
+- ⚠️ Can't access latest scheme updates or unknown schemes
+- Falls back to: "Web search temporarily unavailable (API key not configured)"
+
+---
+
+### **Agent Not Using Web Search**
+
+**Symptom**: Agent doesn't search web even for unknown schemes.
+
+**Debug**:
+1. Check logs for: `web_search` tool calls
+2. Run: `python scripts/test_serper.py` (verify API key works)
+3. Check agent system prompt (should have "call web_search" instructions)
+
+**If Agent Bypasses Web Search**:
+- May not have detected it as a "scheme question"
+- Add scheme keywords to user query: "Tell me about [SCHEME NAME]", "What is [SCHEME]?"
+- Or phrase as eligibility question: "Am I eligible for [SCHEME]?"
+
+---
+
+### **Internet Search Found Relevant Info**
+
+If you ran an internet search and found information about Serper or the agent's web search capability:
+
+**To Test It Yourself**:
+```powershell
+cd sarvamai
+python scripts/test_serper.py
+```
+
+This script:
+- ✅ Verifies API key is configured
+- ✅ Tests connectivity to Serper API
+- ✅ Runs 4 sample scheme queries
+- ✅ Validates response structure
+- ✅ Shows actual search results
+
+**What You'll See**:
+```
+Test 1: Basic Connectivity
+✅ Successfully connected to Serper API
+✅ Got 3 results
+
+Test 2: Multiple Scheme Queries
+✅ 'PM-JAY Ayushman Bharat eligibility': 3 results
+✅ 'PMJDY Jan Dhan eligibility': 3 results
+✅ 'SSY Sukanya Samriddhi': 3 results
+✅ 'latest government schemes 2024': 3 results
+
+Success Rate: 4/4
+```
+
+**Real Example** (What Happens When User Asks Unknown Scheme):
+
+```
+User: "What about PM NITI AYOG?"
+├─ Agent: "This is scheme question → use search_schemes"
+├─ search_schemes(): Qdrant search for "NITI AYOG" → ❌ Not found
+├─ Agent: "KB is empty → must call web_search"
+├─ web_search("PM NITI AYOG"): Serper API returns →
+│   1. NITI Aayog official website
+│   2. Article: "NITI Aayog 2024 Initiatives"
+│   3. "Government Think Tank Programs"
+├─ Agent synthesizes: "NITI Aayog is Government's think tank for..."
+└─ User: Gets current info about NITI Aayog ✅
+```
+
+---
+
+### **Verifying All Tools Work**
+
+Run comprehensive test:
+```powershell
+python scripts/ping_test.py          # All API keys
+python scripts/test_serper.py        # Web search
+python scripts/test_retrieval.py     # Vector DB search
+python scripts/test_audio_input.py   # Voice transcription
+```
 
 ---
 

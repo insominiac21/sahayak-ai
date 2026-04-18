@@ -354,15 +354,29 @@ def web_search(query: str) -> str:
         if "organic" not in results or not results["organic"]:
             return "No search results found for your query."
         
+        # Validate and format results
         formatted_results = []
         for i, result in enumerate(results["organic"][:5], 1):
-            title = result.get("title", "No title")
-            snippet = result.get("snippet", "No snippet")[:150]  # Limit snippet length
+            title = result.get("title", "")
+            snippet = result.get("snippet", "")
             link = result.get("link", "")
-            formatted_results.append(f"{i}. {title}\n   {snippet}\n   Link: {link}")
+            
+            # Skip malformed results (missing title or snippet)
+            if not title or not snippet:
+                continue
+            
+            # Limit snippet to prevent too-long responses
+            snippet = snippet[:150] if len(snippet) > 150 else snippet
+            formatted_results.append(f"{i}. {title}\n   {snippet}\n   🔗 {link}")
         
-        logger.info(f"✅ Web search returned {len(formatted_results)} results for: {query[:50]}")
-        return "\n\n".join(formatted_results)
+        # Validate we have actual results
+        if not formatted_results:
+            logger.warning(f"⚠️ Web search returned no valid results for: {query[:50]}")
+            return "No valid search results found. Try a different search term."
+        
+        result_text = "\n\n".join(formatted_results)
+        logger.info(f"✅ Web search returned {len(formatted_results)} valid results for: {query[:50]}")
+        return result_text
         
     except requests.exceptions.Timeout:
         logger.error("Serper API request timeout")
@@ -500,6 +514,7 @@ def tools_node(state: AgentState) -> dict:
             "search_schemes": search_schemes,
             "check_eligibility": check_eligibility,
             "fetch_user_profile": fetch_user_profile,
+            "web_search": web_search,
         }
         
         tool_results = []

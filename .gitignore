@@ -48,6 +48,18 @@ ehthumbs.db
 demo-img 1.png
 demo-img 3.png
 demo-img2.png
+
+# ─── Test Files & Planning Docs (local development only) ───
+sarvamai/scripts/test_*.py
+sarvamai/scripts/ping_test.py
+sarvamai/scripts/eval.py
+sarvamai/scripts/ingest.py
+sarvamai/scripts/send_twilio_test_message.py
+sarvamai/scripts/test_data/
+sarvamai/scripts/results/
+sarvamai/*.md
+!sarvamai/README.md
+!sarvamai/ARCHITECTURE.md
 future-prospect.txt
 PHASE_1A_IMPLEMENTATION_GUIDE.py
 PHASE_1A_SETUP_GUIDE.md
