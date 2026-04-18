@@ -147,7 +147,8 @@ def search_schemes(query: str) -> str:
         )
         
         if not search_results:
-            return "No relevant scheme information found in the database."
+            # Don't be defensive - tell agent to use web_search
+            return f"Scheme not found in my current knowledge base. Please call web_search('{query}') to find current information."
         
         # Format results
         context_parts = []
@@ -219,7 +220,8 @@ def check_eligibility(scheme: str, income: int = None, age: int = None, state: s
         
         # Generic response for unknown schemes
         else:
-            return f"For '{scheme}' eligibility:\n1. Search schemes tool for details\n2. Check official ministry website for current criteria\n3. Contact your state government office"
+            # Don't be defensive - encourage web_search instead
+            return f"📍 '{scheme}' eligibility details not in my database.\n👉 Calling web_search to find current information about '{scheme}' for you...\n\nEligibility usually depends on: income, age, state, occupation, and social category. Let me find the official requirements."
     
     except Exception as e:
         logger.error(f"Error in check_eligibility: {e}")
@@ -332,41 +334,62 @@ def agent_node(state: AgentState) -> dict:
     eligibility_keywords = ["eligible", "category", "income", "fall under", "qualify", "bracket", "limit", "above", "below", "earn", "salary", "annual"]
     is_eligibility_question = any(kw in last_user_msg for kw in eligibility_keywords) if last_user_msg else False
     
-    # System prompt
+    # Determine if this is a scheme/program question (should trigger search/web_search)
+    scheme_keywords = ["scheme", "yojana", "program", "what is", "tell me about", "information about", "details about", "how to", "apply for", "benefits of", "pm-", "pradhan mantri", "national"]
+    is_scheme_question = any(kw in last_user_msg for kw in scheme_keywords) if last_user_msg else False
+    
+    # System prompt - NOW MUCH MORE AGGRESSIVE ABOUT TOOL USE
     system_prompt = """You are Sahayak AI, a professional WhatsApp assistant helping Indian citizens understand government schemes.
 
+CRITICAL RULES - FOLLOW STRICTLY:
+🚫 NEVER EVER say "I don't have information" or "not in knowledge base" or "I don't support that scheme"
+   INSTEAD: Always call tools first - search_schemes OR web_search - BEFORE responding
+🚫 NEVER give up on user questions - you have tools to find answers
+✅ For ANY scheme question → try search_schemes FIRST, then web_search if KB doesn't have it
+✅ For eligibility questions → ALWAYS call check_eligibility with user's income/context
+✅ For unknown schemes → use web_search (don't just say you don't know)
+
 CONVERSATION CONTEXT:
-- Review the ENTIRE conversation history (all previous messages in this chat)
-- Use information from earlier responses YOU provided - don't say "not in knowledge base" if you already gave that data
-- Apply reasoning: if you said "LIG: ₹3L-₹6L" and user says "I earn 5L", match it to LIG
-- Answer follow-up questions using context from the current conversation
+- Review ENTIRE conversation history before responding
+- Use info from earlier responses - if you said "LIG is ₹3L-₹6L" and user says "I earn 5L", match to LIG
+- Apply reasoning: don't repeat the same info, build on previous answers
 
-TOOLS AVAILABLE:
-- search_schemes: Find scheme eligibility & details from knowledge base
-- check_eligibility: Verify income-based eligibility (PMAY-U, PM-JAY, PMJDY)
-- fetch_user_profile: Get user's saved info (name, state, income)
-- web_search: Search Google for current/real-time info (USE THIS as fallback)
+TOOLS - USE THEM:
+- search_schemes(query): Search knowledge base for scheme details (PMAY-U, PM-JAY, PMJDY, etc.)
+- check_eligibility(scheme, income): Verify if user qualifies (EWS/LIG/MIG categories)
+- fetch_user_profile(user_id): Get user's saved info (state, income, name)
+- web_search(query): Search Google for current/new schemes or info not in KB (PM NITI AYOG, latest schemes, etc.)
 
-DECISION LOGIC:
-1. Analyze current conversation - can you answer from what you already said? → Answer directly
-2. Need new scheme info? → search_schemes
-3. Need real-time/current info? → web_search (if KB search didn't give enough)
-4. Need eligibility check? → check_eligibility (with income from context or web search)
-5. Always try to answer before saying "not available"
+DECISION FLOW:
+1. Is this about a specific scheme? → call search_schemes(scheme_name)
+2. Did KB search return nothing? → call web_search(scheme_name) to find current info
+3. Is user asking about eligibility/income? → call check_eligibility with their numbers
+4. User asks "search for it"? → DO web_search IMMEDIATELY
+5. Your last response was "I don't have data"? → You made a MISTAKE - should have called web_search
 
-IMPORTANT:
-- For income/eligibility questions: ALWAYS call check_eligibility tool
-- Never say "not in knowledge base" if you can reason from previous responses
-- Use web_search liberally for follow-ups about schemes you mentioned
-- Keep responses under 500 characters for WhatsApp
-- Be warm, clear, and empowering"""
+RESPONSE GUIDELINES:
+- Always be helpful and hopeful - schemes exist to help Indians
+- If you don't immediately know something, search for it (don't apologize, just do it)
+- Keep responses under 500 chars for WhatsApp
+- Use emojis and formatting to make info clear (🏠, 💰, ✅, ❌)
+
+EXAMPLES:
+- User: "Tell me about PM NITI AYOG" → You: [search_schemes('PM NITI AYOG')] → [web_search('PM NITI AYOG 2024')] → Give full answer
+- User: "My income is 5 lakhs" → You: [check_eligibility('PMAY-U', 500000)] → Explain which categories they fit
+- User: "I don't know any schemes" → You: [search_schemes('government schemes for housing')] → List 3-4 with benefits
+
+EMPOWERMENT:
+- Users come to you hoping to improve their lives
+- Don't crush that hope by saying "I don't have information"
+- Use tools to deliver answers, every single time"""
     
     try:
         # Get next LLM instance from round-robin (load distribution + rate limit fallback)
         current_llm = get_next_gemini_llm()
         
-        # For eligibility questions, force tool use with tool_choice="any"
-        tool_choice = "any" if is_eligibility_question else "auto"
+        # Force tool use for eligibility OR scheme questions
+        tool_choice = "any" if (is_eligibility_question or is_scheme_question) else "auto"
+        
         
         # Prepend system prompt as SystemMessage (Gemini doesn't accept system= parameter)
         messages_with_system = [SystemMessage(content=system_prompt)] + conversation_messages
