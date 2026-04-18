@@ -165,43 +165,61 @@ def search_schemes(query: str) -> str:
 
 
 @tool
-def check_eligibility(scheme: str, income: int, age: int = None, state: str = None) -> str:
+def check_eligibility(scheme: str, income: int = None, age: int = None, state: str = None) -> str:
     """
     Check eligibility for a specific scheme based on income and demographics.
+    Use this tool when user asks about income categories or eligibility.
     
     Args:
-        scheme: Scheme name (e.g., "PMAY-U", "PM-JAY", "PMJDY")
-        income: Annual income in rupees
+        scheme: Scheme name (e.g., "PMAY-U", "PM-JAY", "PMJDY", "Ayushman Bharat")
+        income: Annual income in rupees (optional, but helps with eligibility)
         age: Age (optional)
         state: State (optional, for state-specific schemes)
     
     Returns:
-        Eligibility status and category
+        Eligibility status with income categories and requirements
     """
     try:
         scheme = scheme.upper().strip()
         
-        # PMAY-U income categories
+        # PMAY-U income categories (Pradhan Mantri Awas Yojana - Urban)
         if "PMAY-U" in scheme or "PMAY" in scheme:
-            if income <= 300000:
-                return f"✅ ELIGIBLE for PMAY-U: EWS (Economically Weaker Section) Category (₹0-₹3L)"
-            elif income <= 600000:
-                return f"✅ ELIGIBLE for PMAY-U: LIG (Low Income Group) Category (₹3-₹6L)"
-            elif income <= 900000:
-                return f"✅ ELIGIBLE for PMAY-U: MIG (Middle Income Group) Category (₹6-₹9L)"
+            result = "🏠 **PMAY-U (Urban Housing) Income Categories:**\n"
+            if income:
+                if income <= 300000:
+                    result += f"✅ YOUR CATEGORY: EWS (₹0-₹3L/year)\n"
+                elif income <= 600000:
+                    result += f"✅ YOUR CATEGORY: LIG (₹3-₹6L/year)\n"
+                elif income <= 900000:
+                    result += f"✅ YOUR CATEGORY: MIG (₹6-₹9L/year)\n"
+                else:
+                    result += f"❌ NOT ELIGIBLE: Income exceeds ₹9L/year limit\n"
             else:
-                return f"❌ NOT ELIGIBLE for PMAY-U: Income exceeds ₹9L limit"
+                result += "• EWS: ₹0-₹3L/year\n• LIG: ₹3-₹6L/year\n• MIG: ₹6-₹9L/year"
+            return result
         
-        # PM-JAY (different eligibility)
-        elif "PM-JAY" in scheme or "AYUSHMAN" in scheme:
-            return "PM-JAY eligibility is based on SECC 2011 database, not income alone. Check state beneficiary lists."
+        # PM-JAY / Ayushman Bharat (health insurance)
+        elif "PM-JAY" in scheme or "AYUSHMAN" in scheme or "BHARATI" in scheme:
+            result = "🏥 **PM-JAY (Ayushman Bharat) - Health Insurance**\n"
+            if income:
+                # SECC 2011 based income thresholds
+                if income <= 300000:
+                    result += f"✅ LIKELY ELIGIBLE: EWS category (based on SECC 2011)\n"
+                elif income <= 600000:
+                    result += f"✅ LIKELY ELIGIBLE: LIG category (based on SECC 2011)\n"
+                else:
+                    result += f"⚠️ May not be eligible based on income. Check SECC 2011 database for your state.\n"
+            result += "\n📋 Full eligibility based on: Socio-Economic Caste Census (SECC 2011) + state additions\n"
+            result += "👉 Check your state's beneficiary list on PM-JAY website"
+            return result
         
-        # PMJDY (no income limit)
+        # PMJDY (Jan Dhan Yojana - Banking)
         elif "PMJDY" in scheme or "JAN-DHAN" in scheme:
-            return "✅ ELIGIBLE for PMJDY: No income criterion. Any unbanked adult can open a Jan-Dhan account."
+            return "💰 **PMJDY (Jan Dhan) - Universal Banking**\n✅ ELIGIBLE: Anyone 18+ without existing bank account\n❌ No income limit or restriction"
         
+        # Generic response for unknown schemes
         else:
-            return f"Scheme '{scheme}' not recognized. Use search_schemes to find more info."
+            return f"For '{scheme}' eligibility:\n1. Search schemes tool for details\n2. Check official ministry website for current criteria\n3. Contact your state government office"
     
     except Exception as e:
         logger.error(f"Error in check_eligibility: {e}")
@@ -299,40 +317,72 @@ def should_use_tools(state: AgentState) -> bool:
 
 
 def agent_node(state: AgentState) -> dict:
-    """Main agent reasoning node"""
+    """Main agent reasoning node with intelligent tool selection"""
     # Build context from history
     conversation_messages = state["messages"]
+    
+    # Analyze conversation to understand what's being asked
+    last_user_msg = None
+    for msg in reversed(conversation_messages):
+        if isinstance(msg, HumanMessage):
+            last_user_msg = msg.content.lower()
+            break
+    
+    # Determine if this is an eligibility/income question
+    eligibility_keywords = ["eligible", "category", "income", "fall under", "qualify", "bracket", "limit", "above", "below", "earn", "salary", "annual"]
+    is_eligibility_question = any(kw in last_user_msg for kw in eligibility_keywords) if last_user_msg else False
     
     # System prompt
     system_prompt = """You are Sahayak AI, a professional WhatsApp assistant helping Indian citizens understand government schemes.
 
-You have access to tools:
-- search_schemes: Find scheme eligibility & details from knowledge base
-- check_eligibility: Verify income-based eligibility  
-- fetch_user_profile: Get user's prior context
-- web_search: Search Google for current/real-time information
+CONVERSATION CONTEXT:
+- Review the ENTIRE conversation history (all previous messages in this chat)
+- Use information from earlier responses YOU provided - don't say "not in knowledge base" if you already gave that data
+- Apply reasoning: if you said "LIG: ₹3L-₹6L" and user says "I earn 5L", match it to LIG
+- Answer follow-up questions using context from the current conversation
 
-Guidelines:
-1. For scheme details → use search_schemes FIRST (your knowledge base)
-2. If search_schemes returns no results → use web_search for current info
-3. For eligibility checks → use check_eligibility (ask for income if needed)
-4. For personalized help → use fetch_user_profile
-5. Keep responses under 500 characters for WhatsApp readability
-6. Be warm, empowering, and clear
-7. Always mention if using web search vs knowledge base"""
+TOOLS AVAILABLE:
+- search_schemes: Find scheme eligibility & details from knowledge base
+- check_eligibility: Verify income-based eligibility (PMAY-U, PM-JAY, PMJDY)
+- fetch_user_profile: Get user's saved info (name, state, income)
+- web_search: Search Google for current/real-time info (USE THIS as fallback)
+
+DECISION LOGIC:
+1. Analyze current conversation - can you answer from what you already said? → Answer directly
+2. Need new scheme info? → search_schemes
+3. Need real-time/current info? → web_search (if KB search didn't give enough)
+4. Need eligibility check? → check_eligibility (with income from context or web search)
+5. Always try to answer before saying "not available"
+
+IMPORTANT:
+- For income/eligibility questions: ALWAYS call check_eligibility tool
+- Never say "not in knowledge base" if you can reason from previous responses
+- Use web_search liberally for follow-ups about schemes you mentioned
+- Keep responses under 500 characters for WhatsApp
+- Be warm, clear, and empowering"""
     
     try:
         # Get next LLM instance from round-robin (load distribution + rate limit fallback)
         current_llm = get_next_gemini_llm()
         
+        # For eligibility questions, force tool use with tool_choice="any"
+        tool_choice = "any" if is_eligibility_question else "auto"
+        
         # Call LLM with tools
         response = current_llm.bind_tools(
             [search_schemes, check_eligibility, fetch_user_profile, web_search],
-            tool_choice="auto"
+            tool_choice=tool_choice  # Force or auto-select tools
         ).invoke(
             conversation_messages,
             system=system_prompt
         )
+        
+        # Log tool decision
+        if hasattr(response, "tool_calls") and response.tool_calls:
+            tool_names = [tc.get("function", {}).get("name", "unknown") for tc in response.tool_calls]
+            logger.info(f"🔧 Agent calling tools: {tool_names}")
+        else:
+            logger.debug("Agent responding without tools")
         
         # Add to message history
         state["messages"].append(response)
@@ -443,9 +493,24 @@ def run_agent(
         Final bot response
     """
     try:
-        # Initial state
+        # Load previous conversation history from checkpointer
+        # This ensures the agent has full context of the conversation
+        try:
+            checkpoint = checkpointer.get(thread_id)
+            previous_messages = checkpoint.get("values", {}).get("messages", []) if checkpoint else []
+        except Exception as e:
+            logger.debug(f"Could not load checkpoint for {thread_id}: {e}. Starting fresh.")
+            previous_messages = []
+        
+        # Build messages: previous history + new user message
+        all_messages = list(previous_messages) if previous_messages else []
+        all_messages.append(HumanMessage(content=user_message))
+        
+        logger.debug(f"Agent running with {len(all_messages)} messages in conversation history")
+        
+        # Initial state with full conversation history
         initial_state = AgentState(
-            messages=[HumanMessage(content=user_message)],
+            messages=all_messages,
             intent="general",
             user_context=user_context or {}
         )
@@ -458,6 +523,7 @@ def run_agent(
         last_message = final_state["messages"][-1]
         response = last_message.content if hasattr(last_message, "content") else str(last_message)
         
+        logger.info(f"✅ Agent response for {thread_id}: {response[:100]}...")
         return response
     
     except Exception as e:
