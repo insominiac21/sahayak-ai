@@ -34,12 +34,11 @@ class Settings(BaseSettings):
     SARVAM_API_KEY: str | None = None  # Sarvam AI (STT, translation)
     SERPER_API_KEY: str | None = None  # Google Serper API for web search (fallback)
     
-    # Gemini API Keys (round-robin with 5 keys - key 4 removed due to access denied)
+    # Gemini API Keys (round-robin with 4 keys - keys 4 & 6 removed due to suspended access)
     GEMINI_API_KEY1: str  # Required for round-robin agent
     GEMINI_API_KEY2: str  # Required for round-robin agent
     GEMINI_API_KEY3: str  # Required for round-robin agent
     GEMINI_API_KEY5: str  # Required for round-robin agent
-    GEMINI_API_KEY6: str  # Required for round-robin agent
     
     # Database Configuration
     POSTGRES_URL: str | None = None  # Legacy Supabase Postgres
