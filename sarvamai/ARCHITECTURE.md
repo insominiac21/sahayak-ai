@@ -128,12 +128,67 @@ END
 
 ### The 4 Agent Tools
 
-| Tool | Purpose | Data Source | When Used |
-|------|---------|-------------|-----------|
-| **search_schemes** | Find scheme details, eligibility rules, application process | Qdrant vector DB (hybrid search: semantic + BM25) | User asks about specific scheme (e.g., "What is PMAY-U?") |
-| **web_search** | Search Google for current/real-time info (updated policies, recent news, deadline changes) | Google Serper API (top 5 results) | KB doesn't have current answer (e.g., "What changed in PM-JAY 2024?") |
-| **check_eligibility** | Verify income-based eligibility for schemes (hardcoded rules: PMAY-U EWS/LIG/MIG, PM-JAY, PMJDY) | Local eligibility rules in function | User asks "Am I eligible for X?" with income info |
-| **fetch_user_profile** | Retrieve user's prior context (name, state, income, language) from session history | Supabase Postgres or in-memory cache | Personalized follow-ups (e.g., "What schemes fit YOUR state?") |
+| Tool | Purpose | Data Source | Behavior |
+|------|---------|-------------|----------|
+| **search_schemes** | Find scheme details, eligibility rules, application process | Qdrant vector DB (hybrid search: semantic + BM25, top-4 results) | If no results found: tells agent to call `web_search` instead of saying "not found" |
+| **web_search** | Search Google for current/real-time info (updated policies, recent schemes, deadlines) | Google Serper API (top 5 organic results with snippets) | Called automatically when KB doesn't have answer; covers PM NITI AYOG, ABPM-JAY updates, new schemes |
+| **check_eligibility** | Verify income-based eligibility; explains which income bracket user falls under | Hardcoded rules: PMAY-U (EWS ₹0-3L, LIG ₹3-6L, MIG ₹6-9L), PM-JAY (SECC 2011), PMJDY (universal) | Always called for eligibility questions; for unknown schemes, suggests using `web_search` |
+| **fetch_user_profile** | Retrieve user's prior context from session history | Supabase Postgres or in-memory cache (name, state, income, language, age) | Used for personalized follow-ups; caches results for fast lookup |
+
+### Agent System Prompt & Behavior
+
+The agent's system prompt is **aggressively empowering** and emphasizes never giving up:
+
+```
+🚫 NEVER EVER say "I don't have information" or "not in knowledge base" without calling tools first
+✅ For ANY scheme question → try search_schemes FIRST, then web_search if KB doesn't have it
+✅ For eligibility questions → ALWAYS call check_eligibility with user's income/context
+✅ For unknown schemes → use web_search (don't just say you don't know)
+
+DECISION LOGIC:
+1. Is this about a specific scheme? → call search_schemes(scheme_name)
+2. Did KB search return nothing? → call web_search(scheme_name) to find current info
+3. Is user asking about eligibility/income? → call check_eligibility with their numbers
+4. Always be helpful and hopeful - schemes exist to help Indians
+```
+
+**Scheme Question Detection**: The agent analyzes user queries for keywords like "scheme", "yojana", "program", 
+"what is", "tell me about", "benefits", "apply for". For these questions, it forces `tool_choice="any"` 
+(LLM **must** call a tool) instead of just attempting a direct response.
+
+**Search Chain**: When user asks about an unknown scheme (e.g., "Tell me about PM NITI AYOG"):
+1. Agent calls `search_schemes("PM NITI AYOG")`
+2. KB returns no results
+3. search_schemes response says: "Not in KB. Please call web_search('PM NITI AYOG') to find current info"
+4. Agent **automatically** calls `web_search("PM NITI AYOG 2024")`
+5. Returns top 5 results with links and snippets to user
+
+### Conversation Context Memory
+
+The agent **remembers the entire conversation** within a thread (user's WhatsApp number):
+
+1. **MemorySaver Checkpointer**: LangGraph's built-in memory system stores all messages per `thread_id`
+   - `thread_id` = user's WhatsApp number (e.g., `+919876543210`)
+   - Stores: `{messages: [HumanMessage, AIMessage, ToolMessage, ...], ...}`
+
+2. **run_agent() Flow**:
+   ```
+   checkpoint = checkpointer.get(thread_id)  # Load previous messages
+   previous_messages = checkpoint.get("values", {}).get("messages", [])
+   all_messages = list(previous_messages) + [HumanMessage(user_message)]
+   agent_app.invoke(all_messages, config={"thread_id": thread_id})
+   ```
+
+3. **Example**:
+   - **User Turn 1**: "Tell me about PM-JAY"
+     - Agent calls `search_schemes("PM-JAY")` → Returns eligibility info with "LIG: ₹3-6 lakh"
+     - Stores: `[HumanMessage("Tell..."), AIMessage("PM-JAY is...")]`
+   - **User Turn 2**: "My income is 5 lakhs"
+     - Agent loads previous messages AND the new query
+     - Agent calls `check_eligibility("PM-JAY", income=500000)`
+     - **Agent recognizes**: 5 lakhs falls in LIG range (3-6L) from earlier response
+     - Returns: "✅ You qualify for LIG category (₹3-6L) which we discussed"
+   - **No amnesia**: Agent never forgets previous context in the same conversation
 
 ### Session Management
 

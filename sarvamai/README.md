@@ -12,12 +12,13 @@ reply with accurate scheme-grounded answers in the same language.
 - Accepts WhatsApp messages (text or voice note) via Twilio
 - Transcribes voice notes using Sarvam AI (Saaras v3 STT)
 - Detects and translates the query to English (Sarvam Mayura)
-- **Phase 3 Agent**: Uses 4-tool LangGraph agent for intelligent multi-step reasoning:
-  - **search_schemes**: Retrieves relevant scheme excerpts from Qdrant vector DB
-  - **web_search**: Searches Google (Serper API) for current/real-time info when KB doesn't have answer
-  - **check_eligibility**: Calculates income-based scheme eligibility (PMAY-U, PM-JAY, PMJDY rules)
-  - **fetch_user_profile**: Retrieves user context from session history (name, state, income)
-- Agent decides which tools to use, what order, and when to stop
+- **Phase 3 Agentic AI**: Uses 4-tool LangGraph agent for intelligent multi-step reasoning:
+  - **search_schemes**: Retrieves relevant scheme excerpts from Qdrant vector DB; automatically suggests web_search if not found
+  - **web_search**: Searches Google (Serper API) for current/real-time info when KB doesn't have answer (PM NITI AYOG, latest schemes, etc.)
+  - **check_eligibility**: Calculates income-based scheme eligibility (PMAY-U: EWS/LIG/MIG; PM-JAY: SECC 2011; PMJDY: universal banking)
+  - **fetch_user_profile**: Retrieves user context from session history (name, state, income, language) for personalized follow-ups
+- **Agent Behavior**: Proactively uses tools instead of giving up; for scheme questions automatically triggers search_schemes → web_search chain
+- **Empowerment Focus**: Never says "I don't have information"; always attempts to find answers using available tools
 - Generates grounded answer with Google Gemini 2.5 Flash (round-robin across 6 API keys)
 - Translates the answer back to the user's language and replies via WhatsApp
 
