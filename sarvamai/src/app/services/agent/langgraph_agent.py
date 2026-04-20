@@ -102,8 +102,8 @@ def call_gemini_with_retry(messages, tools, tool_choice="auto"):
         LLM response with tools bound
     """
     @retry(
-        stop=stop_after_attempt(4),  # Try up to 4 times (cycle through 4 keys)
-        wait=wait_exponential(multiplier=2, min=5, max=60),  # 5s, 10s, 20s, 40s
+        stop=stop_after_attempt(2),  # Try only 2 times (limit API calls for free tier)
+        wait=wait_exponential(multiplier=2, min=5, max=30),  # 5s, 10s wait
         retry=retry_if_exception_type(Exception),  # Retry on any exception
         reraise=True  # Re-raise if all retries fail
     )
@@ -162,6 +162,7 @@ class AgentState(TypedDict):
     messages: Annotated[List[BaseMessage], "Conversation history"]
     intent: str  # "scheme_search", "eligibility_check", "combined"
     user_context: Dict[str, Any]  # income, age, state, etc.
+    iterations: int  # Track number of agent-tool cycles to prevent infinite loops
 
 
 # ============================================================================
@@ -520,15 +521,16 @@ Instead: Use tools to find answers. ALWAYS."""
     
     try:
         # Determine if tools should be forced
-        # Force for eligibility, scheme, or if conversation has existing context (follow-up)
-        force_tools = is_eligibility_question or is_scheme_question or len(conversation_messages) > 1
+        # Force ONLY for explicit eligibility/scheme questions, NOT for all follow-ups
+        # (Follow-ups can be simple yes/no answers that don't need tools)
+        force_tools = is_eligibility_question or is_scheme_question
         tool_choice = "any" if force_tools else "auto"
         
         # Prepend system prompt as SystemMessage (Gemini doesn't accept system= parameter)
         messages_with_system = [SystemMessage(content=system_prompt)] + conversation_messages
         
         # Log context for debugging
-        logger.info(f"Tool forcing: force_tools={force_tools} (eligibility={is_eligibility_question}, scheme={is_scheme_question}, follow_up={len(conversation_messages) > 1})")
+        logger.info(f"Tool mode: force_tools={force_tools} (eligibility={is_eligibility_question}, scheme={is_scheme_question}), total_messages={len(conversation_messages)}")
         
         # Call LLM with automatic retry on rate limits (exponential backoff with round-robin cycling)
         response = call_gemini_with_retry(
@@ -542,7 +544,7 @@ Instead: Use tools to find answers. ALWAYS."""
             tool_names = [tc.get("name", "unknown") for tc in response.tool_calls]
             logger.info(f"🔧 Agent calling tools: {tool_names}")
         else:
-            logger.info(f"Agent responding without tools (tool_choice={tool_choice}, force_tools={force_tools})")
+            logger.info(f"Agent responding directly without tools (force_tools={force_tools})")
         
         # Add to message history
         state["messages"].append(response)
@@ -603,9 +605,17 @@ def tools_node(state: AgentState) -> dict:
 def should_continue(state: AgentState) -> str:
     """Route to tools or end based on last message"""
     last_message = state["messages"][-1]
+    max_iterations = 3  # Prevent infinite tool loops
+    
+    # If we've hit max iterations, stop even if there are tool_calls
+    if state.get("iterations", 0) >= max_iterations:
+        logger.warning(f"⏹️ Max iterations ({max_iterations}) reached. Stopping to prevent infinite loops.")
+        return "end"
     
     # If last message has tool_calls, execute them
     if hasattr(last_message, "tool_calls") and last_message.tool_calls:
+        state["iterations"] = state.get("iterations", 0) + 1
+        logger.debug(f"🔄 Iteration {state['iterations']}: Tool calls detected, routing to tools")
         return "tools"
     
     # Otherwise, end (response is ready)
@@ -785,7 +795,8 @@ def run_agent(
         initial_state = AgentState(
             messages=all_messages,
             intent="general",
-            user_context=user_context or {}
+            user_context=user_context or {},
+            iterations=0  # Track tool-calling iterations to prevent infinite loops
         )
         
         # Run with memory (checkpointer handles thread_id)
