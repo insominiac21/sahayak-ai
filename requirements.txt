@@ -23,7 +23,6 @@ google-genai>=1.52.0
 
 # Vector Search & Embeddings
 qdrant-client>=1.16.2
-sentence-transformers>=3.0.0
 huggingface-hub>=0.20.0
 
 # Database & ORM
@@ -37,6 +36,11 @@ psycopg2-binary>=2.9.0
 rank-bm25>=0.2.2
 tenacity>=8.2.0
 tqdm>=4.66.0
+
+# Text Processing (spell-check, language detection, grammar)
+textblob>=0.17.0
+langdetect>=1.0.9
+pyspellchecker>=0.7.0
 
 # Existing Sahayak dependency
 sarvamai>=0.1.25

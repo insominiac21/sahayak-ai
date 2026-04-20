@@ -1,0 +1,7 @@
+# Development & Testing Only (NOT for production deployment)
+# These are heavy dependencies needed for local testing/debugging but bloat Render's 512MB tier
+
+-r requirements.txt
+
+# Heavy ML libraries - only for local development
+sentence-transformers>=3.0.0  # CrossEncoder reranking (test only, 300MB+)
