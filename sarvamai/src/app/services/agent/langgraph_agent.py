@@ -519,11 +519,16 @@ Users come to you for help improving their lives. Never crush that hope by sayin
 Instead: Use tools to find answers. ALWAYS."""
     
     try:
-        # Force tool use for eligibility OR scheme questions
-        tool_choice = "any" if (is_eligibility_question or is_scheme_question) else "auto"
+        # Determine if tools should be forced
+        # Force for eligibility, scheme, or if conversation has existing context (follow-up)
+        force_tools = is_eligibility_question or is_scheme_question or len(conversation_messages) > 1
+        tool_choice = "any" if force_tools else "auto"
         
         # Prepend system prompt as SystemMessage (Gemini doesn't accept system= parameter)
         messages_with_system = [SystemMessage(content=system_prompt)] + conversation_messages
+        
+        # Log context for debugging
+        logger.info(f"Tool forcing: force_tools={force_tools} (eligibility={is_eligibility_question}, scheme={is_scheme_question}, follow_up={len(conversation_messages) > 1})")
         
         # Call LLM with automatic retry on rate limits (exponential backoff with round-robin cycling)
         response = call_gemini_with_retry(
@@ -534,10 +539,10 @@ Instead: Use tools to find answers. ALWAYS."""
         
         # Log tool decision
         if hasattr(response, "tool_calls") and response.tool_calls:
-            tool_names = [tc.get("function", {}).get("name", "unknown") for tc in response.tool_calls]
+            tool_names = [tc.get("name", "unknown") for tc in response.tool_calls]
             logger.info(f"🔧 Agent calling tools: {tool_names}")
         else:
-            logger.debug("Agent responding without tools")
+            logger.info(f"Agent responding without tools (tool_choice={tool_choice}, force_tools={force_tools})")
         
         # Add to message history
         state["messages"].append(response)
@@ -662,6 +667,34 @@ def _extract_recent_context(messages: List[BaseMessage], last_n_messages: int = 
     return "\n".join(context_lines) if context_lines else ""
 
 
+def _normalize_whatsapp_formatting(text: str) -> str:
+    """
+    Convert agent markdown to WhatsApp-compatible formatting.
+    
+    WhatsApp supports: *bold*, _italic_, ~strikethrough~, ```code```
+    Convert: **bold** -> *bold*, __italic__ -> _italic_, # Headers -> *Header*
+    """
+    if not text:
+        return text
+    
+    # Convert **bold** to *bold*
+    text = text.replace("**", "*")
+    
+    # Convert __italic__ to _italic_
+    text = text.replace("__", "_")
+    
+    # Convert # Headers to bold *Header*
+    text = text.replace("# ", "*")
+    text = text.replace("## ", "*")
+    text = text.replace("### ", "*")
+    
+    # Clean up excess newlines (max 2 consecutive)
+    while "\n\n\n" in text:
+        text = text.replace("\n\n\n", "\n\n")
+    
+    return text
+
+
 def _get_conversation_summary(messages: List[BaseMessage]) -> str:
     """
     Create a brief summary of conversation topics mentioned.
@@ -726,8 +759,12 @@ def run_agent(
         try:
             checkpoint = checkpointer.get(thread_id)
             previous_messages = checkpoint.get("values", {}).get("messages", []) if checkpoint else []
+            if previous_messages:
+                logger.info(f"✅ Loaded {len(previous_messages)} previous messages from checkpoint for {thread_id}")
+            else:
+                logger.info(f"ℹ️ No previous checkpoint for {thread_id} - starting fresh conversation")
         except Exception as e:
-            logger.debug(f"Could not load checkpoint for {thread_id}: {e}. Starting fresh.")
+            logger.warning(f"⚠️ Could not load checkpoint for {thread_id}: {e}. Starting fresh.")
             previous_messages = []
         
         # ============================================================================
@@ -780,6 +817,9 @@ def run_agent(
         # Fallback
         else:
             response = str(raw_content)
+        
+        # 🎨 WHATSAPP TEXT FORMATTING - Normalize markdown for WhatsApp compatibility
+        response = _normalize_whatsapp_formatting(response)
         
         logger.info(f"✅ Agent response for {thread_id}: {response[:100]}...")
         return response
