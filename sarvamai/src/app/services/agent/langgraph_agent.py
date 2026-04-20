@@ -11,6 +11,14 @@ import requests
 from typing import Annotated, Any, Dict, List, TypedDict
 from dotenv import load_dotenv
 
+# Retry logic for rate limiting
+from tenacity import (
+    retry,
+    stop_after_attempt,
+    wait_exponential,
+    retry_if_exception_type,
+)
+
 # Core LangGraph imports
 from langgraph.graph import StateGraph, START, END
 from langgraph.prebuilt import ToolNode
@@ -71,6 +79,51 @@ def get_next_gemini_llm():
         temperature=0.7,
         max_tokens=500,
     )
+
+
+def call_gemini_with_retry(messages, tools, tool_choice="auto"):
+    """
+    Call Gemini with exponential backoff retry logic to handle 429 rate limit errors.
+    If one key exhausts quota, try the next one automatically.
+    
+    ⚠️ IMPORTANT: Free tier limit is 20 requests/day per Google AI Studio project.
+    All 4 API keys from the same account share this quota.
+    If hitting rate limits:
+    1. Upgrade to a paid plan: https://ai.google.dev/pricing
+    2. OR wait for daily quota reset (UTC midnight)
+    3. OR create separate Google Cloud projects for separate quotas
+    
+    Args:
+        messages: List of messages to send to LLM
+        tools: List of tools to bind
+        tool_choice: Tool selection strategy
+        
+    Returns:
+        LLM response with tools bound
+    """
+    @retry(
+        stop=stop_after_attempt(4),  # Try up to 4 times (cycle through 4 keys)
+        wait=wait_exponential(multiplier=2, min=5, max=60),  # 5s, 10s, 20s, 40s
+        retry=retry_if_exception_type(Exception),  # Retry on any exception
+        reraise=True  # Re-raise if all retries fail
+    )
+    def _call_gemini():
+        llm = get_next_gemini_llm()
+        return llm.bind_tools(tools, tool_choice=tool_choice).invoke(messages)
+    
+    try:
+        return _call_gemini()
+    except Exception as e:
+        error_str = str(e)
+        if "429" in error_str or "RESOURCE_EXHAUSTED" in error_str or "quota" in error_str.lower():
+            logger.warning(
+                "⚠️ Rate limit (429) or quota exceeded on all Gemini API keys. "
+                "Free tier: 20 requests/day per project (all keys share quota). "
+                "Upgrade at: https://ai.google.dev/pricing"
+            )
+        raise
+
+
 
 # Initialize the first LLM instance for startup
 llm = get_next_gemini_llm()
@@ -466,21 +519,18 @@ Users come to you for help improving their lives. Never crush that hope by sayin
 Instead: Use tools to find answers. ALWAYS."""
     
     try:
-        # Get next LLM instance from round-robin (load distribution + rate limit fallback)
-        current_llm = get_next_gemini_llm()
-        
         # Force tool use for eligibility OR scheme questions
         tool_choice = "any" if (is_eligibility_question or is_scheme_question) else "auto"
-        
         
         # Prepend system prompt as SystemMessage (Gemini doesn't accept system= parameter)
         messages_with_system = [SystemMessage(content=system_prompt)] + conversation_messages
         
-        # Call LLM with tools
-        response = current_llm.bind_tools(
-            [search_schemes, check_eligibility, fetch_user_profile, web_search],
+        # Call LLM with automatic retry on rate limits (exponential backoff with round-robin cycling)
+        response = call_gemini_with_retry(
+            messages_with_system,
+            tools=[search_schemes, check_eligibility, fetch_user_profile, web_search],
             tool_choice=tool_choice  # Force or auto-select tools
-        ).invoke(messages_with_system)
+        )
         
         # Log tool decision
         if hasattr(response, "tool_calls") and response.tool_calls:
