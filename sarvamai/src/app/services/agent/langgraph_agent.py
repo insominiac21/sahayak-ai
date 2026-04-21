@@ -77,7 +77,7 @@ def get_next_gemini_llm():
         model="gemini-2.5-flash",
         api_key=next_key,  # Explicitly override environment variable search
         temperature=0.7,
-        max_tokens=500,
+        max_tokens=300,  # Reduced from 500 to save tokens/API quota (still enough for scheme info)
     )
 
 
@@ -102,10 +102,9 @@ def call_gemini_with_retry(messages, tools, tool_choice="auto"):
         LLM response with tools bound
     """
     @retry(
-        stop=stop_after_attempt(2),  # Try only 2 times (limit API calls for free tier)
-        wait=wait_exponential(multiplier=2, min=5, max=30),  # 5s, 10s wait
-        retry=retry_if_exception_type(Exception),  # Retry on any exception
-        reraise=True  # Re-raise if all retries fail
+        stop=stop_after_attempt(1),  # NO retries - fail fast on quota exhaustion to avoid wasting quota
+        retry=retry_if_exception_type((ValueError, TypeError)),  # Only retry on type errors, NOT 429 quota errors
+        reraise=True
     )
     def _call_gemini():
         llm = get_next_gemini_llm()
@@ -521,9 +520,9 @@ Instead: Use tools to find answers. ALWAYS."""
     
     try:
         # Determine if tools should be forced
-        # Force ONLY for explicit eligibility/scheme questions, NOT for all follow-ups
-        # (Follow-ups can be simple yes/no answers that don't need tools)
-        force_tools = is_eligibility_question or is_scheme_question
+        # Force ONLY on FIRST message or explicit scheme questions (reduce unnecessary tool calls)
+        is_first_message = len(conversation_messages) == 1
+        force_tools = (is_first_message and is_scheme_question) or (is_eligibility_question and is_scheme_question)
         tool_choice = "any" if force_tools else "auto"
         
         # Prepend system prompt as SystemMessage (Gemini doesn't accept system= parameter)
@@ -768,7 +767,12 @@ def run_agent(
         # This ensures the agent has full context of the conversation
         try:
             checkpoint = checkpointer.get(thread_id)
-            previous_messages = checkpoint.get("values", {}).get("messages", []) if checkpoint else []
+            # Safely extract messages from checkpoint
+            if checkpoint and isinstance(checkpoint, dict):
+                previous_messages = checkpoint.get("values", {}).get("messages", []) if isinstance(checkpoint.get("values"), dict) else []
+            else:
+                previous_messages = []
+            
             if previous_messages:
                 logger.info(f"✅ Loaded {len(previous_messages)} previous messages from checkpoint for {thread_id}")
             else:

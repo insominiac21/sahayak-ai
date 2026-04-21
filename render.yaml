@@ -26,11 +26,9 @@ services:
         sync: false
       - key: GEMINI_API_KEY3
         sync: false
-      - key: GEMINI_API_KEY4
-        sync: false
       - key: GEMINI_API_KEY5
         sync: false
-      - key: GEMINI_API_KEY6
+      - key: SERPER_API_KEY
         sync: false
-      - key: POSTGRES_URL
+      - key: HF_TOKEN
         sync: false

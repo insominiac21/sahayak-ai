@@ -52,8 +52,9 @@ def correct_spelling(text: str) -> str:
         logger.debug(f"Skipping spell-check for {detected_lang} text: '{text}'")
         return text
     
-    # Try TextBlob first (better for context-aware corrections)
-    if HAS_TEXTBLOB:
+    # TextBlob disabled - too aggressive with corrections (e.g., "Tell" -> "Well")
+    # Use spellchecker fallback instead
+    if False and HAS_TEXTBLOB:  # DISABLED
         try:
             corrected = str(TextBlob(text).correct())
             if corrected != text:
@@ -279,31 +280,12 @@ def _is_indian_term(word: str) -> bool:
 
 def preprocess_user_input(text: str) -> Tuple[str, str]:
     """
-    Complete preprocessing pipeline: language detection → spelling + grammar correction.
+    DISABLED: Spell-check and grammar correction.
     
-    Args:
-        text: Raw user input
-        
-    Returns:
-        Tuple of (corrected_text, original_text)
+    Returns input as-is to prevent breaking user queries.
     """
     if not text:
         return text, text
     
-    original = text
-    
-    # Detect language first (log for transparency)
-    detected_lang = detect_language(text)
-    logger.info(f"🌐 Detected language: {detected_lang} | Input: '{original[:60]}...'")
-    
-    # Step 1: Correct spelling (only for English/code-mixed)
-    corrected = correct_spelling(text)
-    
-    # Step 2: Correct grammar (only for English/code-mixed)
-    corrected = correct_grammar(corrected)
-    
-    # Log if corrections were made
-    if corrected != original:
-        logger.info(f"✏️ Auto-corrected ({detected_lang}): '{original}' → '{corrected}'")
-    
-    return corrected, original
+    # PASS-THROUGH: No corrections
+    return text, text
